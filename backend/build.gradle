@@ -1,0 +1,48 @@
+
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.5.5'
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.DigiCompass'
+version = '0.0.1-SNAPSHOT'
+description = 'backend'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(24)
+    }
+}
+
+configurations {
+    mockitoAgent {
+        transitive = false
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    compileOnly 'org.projectlombok:lombok:1.18.40'
+    annotationProcessor 'org.projectlombok:lombok:1.18.40'
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+    implementation 'de.mkammerer:argon2-jvm:2.1'
+    implementation 'jakarta.validation:jakarta.validation-api:3.1.1'
+    implementation 'com.github.dozermapper:dozer-core:7.0.0'
+    implementation 'org.mockito:mockito-core:5.19.0'
+    mockitoAgent 'org.mockito:mockito-core'
+
+
+}
+
+tasks.named('test', Test) {
+    useJUnitPlatform()
+    jvmArgs "-javaagent:${configurations.mockitoAgent.asPath}", "-Xshare:off"
+}
+
