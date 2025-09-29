@@ -1,20 +1,36 @@
 stages:
-  - main
+  - build
   - test
 
 build-job:
-  stage: main
+  stage: build
   script:
     - echo "Compiling the project..."
-    - mkdir main
-    - echo "Build successful!" > main/output.txt
+    - New-Item -ItemType Directory -Force -Path main
+    - echo "Build successful!" | Out-File -FilePath main/output.txt -Encoding UTF8
+    - echo "Build complete"
   artifacts:
     paths:
       - main/
+    expire_in: 1 hour
+  tags:
+    - shell
 
 test-job:
   stage: test
+  dependencies:
+    - build-job
   script:
     - echo "Running tests..."
-    - Get-Content main/output.txt
+    - if (Test-Path main/output.txt) { Get-Content main/output.txt } else { Write-Error "Build artifact not found"; exit 1 }
     - echo "All tests passed!"
+  tags:
+    - shell
+
+# Disable SAST if you don't need it
+sast:
+  stage: .pre
+  script:
+    - echo "SAST disabled"
+  rules:
+    - when: never
