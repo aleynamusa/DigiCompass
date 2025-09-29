@@ -1,5 +1,6 @@
-package com.digicompass.backend.application.services;
+package com.digicompass.backend;
 
+import com.digicompass.backend.application.services.AuthServiceImpl;
 import com.digicompass.backend.application.services.helpers.PasswordHasher;
 import com.digicompass.backend.domain.models.User;
 import com.digicompass.backend.infrastucture.persistence.repository.interfaces.UserRepository;
