@@ -1,20 +1,20 @@
 stages:
-  - build
+  - main
   - test
 
 build-job:
-  stage: build
+  stage: main
   script:
     - echo "Compiling the project..."
-    - mkdir build
-    - echo "Build successful!" > build/output.txt
+    - mkdir main
+    - echo "Build successful!" > main/output.txt
   artifacts:
     paths:
-      - build/
+      - main/
 
 test-job:
   stage: test
   script:
     - echo "Running tests..."
-    - cat build/output.txt
+    - Get-Content main/output.txt
     - echo "All tests passed!"
