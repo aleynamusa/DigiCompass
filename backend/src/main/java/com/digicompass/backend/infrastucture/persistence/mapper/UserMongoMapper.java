@@ -1,10 +1,8 @@
 package com.digicompass.backend.infrastucture.persistence.mapper;
 
-import com.digicompass.backend.domain.model.User;
+import com.digicompass.backend.domain.models.User;
 import com.digicompass.backend.infrastucture.persistence.document.UserDocument;
-import com.github.dozermapper.core.DozerBeanMapper;
 import com.github.dozermapper.core.Mapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component

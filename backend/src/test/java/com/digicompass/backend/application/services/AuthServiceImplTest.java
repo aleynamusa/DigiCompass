@@ -1,8 +1,7 @@
 package com.digicompass.backend.application.services;
 
 import com.digicompass.backend.application.services.helpers.PasswordHasher;
-import com.digicompass.backend.application.services.interfaces.AuthService;
-import com.digicompass.backend.domain.model.User;
+import com.digicompass.backend.domain.models.User;
 import com.digicompass.backend.infrastucture.persistence.repository.interfaces.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,14 +9,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.MockitoAnnotations;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
-//the test runs but it keeps compiling
+//the test runs but it keeps compiling - fixed
 class AuthServiceImplTest {
     //mock object setup
     @InjectMocks

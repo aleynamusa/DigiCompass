@@ -1,8 +1,8 @@
 package com.digicompass.backend.application.services;
 
 import com.digicompass.backend.application.services.helpers.PasswordHasher;
-import com.digicompass.backend.application.services.interfaces.AuthService;
-import com.digicompass.backend.domain.model.User;
+import com.digicompass.backend.application.interfaces.AuthService;
+import com.digicompass.backend.domain.models.User;
 import com.digicompass.backend.infrastucture.persistence.repository.interfaces.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -27,11 +27,11 @@ public class AuthServiceImpl implements AuthService {
         return userRepository.save(user);
     }
 
-//    @Override
-//    public boolean logIn(String email, String password) {
-////        User user = userRepository.findByEmail(email);
-////        if (user == null) return false;
-////        String storedHash = user.getPassword();
-////        return hasher.verify(storedHash, password);
-//    }
+    @Override
+    public boolean logIn(String username, String password) {
+        User user = userRepository.findByUsername(username);
+        if (user == null) return false;
+        String storedHash = user.getPassword();
+        return PasswordHasher.verify(storedHash, password);
+    }
 }

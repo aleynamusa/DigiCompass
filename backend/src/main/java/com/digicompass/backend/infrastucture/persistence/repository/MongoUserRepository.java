@@ -1,6 +1,6 @@
 package com.digicompass.backend.infrastucture.persistence.repository;
 
-import com.digicompass.backend.domain.model.User;
+import com.digicompass.backend.domain.models.User;
 import com.digicompass.backend.infrastucture.persistence.document.UserDocument;
 import com.digicompass.backend.infrastucture.persistence.mapper.UserMongoMapper;
 import com.digicompass.backend.infrastucture.persistence.repository.interfaces.UserRepository;
@@ -11,7 +11,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-interface SpringDataUserRepository extends MongoRepository<UserDocument, String> {}
+interface SpringDataUserRepository extends MongoRepository<UserDocument, String> {
+    User findUserDocumentByUsername(String username);
+}
 
 @Repository
 public class MongoUserRepository implements UserRepository {
@@ -47,5 +49,10 @@ public class MongoUserRepository implements UserRepository {
     @Override
     public void delete(User user) {
         repo.delete(UserMongoMapper.toDocument(user));
+    }
+
+    @Override
+    public User findByUsername(String username) {
+        return repo.findUserDocumentByUsername(username);
     }
 }

@@ -1,7 +1,7 @@
 package com.digicompass.backend.application.services;
 
-import com.digicompass.backend.domain.model.User;
-import com.digicompass.backend.application.services.interfaces.UserService;
+import com.digicompass.backend.domain.models.User;
+import com.digicompass.backend.application.interfaces.UserService;
 import com.digicompass.backend.infrastucture.persistence.repository.interfaces.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
