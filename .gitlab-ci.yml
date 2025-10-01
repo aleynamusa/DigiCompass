@@ -46,7 +46,7 @@ unit-tests:
   script:
     - echo "Running tests with Mockito..."
     - cd backend
-    - ./gradlew check
+    - ./gradlew clean test --no-daemon
   cache:
     policy: pull  
   artifacts:
@@ -55,4 +55,6 @@ unit-tests:
       junit: backend/build/test-results/test/TEST-*.xml
     paths:
       - backend/build/reports/tests/test
-  
+
+
+
