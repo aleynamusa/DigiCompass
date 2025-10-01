@@ -33,9 +33,7 @@ frontend:build:
     paths:
       - frontend/dist
     expire_in: 1 hour
-  only:
-    -main
-    -develop    
+  
 
 
 # ============================================
