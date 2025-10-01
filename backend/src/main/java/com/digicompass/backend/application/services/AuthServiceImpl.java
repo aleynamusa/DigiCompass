@@ -4,22 +4,24 @@ import com.digicompass.backend.application.services.helpers.PasswordHasher;
 import com.digicompass.backend.application.interfaces.AuthService;
 import com.digicompass.backend.domain.models.User;
 import com.digicompass.backend.infrastucture.persistence.repository.interfaces.UserRepository;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 @Service
+@Validated
 public class AuthServiceImpl implements AuthService {
     @Autowired
     UserRepository userRepository;
-
 
     public AuthServiceImpl(@Qualifier("mongoUserRepository") UserRepository repo) {
         this.userRepository = repo;
     }
 
     @Override
-    public User signUp(User user) {
+    public User signUp(@Valid User user) {
         // hash the password
         String hashedPw = PasswordHasher.hash(user.getPassword());
         user.setPassword(hashedPw);

@@ -44,5 +44,6 @@ dependencies {
 tasks.named('test', Test) {
     useJUnitPlatform()
     jvmArgs "-javaagent:${configurations.mockitoAgent.asPath}", "-Xshare:off"
+    jvmArgs += "--enable-native-access=ALL-UNNAMED"
 }
 

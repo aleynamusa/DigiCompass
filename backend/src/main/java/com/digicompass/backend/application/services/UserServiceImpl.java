@@ -6,10 +6,13 @@ import com.digicompass.backend.infrastucture.persistence.repository.interfaces.U
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
+
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Validated
 public class UserServiceImpl implements UserService {
 
     @Autowired

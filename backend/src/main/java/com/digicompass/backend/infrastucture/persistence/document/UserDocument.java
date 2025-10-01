@@ -1,5 +1,6 @@
 package com.digicompass.backend.infrastucture.persistence.document;
 
+import com.sun.jna.WString;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;

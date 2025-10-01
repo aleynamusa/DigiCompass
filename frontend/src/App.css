@@ -1,10 +1,17 @@
+@import "tailwindcss";
+@source "../node_modules/@my-company/ui-lib";
+
 #root {
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
-}
 
+}
+.leaflet-container {
+    height: 100vh;
+    width: 100vh;
+}
 .logo {
   height: 6em;
   padding: 1.5em;
