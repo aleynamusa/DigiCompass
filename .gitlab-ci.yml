@@ -22,9 +22,8 @@ backend:build:
     paths:
       - backend/build/libs/*.jar
     expire_in: 1 hour
-  # only:
-  #   - main
-  #   - develop    
+  only:
+    - develop    
 
 frontend:build:
   stage: build
@@ -38,6 +37,7 @@ frontend:build:
     paths:
       - frontend/dist
     expire_in: 1 hour
+
 
 
 unit-tests:
