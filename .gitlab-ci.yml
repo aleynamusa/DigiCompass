@@ -33,7 +33,15 @@ frontend:build:
     paths:
       - frontend/dist
     expire_in: 1 hour
-  
+
+
+
+unit-tests:
+  stage: test
+  image: gradle:8.3-jdk24
+  script:
+    - echo "Running tests with Mockito..."
+    - cd backend\src\test\java\com.digicompass.backend
 
 
 # ============================================
