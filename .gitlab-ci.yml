@@ -6,12 +6,6 @@ stages:
   - test
   - deploy
 
-# variables:
-#   GRADLE_OPTS: "-Dorg.gradle.daemon=false"
-
-# before_script:
-#   - export GRADLE_USER_HOME=`pwd`/.gradle  
-
 backend:build:
   stage: build
   image: gradle:8.3-jdk24
@@ -60,6 +54,8 @@ unit-tests:
       junit: backend/build/test-results/test/TEST-*.xml
     paths:
       - backend/build/reports/tests/test
+
+# later implement deploy      
 
 deploy-prod:
   stage: deploy
