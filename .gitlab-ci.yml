@@ -4,7 +4,7 @@
 stages:
   - build
   - test
-  # - deploy
+  - deploy
 
 # variables:
 #   GRADLE_OPTS: "-Dorg.gradle.daemon=false"
@@ -23,9 +23,9 @@ backend:build:
     paths:
       - backend/build/libs/*.jar
     expire_in: 1 hour
-  # only:
-  #   - develop    
-  #   - merge_requests
+  only:
+    - develop    
+    - merge_requests
 
 
 frontend:build:
@@ -40,10 +40,9 @@ frontend:build:
     paths:
       - frontend/dist
     expire_in: 1 hour
-  # only:
-  #   - develop    
-  #   - merge_requests  
-
+  only:
+    - develop    
+    - merge_requests  
 
 
 unit-tests:
@@ -53,8 +52,8 @@ unit-tests:
     - echo "Running tests with Mockito..."
     - cd backend
     - ./gradlew clean test --no-daemon
-  cache:
-    policy: pull  
+  # cache:
+  #   policy: pull  
   artifacts:
     when: always
     reports:
@@ -62,5 +61,9 @@ unit-tests:
     paths:
       - backend/build/reports/tests/test
 
-
+deploy-prod:
+  stage: deploy
+  script:
+    - echo "This job deploys something from the $CI_COMMIT_BRANCH branch."
+  environment: production
 
