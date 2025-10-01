@@ -22,9 +22,9 @@ backend:build:
     paths:
       - backend/build/libs/*.jar
     expire_in: 1 hour
-  only:
-    - develop    
-    - merge_requests
+  # only:
+  #   - develop    
+  #   - merge_requests
 
 frontend:build:
   stage: build
@@ -38,9 +38,9 @@ frontend:build:
     paths:
       - frontend/dist
     expire_in: 1 hour
-  only:
-    - develop    
-    - merge_requests  
+  # only:
+  #   - develop    
+  #   - merge_requests  
 
 
 
