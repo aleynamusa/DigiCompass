@@ -7,25 +7,6 @@ stages:
   - package
   - deploy
 
-# Global variables
-variables:
-  MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
-  MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version"
-  DOCKER_DRIVER: overlay2
-  DOCKER_TLS_CERTDIR: "/certs"
-  APP_NAME: "java-backend-app"
-  DOCKER_IMAGE_NAME: "$CI_REGISTRY_IMAGE"
-
-# Cache Maven dependencies
-cache:
-  paths:
-    - .m2/repository
-    - target/
-
-# ============================================
-# BUILD STAGE
-# ============================================
-
 backend:build:
   stage: build
   image: gradle:8.3-jdk24
