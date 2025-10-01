@@ -4,7 +4,13 @@
 stages:
   - build
   - test
-  - deploy
+  # - deploy
+
+variables:
+  GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
+before_script:
+  - export GRADLE_USER_HOME=`pwd`/.gradle  
 
 backend:build:
   stage: build
@@ -33,7 +39,15 @@ frontend:build:
       - frontend/dist
     expire_in: 1 hour
 
-
+test:
+  stage: test
+  script: ./gradlew check
+  cache:
+    key: "$CI_COMMIT_REF_NAME"
+    policy: pull
+    paths:
+      - build
+      - .gradle
 
 unit-tests:
   stage: test
@@ -41,7 +55,13 @@ unit-tests:
   script:
     - echo "Running tests with Mockito..."
     - cd backend
-    - ./gradlew clean bootJar --no-daemon
+    - ./gradlew check
+  cache:
+    key: "$CI_COMMIT_REF_NAME"
+    policy: pull
+    paths:
+      - build
+      - .gradle  
   artifacts:
     when: always
     reports:
