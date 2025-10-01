@@ -39,15 +39,6 @@ frontend:build:
       - frontend/dist
     expire_in: 1 hour
 
-test:
-  stage: test
-  script: ./gradlew check
-  cache:
-    key: "$CI_COMMIT_REF_NAME"
-    policy: pull
-    paths:
-      - build
-      - .gradle
 
 unit-tests:
   stage: test
@@ -57,11 +48,7 @@ unit-tests:
     - cd backend
     - ./gradlew check
   cache:
-    key: "$CI_COMMIT_REF_NAME"
-    policy: pull
-    paths:
-      - build
-      - .gradle  
+    policy: pull  
   artifacts:
     when: always
     reports:
