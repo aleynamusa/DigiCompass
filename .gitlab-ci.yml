@@ -48,6 +48,4 @@ unit-tests:
       junit: backend/build/test-results/test/TEST-*.xml
     paths:
       - backend/build/reports/tests/test
-  only:
-    - main
-    - develop  
+  
