@@ -18,7 +18,7 @@ backend:build:
       - backend/build/libs/*.jar
     expire_in: 1 hour
   only:
-    - develop    
+    - development
     - merge_requests
 
 
@@ -35,7 +35,7 @@ frontend:build:
       - frontend/dist
     expire_in: 1 hour
   only:
-    - develop    
+    - development
     - merge_requests  
 
 
@@ -46,8 +46,6 @@ unit-tests:
     - echo "Running tests with Mockito..."
     - cd backend
     - ./gradlew clean test --no-daemon
-  # cache:
-  #   policy: pull  
   artifacts:
     when: always
     reports:
@@ -55,8 +53,7 @@ unit-tests:
     paths:
       - backend/build/reports/tests/test
 
-# later implement deploy      
-
+# later implement deploy
 deploy-prod:
   stage: deploy
   script:

@@ -11,5 +11,4 @@ public class LogInRequest {
     private String username;
     private String password;
 
-    // getters and setters
 }

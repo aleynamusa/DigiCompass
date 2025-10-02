@@ -1,6 +1,6 @@
 import React, {useState} from "react";
 import axios from "axios"
-import { Link } from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 
 const LogIn = () => {
     const [loginData, setLoginData] = useState({
@@ -8,6 +8,8 @@ const LogIn = () => {
         email: "",// not sure if I am gonna use email or password decide later and refactor the backend
         password:"",
     });
+
+    const navigate = useNavigate();
 
     const[errors, setErrors] = useState({});
     const[success, setSuccess] = useState("");
@@ -28,7 +30,8 @@ const LogIn = () => {
             );
 
             if (response.data === true) {
-                setSuccess("Logged in successfully!");
+                setSuccess("Login successful!");
+                navigate('/');
             } else {
                 setErrors({ general: "Invalid username or password" });
             }
@@ -52,7 +55,7 @@ const LogIn = () => {
 
                 <div className="text-left relative z-0 w-full mb-5 group">
                     <input type="text" name="username" id="username"
-                           className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                           className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-gray-800 dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
                            placeholder=" "
                            value={loginData.username}
                            onChange={handleChange}
@@ -64,7 +67,7 @@ const LogIn = () => {
 
                 <div className="text-left relative z-0 w-full mb-5 group">
                     <input type="password" name="password" id="password"
-                           className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                           className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-gray-800 dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
                            placeholder=" " required
                            value={loginData.password}
                            onChange={handleChange}
@@ -76,7 +79,7 @@ const LogIn = () => {
 
                 <Link to="/signup">Don't have an account?</Link>
 
-                <button type="submit">Log In</button>
+                <button type="submit" >Log In</button>
             </form>
         </div>
     );

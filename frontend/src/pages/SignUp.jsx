@@ -3,8 +3,8 @@ import axios from "axios";
 
 const SignUpForm = () => {
 
-    const isEmail = (email) => /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$/.test(email);
-    const isPassword = (password) => /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/.test(password);
+    const isEmail = (email) => /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);
+
 
     const checkPasswordRules = (password) => {
         return {
@@ -53,11 +53,6 @@ const SignUpForm = () => {
 
         if(!isEmail(formData.email)){
             setErrors({ email: "Invalid email format" });
-            return;
-        }
-
-        if (!isPassword(formData.password)) {
-            setErrors({ password: "Password does not meet all requirements" });
             return;
         }
 
