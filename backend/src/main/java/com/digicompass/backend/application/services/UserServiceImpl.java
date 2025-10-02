@@ -18,10 +18,11 @@ import java.util.logging.Logger;
 @Validated
 public class UserServiceImpl implements UserService {
 
+    private static final Logger LOGGER = Logger.getLogger( ClassName.class.getName() );
+
     @Autowired
     UserRepository userRepository;
 
-    private static final Logger LOGGER = Logger.getLogger( ClassName.class.getName() );
     @Autowired
     private UserService userService;
 
