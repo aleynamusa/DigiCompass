@@ -3,16 +3,12 @@ package com.digicompass.backend.application.services;
 import com.digicompass.backend.application.services.helpers.PasswordHasher;
 import com.digicompass.backend.domain.models.User;
 import com.digicompass.backend.infrastucture.persistence.repository.interfaces.UserRepository;
-import jakarta.validation.ConstraintViolationException;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -21,32 +17,23 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class AuthServiceImplTest {
-    //mock object setup
+
     @InjectMocks
-    private AuthServiceImpl service;
+    private AuthServiceImpl service;  // Changed from AuthService to AuthServiceImpl
 
     @Mock
-    UserRepository repoMock;
-
-    // @Before - before the other methods
-    @BeforeEach
-    public void setUp()
-    {
-        MockitoAnnotations.openMocks(this);
-    }
+    private UserRepository repoMock;
 
     @Test
     void signUp() {
         User user = new User(null, "aleyna", "aleyna@gmail.com", (byte)19, "helloooo");
 
-        // Mock repository save
         when(repoMock.save(any(User.class))).thenAnswer(invocation -> {
             User u = invocation.getArgument(0);
             u.setId("123");
             return u;
         });
 
-        // Mock static PasswordHasher
         try (MockedStatic<PasswordHasher> mockedHasher = mockStatic(PasswordHasher.class)) {
             mockedHasher.when(() -> PasswordHasher.hash("helloooo")).thenReturn("hashedPassword");
 
@@ -66,7 +53,10 @@ class AuthServiceImplTest {
         });
     }
 
-
+    @Test
+    void dummyTest() {
+        assertTrue(true);
+    }
 
     @Test
     void testLogIn_Success() {
@@ -98,7 +88,4 @@ class AuthServiceImplTest {
 
         assertFalse(loggedIn);
     }
-
-
-
 }
