@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
@@ -37,7 +36,7 @@ public class UserController {
 
     @GetMapping("/{id}")
     public UserResponseDto getUser(@PathVariable String id) {
-        User user = userService.getUser(id)
+        User user = userService.getUserById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         return new UserResponseDto(user.getId(), user.getUsername(), user.getEmail(), user.getAge());
     }

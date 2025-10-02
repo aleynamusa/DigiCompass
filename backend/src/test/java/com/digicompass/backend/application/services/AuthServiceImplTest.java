@@ -3,7 +3,6 @@ package com.digicompass.backend.application.services;
 import com.digicompass.backend.application.services.helpers.PasswordHasher;
 import com.digicompass.backend.domain.models.User;
 import com.digicompass.backend.infrastucture.persistence.repository.interfaces.UserRepository;
-import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -11,7 +10,6 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mockStatic;
@@ -57,6 +55,14 @@ class AuthServiceImplTest {
         }
     }
 
+    @Test
+    void signUp_NullUser_ThrowsException() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            service.signUp(null);
+        });
+    }
+
+
 
     @Test
     void testLogIn_Success() {
@@ -79,4 +85,16 @@ class AuthServiceImplTest {
 
         assertFalse(loggedIn);
     }
+
+    @Test
+    void testLogIn_UserNotFound() {
+        when(repoMock.findByUsername("unknownUser")).thenReturn(null);
+
+        boolean loggedIn = service.logIn("unknownUser", "anyPassword");
+
+        assertFalse(loggedIn);
+    }
+
+
+
 }
