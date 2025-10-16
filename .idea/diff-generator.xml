@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DiffGenerationConfig">
+    <option name="snapshotDb" value="false" />
+    <option name="snapshotDbValue" value="fb1df3e3-ecd5-454f-b779-ad2f4b324ed6" />
+    <option name="snapshotModelValue" value="backend.main:backend.main" />
+    <option name="sourceDbValue" value="fb1df3e3-ecd5-454f-b779-ad2f4b324ed6" />
+    <option name="sourceDiffType" value="DB" />
+    <option name="sourceModelValue" value="backend.main:backend.main" />
+    <option name="targetDbValue" value="fb1df3e3-ecd5-454f-b779-ad2f4b324ed6" />
+  </component>
+</project>

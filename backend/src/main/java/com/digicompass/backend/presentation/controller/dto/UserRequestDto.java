@@ -8,10 +8,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserRequestDto {
-    private String id;
+    private Long id;
     private String username;
     private String email;
     private byte age;
     private String password;
-
+    private String token;
 }

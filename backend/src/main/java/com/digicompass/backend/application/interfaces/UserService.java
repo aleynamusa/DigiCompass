@@ -9,6 +9,6 @@ import java.util.Optional;
 @Service
 public interface UserService {
     List<User> getAllUsers();
-    Optional<User> getUserById(String id);
+    Optional<User> getUserById(Long id);
     void deleteUser(User user);
 }

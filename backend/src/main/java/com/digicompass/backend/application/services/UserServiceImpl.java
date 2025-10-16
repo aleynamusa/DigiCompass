@@ -2,9 +2,8 @@ package com.digicompass.backend.application.services;
 
 import com.digicompass.backend.domain.models.User;
 import com.digicompass.backend.application.interfaces.UserService;
-import com.digicompass.backend.infrastucture.persistence.repository.interfaces.UserRepository;
+import com.digicompass.backend.infrastucture.persistence.repository.UserInterface;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.javapoet.ClassName;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -21,14 +20,9 @@ public class UserServiceImpl implements UserService {
     private static final Logger LOGGER = Logger.getLogger( ClassName.class.getName() );
 
     @Autowired
-    UserRepository userRepository;
+    UserInterface userRepository;
 
-    @Autowired
-    private UserService userService;
 
-    public UserServiceImpl(@Qualifier("mongoUserRepository") UserRepository repo) {
-        this.userRepository = repo;
-    }
 
     @Override
     public List<User> getAllUsers() {
@@ -40,7 +34,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<User> getUserById(String id) {
+    public Optional<User> getUserById(Long id) {
         LOGGER.log(Level.INFO, "Fetching user with id: {0}", id);
 
         Optional<User> user = userRepository.findById(id);
@@ -65,4 +59,23 @@ public class UserServiceImpl implements UserService {
         userRepository.delete(user);
         LOGGER.log(Level.INFO, "User deleted with id: {0}", user.getId());
     }
+
+//    @Override
+//    public ResetPasswordToken createResetPasswordToken(User user) {
+//        ResetPasswordToken resetPasswordToken = new ResetPasswordToken(user);
+//        return resetPasswordTokenRepository.save(resetPasswordToken);
+//    }
+//
+//    @Override
+//    public ResetPasswordToken findByResetPasswordToken(String token) {
+//        return resetPasswordTokenRepository.findByToken(token);
+//    }
+//
+//    @Override
+//    public void resetPassword(String emailAddress, String password) {
+//        User user = findUserByEmailAddress(emailAddress);
+//
+//        user.setPassword(passwordEncoder.encode(password));
+//
+//    }
 }

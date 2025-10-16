@@ -9,5 +9,5 @@ import org.springframework.validation.annotation.Validated;
 
 public interface AuthService {
     User signUp( User user);
-    boolean logIn(String email, String password);
+    User logIn(String email, String password);
 }

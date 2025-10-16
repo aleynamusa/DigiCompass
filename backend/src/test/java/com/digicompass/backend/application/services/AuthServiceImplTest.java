@@ -2,7 +2,7 @@ package com.digicompass.backend.application.services;
 
 import com.digicompass.backend.application.services.helpers.PasswordHasher;
 import com.digicompass.backend.domain.models.User;
-import com.digicompass.backend.infrastucture.persistence.repository.interfaces.UserRepository;
+import com.digicompass.backend.infrastucture.persistence.repository.UserInterface;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -19,10 +19,10 @@ import static org.mockito.Mockito.when;
 class AuthServiceImplTest {
 
     @InjectMocks
-    private AuthServiceImpl service;  // Changed from AuthService to AuthServiceImpl
+    private AuthServiceImpl service;
 
     @Mock
-    private UserRepository repoMock;
+    private UserInterface repoMock;
 
     @Test
     void signUp() {
@@ -30,7 +30,7 @@ class AuthServiceImplTest {
 
         when(repoMock.save(any(User.class))).thenAnswer(invocation -> {
             User u = invocation.getArgument(0);
-            u.setId("123");
+            u.setId((long)123);
             return u;
         });
 
@@ -54,38 +54,37 @@ class AuthServiceImplTest {
     }
 
     @Test
-    void dummyTest() {
-        assertTrue(true);
-    }
-
-    @Test
     void testLogIn_Success() {
-        User user = new User("123", "aleyna", "aleyna@gmail.com", (byte)19, PasswordHasher.hash("helloooo"));
+
+        String rawPassword = "helloooo";
+        User user = new User(123L, "aleyna", "aleyna@gmail.com", (byte) 19, PasswordHasher.hash(rawPassword));
 
         when(repoMock.findByUsername("aleyna")).thenReturn(user);
+        User loggedIn = service.logIn("aleyna", rawPassword);
 
-        boolean loggedIn = service.logIn("aleyna", "helloooo");
+        assertNotNull(loggedIn);
+        assertEquals("aleyna", loggedIn.getUsername());
 
-        assertTrue(loggedIn);
+        assertTrue(PasswordHasher.verify(user.getPassword(), rawPassword));
     }
 
     @Test
     void testLogIn_WrongPassword(){
-        User user = new User("123", "aleyna", "aleyna@gmail.com", (byte)19, PasswordHasher.hash("helloooo"));
+        User user = new User((long)123, "aleyna", "aleyna@gmail.com", (byte)19, PasswordHasher.hash("helloooo"));
 
         when(repoMock.findByUsername("aleyna")).thenReturn(user);
 
-        boolean loggedIn = service.logIn("aleyna", "helloo");
+        User loggedIn = service.logIn("aleyna", "helloo");
 
-        assertFalse(loggedIn);
+        assertNull(loggedIn);
     }
 
     @Test
     void testLogIn_UserNotFound() {
         when(repoMock.findByUsername("unknownUser")).thenReturn(null);
 
-        boolean loggedIn = service.logIn("unknownUser", "anyPassword");
+        User loggedIn = service.logIn("unknownUser", "anyPassword");
 
-        assertFalse(loggedIn);
+        assertNull(loggedIn);
     }
 }

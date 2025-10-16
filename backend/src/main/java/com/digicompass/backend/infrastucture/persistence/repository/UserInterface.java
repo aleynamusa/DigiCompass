@@ -1,17 +1,15 @@
-package com.digicompass.backend.infrastucture.persistence.repository.interfaces;
+package com.digicompass.backend.infrastucture.persistence.repository;
 
 import com.digicompass.backend.domain.models.User;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
-@Repository
-public interface UserRepository {
-
+public interface UserInterface {
     User save(User user);
-    Optional<User> findById(String id);
+    Optional<User> findById(Long id);
     List<User> findAll();
     void delete(User user);
     User findByUsername(String username);
+    User findByEmail(String email);
 }

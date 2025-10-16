@@ -1,0 +1,98 @@
+openapi: 3.0.0
+info:
+  title: Routes Explorer API
+  description: API for viewing and exploring outdoor routes on an interactive map.
+  version: 1.1.0
+servers:
+  - url: https://api.example.com
+    description: Production server
+
+paths:
+  /routes:
+    get:
+      summary: Get all available routes
+      description: Returns all available routes with map coordinates, types, and details.
+      operationId: getAllRoutes
+      responses:
+        '200':
+          description: A list of routes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Route'
+        '500':
+          description: Server error
+
+  /routes/{id}:
+    get:
+      summary: Get route details by ID
+      description: Returns details for a single route, including coordinates for map rendering.
+      operationId: getRouteById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the route
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Route details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Route'
+        '404':
+          description: Route not found
+        '500':
+          description: Server error
+
+components:
+  schemas:
+    Route:
+      type: object
+      required:
+        - id
+        - name
+        - type
+        - difficulty
+        - distance
+        - coordinates
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Eagle Peak Trail"
+        type:
+          type: string
+          description: Type of route (e.g., hiking, biking, climbing)
+          enum: [hiking, biking, climbing, scenic, water]
+          example: hiking
+        difficulty:
+          type: string
+          enum: [easy, moderate, hard]
+          example: moderate
+        distance:
+          type: number
+          format: float
+          description: Distance of the route in kilometers
+          example: 8.5
+        coordinates:
+          type: array
+          description: GPS coordinates representing the route path
+          items:
+            type: array
+            items:
+              type: number
+            example: [37.7749, -122.4194]
+        description:
+          type: string
+          example: "A scenic trail leading to panoramic views of the valley."
+        imageUrl:
+          type: string
+          format: uri
+          example: "https://example.com/images/eagle-peak.jpg"

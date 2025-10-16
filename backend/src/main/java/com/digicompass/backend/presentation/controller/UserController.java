@@ -3,39 +3,41 @@ package com.digicompass.backend.presentation.controller;
 import com.digicompass.backend.application.interfaces.AuthService;
 import com.digicompass.backend.application.interfaces.UserService;
 import com.digicompass.backend.domain.models.User;
-import com.digicompass.backend.presentation.controller.dto.LogInRequest;
-import com.digicompass.backend.presentation.controller.dto.UserRequestDto;
-import com.digicompass.backend.presentation.controller.dto.UserResponseDto;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.digicompass.backend.presentation.controller.dto.*;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/users")
 public class UserController {
 
-    @Autowired
     private final UserService userService;
 
-    @Autowired
     private final AuthService authService;
 
     public UserController(UserService userService, AuthService authService) {
         this.userService = userService;
         this.authService = authService;
+
     }
 
     @PostMapping("/signUp")
-    public UserResponseDto signUp(@RequestBody UserRequestDto request) {
-        User user = new User(null, request.getUsername(), request.getEmail(), request.getAge(), request.getPassword());
-        User saved = authService.signUp(user);
-        return new UserResponseDto(saved.getId(), saved.getUsername(), saved.getEmail(), user.getAge());
+    public ResponseEntity<?> signUp(@RequestBody UserRequestDto request) {
+        try {
+            User user = new User(null, request.getUsername(), request.getEmail(), request.getAge(), request.getPassword());
+            User saved = authService.signUp(user);
+            return ResponseEntity.ok(saved);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
     @GetMapping("/{id}")
-    public UserResponseDto getUser(@PathVariable String id) {
+    public UserResponseDto getUser(@PathVariable Long id) {
         User user = userService.getUserById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         return new UserResponseDto(user.getId(), user.getUsername(), user.getEmail(), user.getAge());
@@ -57,9 +59,25 @@ public class UserController {
         return ResponseEntity.ok("User deleted successfully");
     }
 
+//    @PostMapping("/logIn")
+//    public ResponseEntity<?> logIn(@RequestBody LogInRequest request) {
+//        boolean logged = authService.logIn(request.getUsername(), request.getPassword(), request.getToken());
+//        return ResponseEntity.ok(user);
+//    }
+
     @PostMapping("/logIn")
-    public boolean logIn(@RequestBody LogInRequest request) {
-        boolean logged = authService.logIn(request.getUsername(), request.getPassword());
-        return logged;
+    public ResponseEntity<?> logIn(@RequestBody LogInRequest request) {
+        User user = authService.logIn(request.getUsername(), request.getPassword());
+        if (user != null) {
+            return ResponseEntity.ok(Map.of(
+                    "username", user.getUsername(),
+                    "email", user.getEmail()
+            ));
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "Invalid username or password"));
+        }
     }
+
+
 }
