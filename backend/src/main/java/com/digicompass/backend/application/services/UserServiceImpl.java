@@ -1,8 +1,9 @@
 package com.digicompass.backend.application.services;
 
+import com.digicompass.backend.application.mapper.UserMapper;
 import com.digicompass.backend.domain.models.User;
 import com.digicompass.backend.application.interfaces.UserService;
-import com.digicompass.backend.infrastucture.persistence.repository.UserInterface;
+import com.digicompass.backend.infrastucture.persistence.repository.interfaces.UserInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.javapoet.ClassName;
 import org.springframework.stereotype.Service;
@@ -19,16 +20,22 @@ public class UserServiceImpl implements UserService {
 
     private static final Logger LOGGER = Logger.getLogger( ClassName.class.getName() );
 
-    @Autowired
+
     UserInterface userRepository;
 
+    private UserMapper userMapper;
+
+    public UserServiceImpl(UserInterface userRepository, UserMapper userMapper) {
+        this.userRepository = userRepository;
+        this.userMapper = userMapper;
+    }
 
 
     @Override
     public List<User> getAllUsers() {
         LOGGER.log(Level.INFO, "Started fetching all of the users.");
 
-        List<User> users = userRepository.findAll();
+        List<User> users = userMapper.toDomain(userRepository.findAll());
         LOGGER.log(Level.INFO, "Fetched all of the users.");
         return  users;
     }
@@ -37,7 +44,8 @@ public class UserServiceImpl implements UserService {
     public Optional<User> getUserById(Long id) {
         LOGGER.log(Level.INFO, "Fetching user with id: {0}", id);
 
-        Optional<User> user = userRepository.findById(id);
+        Optional<User> user = userRepository.findById(id)
+                .map(userMapper::toDomain);
 
         if (user.isPresent()) {
             LOGGER.log(Level.INFO, "User found with id: {0}", id);
@@ -56,26 +64,8 @@ public class UserServiceImpl implements UserService {
         }
 
         LOGGER.log(Level.INFO, "Deleting user with id: {0}", user.getId());
-        userRepository.delete(user);
+        userRepository.delete(userMapper.toEntity(user));
         LOGGER.log(Level.INFO, "User deleted with id: {0}", user.getId());
     }
 
-//    @Override
-//    public ResetPasswordToken createResetPasswordToken(User user) {
-//        ResetPasswordToken resetPasswordToken = new ResetPasswordToken(user);
-//        return resetPasswordTokenRepository.save(resetPasswordToken);
-//    }
-//
-//    @Override
-//    public ResetPasswordToken findByResetPasswordToken(String token) {
-//        return resetPasswordTokenRepository.findByToken(token);
-//    }
-//
-//    @Override
-//    public void resetPassword(String emailAddress, String password) {
-//        User user = findUserByEmailAddress(emailAddress);
-//
-//        user.setPassword(passwordEncoder.encode(password));
-//
-//    }
 }

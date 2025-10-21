@@ -1,21 +1,18 @@
 package com.digicompass.backend.infrastucture.persistence.entity;
 
-import com.sun.tools.xjc.model.CDefaultValue;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-
-import java.time.DateTimeException;
+import org.locationtech.jts.geom.Geometry;
 import java.time.LocalDateTime;
-import java.util.List;
-
 
 @Entity
 @Table(name = "routes")
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class RouteEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,22 +25,16 @@ public class RouteEntity {
     private String description;
 
     @Column(nullable = false)
-    private String routeType;   //HIKING, CYCLING, RUNNING, WALKING
+    private String routeType; //HIKING, CYCLING, RUNNING, WALKING
 
     @Column(nullable = false)
-    private String difficulty;  //BEGINNER, EASY, MODERATE, HARD, EXPERT, EXTREME
+    private String difficulty; //BEGINNER, EASY, MODERATE, HARD, EXPERT, EXTREME
 
     @Column(nullable = false)
     private float distance;
 
     @Column(nullable = false)
     private String duration;
-
-    @Column(nullable = false)
-    private String startLocation;
-
-    @Column(nullable = false)
-    private String endLocation;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by_user_id", nullable = false)
@@ -54,5 +45,16 @@ public class RouteEntity {
 
     @Column(nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime updatedAt;
+
+    @JsonIgnore
+    @Column(name = "route_geometry", columnDefinition = "geometry")
+    private Geometry routeGeometry;
+
+//    @Column()
+//    private List<String> images;
+
 }
+
+
+
 

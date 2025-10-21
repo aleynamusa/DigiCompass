@@ -1,7 +1,7 @@
-package com.digicompass.backend.domain.models;
+package com.digicompass.backend.presentation.controller.dto;
 
 import com.digicompass.backend.infrastucture.persistence.entity.UserEntity;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,10 +9,10 @@ import org.locationtech.jts.geom.Geometry;
 
 import java.time.LocalDateTime;
 
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Data
-public class Route {
+public class RouteDto {
     private Long id;
     private String name;
     private String description;
@@ -20,9 +20,8 @@ public class Route {
     private String difficulty;  //BEGINNER, EASY, MODERATE, HARD, EXPERT, EXTREME
     private float distance;
     private String duration;
-    private User createdByUserId;
+    private UserEntity createdByUserId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    @JsonIgnore
     private Geometry routeGeometry;
 }

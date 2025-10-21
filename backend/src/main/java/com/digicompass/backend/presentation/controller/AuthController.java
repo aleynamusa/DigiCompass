@@ -37,6 +37,4 @@ public class AuthController {
         passwordResetService.resetPassword(token, password);
         return ResponseEntity.ok("Password successfully reset");
     }
-
-
 }

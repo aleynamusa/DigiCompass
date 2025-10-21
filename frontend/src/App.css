@@ -6,11 +6,25 @@
 
 #root {
   margin: 0 auto;
-  padding: 2rem;
+  /*padding: 2rem;*/
   text-align: center;
   justify-content: center;
   display: flex;
+    --sidebar-width: 24rem;
 }
+
+@media (max-width: 1024px) {
+    :root {
+        --sidebar-width: 14rem;
+    }
+}
+
+@media (max-width: 768px) {
+    :root {
+        --sidebar-width: 0rem; /* Hide it on small screens if needed */
+    }
+}
+
 .leaflet-container {
     height: 100vh;
     width: 100vh;

@@ -2,7 +2,7 @@ package com.digicompass.backend.application.services;
 
 import com.digicompass.backend.application.services.helpers.PasswordHasher;
 import com.digicompass.backend.domain.models.User;
-import com.digicompass.backend.infrastucture.persistence.repository.UserInterface;
+import com.digicompass.backend.infrastucture.persistence.repository.interfaces.UserInterface;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

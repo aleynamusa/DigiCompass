@@ -1,11 +1,12 @@
-package com.digicompass.backend;
+package com.digicompass.backend.infrastucture.configuration;
 
-import com.github.dozermapper.core.DozerBeanMapperBuilder;
-import com.github.dozermapper.core.Mapper;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.util.Collections;
 
 @Configuration
 public class CorsConfig {
@@ -25,8 +26,4 @@ public class CorsConfig {
 
     }
 
-    @Bean
-    public Mapper dozerMapper() {
-        return DozerBeanMapperBuilder.buildDefault();
-    }
 }

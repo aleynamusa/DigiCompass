@@ -1,13 +1,11 @@
 package com.digicompass.backend.application.services;
 
 import com.digicompass.backend.application.interfaces.EmailService;
-import com.digicompass.backend.application.interfaces.PasswordResetService;
 import com.digicompass.backend.domain.models.User;
-import com.digicompass.backend.infrastucture.persistence.repository.UserInterface;
+import com.digicompass.backend.infrastucture.persistence.repository.interfaces.UserInterface;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -15,7 +13,6 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;

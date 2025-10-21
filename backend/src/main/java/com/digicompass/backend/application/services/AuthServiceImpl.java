@@ -1,16 +1,16 @@
 package com.digicompass.backend.application.services;
 
+import com.digicompass.backend.application.mapper.UserMapper;
 import com.digicompass.backend.application.services.helpers.PasswordHasher;
 import com.digicompass.backend.application.interfaces.AuthService;
 import com.digicompass.backend.domain.models.User;
-import com.digicompass.backend.infrastucture.persistence.repository.UserInterface;
+import com.digicompass.backend.infrastucture.persistence.entity.UserEntity;
+import com.digicompass.backend.infrastucture.persistence.repository.interfaces.UserInterface;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.javapoet.ClassName;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -19,11 +19,13 @@ import java.util.logging.Logger;
 public class AuthServiceImpl implements AuthService {
 
     UserInterface userRepository;
+    private final UserMapper userMapper;
 
-    private static final Logger LOGGER = Logger.getLogger( ClassName.class.getName() );
+    private static final Logger LOGGER = Logger.getLogger(AuthServiceImpl.class.getName());
 
-    public AuthServiceImpl(UserInterface userRepository) {
+    public AuthServiceImpl(UserInterface userRepository, UserMapper userMapper) {
         this.userRepository = userRepository;
+        this.userMapper = userMapper;
     }
 
 
@@ -39,15 +41,13 @@ public class AuthServiceImpl implements AuthService {
         // hash the password
         String hashedPw = PasswordHasher.hash(user.getPassword());
         user.setPassword(hashedPw);
-//        String token = UUID.randomUUID().toString();
-
 
         LOGGER.log(Level.FINE, "Password hashed successfully for username: {0}", user.getUsername());
         // save to DB
-        User savedUser = userRepository.save(user);
+        UserEntity savedUser = userRepository.save(userMapper.toEntity(user));
         LOGGER.log(Level.INFO, "User signed up successfully with id: {0}", savedUser.getId());
 
-        return savedUser;
+        return userMapper.toDomain(savedUser);
     }
 
     @Override
@@ -55,7 +55,7 @@ public class AuthServiceImpl implements AuthService {
 
         LOGGER.log(Level.INFO, "Login attempt for username: {0}", username);
 
-        User user = userRepository.findByUsername(username);
+        UserEntity user = userRepository.findByUsername(username);
         if (user == null) {
             LOGGER.log(Level.WARNING, "Login failed: user not found for username: {0}", username);
             return null;
@@ -65,7 +65,7 @@ public class AuthServiceImpl implements AuthService {
         if (success) {
             LOGGER.log(Level.INFO, "Login successful for username: {0}", username);
 
-            return user;
+            return userMapper.toDomain(user);
         } else {
             LOGGER.log(Level.WARNING, "Login failed: invalid password for username: {0}", username);
             return null;
