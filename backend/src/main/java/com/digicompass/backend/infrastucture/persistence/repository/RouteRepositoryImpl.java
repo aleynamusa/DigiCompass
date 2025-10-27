@@ -1,25 +1,25 @@
 package com.digicompass.backend.infrastucture.persistence.repository;
 
-import com.digicompass.backend.domain.models.Route;
+import com.digicompass.backend.domain.entity.RouteEntity;
+import com.digicompass.backend.domain.repositories.RatingJpaRepository;
 import com.digicompass.backend.domain.repositories.RouteJpaRepository;
-import com.digicompass.backend.infrastucture.persistence.entity.RouteEntity;
+
 import com.digicompass.backend.application.mapper.RouteMapper;
+import com.digicompass.backend.infrastucture.persistence.repository.interfaces.RatingInterface;
 import com.digicompass.backend.infrastucture.persistence.repository.interfaces.RouteInterface;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Repository
 public class RouteRepositoryImpl implements RouteInterface {
 
 
     private final RouteJpaRepository jpaRepository;
-    private final RouteMapper routeMapper;
 
-    public RouteRepositoryImpl(RouteJpaRepository repo, RouteMapper mapper){
+    public RouteRepositoryImpl(RouteJpaRepository repo){
         jpaRepository = repo;
-        this.routeMapper = mapper;
+
     }
 
 //    @Override
@@ -75,5 +75,13 @@ public class RouteRepositoryImpl implements RouteInterface {
     public List<RouteEntity> getAllRoutesByDistance(float distance) {
         return jpaRepository.findAllByDistance(distance);
     }
+
+    @Override
+    public List<RouteEntity> filterAll(String type, String difficulty, Float distance) {
+        System.out.println("Filter params => type=" + type + ", difficulty=" + difficulty + ", distance=" + distance);
+        return jpaRepository.findFiltered(type, difficulty, distance);
+    }
+
+
 
 }

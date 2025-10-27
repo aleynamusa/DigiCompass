@@ -1,7 +1,8 @@
 package com.digicompass.backend.infrastucture.persistence.repository;
 
+import com.digicompass.backend.domain.entity.UserEntity;
 import com.digicompass.backend.domain.repositories.UserJpaRepository;
-import com.digicompass.backend.infrastucture.persistence.entity.UserEntity;
+
 import com.digicompass.backend.infrastucture.persistence.repository.interfaces.UserInterface;
 import org.springframework.stereotype.Repository;
 

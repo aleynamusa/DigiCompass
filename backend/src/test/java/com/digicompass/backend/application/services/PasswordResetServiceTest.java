@@ -1,7 +1,8 @@
 package com.digicompass.backend.application.services;
 
 import com.digicompass.backend.application.interfaces.EmailService;
-import com.digicompass.backend.domain.models.User;
+import com.digicompass.backend.domain.entity.UserEntity;
+import com.digicompass.backend.infrastucture.persistence.models.User;
 import com.digicompass.backend.infrastucture.persistence.repository.interfaces.UserInterface;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,7 +44,7 @@ class PasswordResetServiceTest {
     @Test
     void testCreatePasswordResetToken_Success() {
         String email = "test@example.com";
-        User user = new User();
+        UserEntity user = new UserEntity();
         user.setEmail(email);
         when(userRepository.findByEmail(email)).thenReturn(user);
         passwordResetService.createPasswordResetToken(email);
@@ -72,7 +73,7 @@ class PasswordResetServiceTest {
         String email = "user@example.com";
         String newPassword = "newPass123";
 
-        User user = new User();
+        UserEntity user = new UserEntity();
         user.setEmail(email);
         user.setPassword("oldPass");
 

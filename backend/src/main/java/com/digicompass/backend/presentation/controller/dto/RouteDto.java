@@ -1,13 +1,15 @@
 package com.digicompass.backend.presentation.controller.dto;
 
-import com.digicompass.backend.infrastucture.persistence.entity.UserEntity;
-import jakarta.persistence.*;
+
+import com.digicompass.backend.domain.entity.UserEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.locationtech.jts.geom.Geometry;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -24,4 +26,5 @@ public class RouteDto {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private Geometry routeGeometry;
+    private List<String> images = new ArrayList<>();
 }

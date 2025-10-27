@@ -21,15 +21,19 @@ import {
 } from "lucide-react"
 import '/src/index.css';
 import '/src/App.css'
+import { useNavigate } from "react-router-dom";
+
 
 export function Sidebar({ activeTab, setActiveTab, user, onShowAuth, onLogout }) {
     const navItems = [
-        { id: "dashboard", label: "Dashboard", icon: HomeIcon },
-        { id: "routes", label: "Route Discovery", icon: MapIcon },
-        { id: "weather", label: "Weather", icon: CloudIcon },
-        { id: "trips", label: "Trip Planning", icon: CalendarIcon },
-        { id: "community", label: "Community", icon: UsersIcon },
-    ]
+        { id: "dashboard", label: "Dashboard", icon: HomeIcon, path: "/" },
+        { id: "routes", label: "Route Discovery", icon: MapIcon, path: "/routeDiscovery" },
+        { id: "weather", label: "Weather", icon: CloudIcon, path: "/weather" },
+        { id: "trips", label: "Trip Planning", icon: CalendarIcon, path: "/trips" },
+        { id: "community", label: "Community", icon: UsersIcon, path: "/community" },
+    ];
+
+    const navigate = useNavigate();
 
     return (
         <div
@@ -64,7 +68,11 @@ export function Sidebar({ activeTab, setActiveTab, user, onShowAuth, onLogout })
                                     ? "bg-primary text-primary-foreground hover:bg-primary/90"
                                     : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                             }`}
-                            onClick={() => setActiveTab(item.id)}
+                            onClick={() => {
+                                setActiveTab(item.id);
+                                navigate(item.path);
+                            }}
+
                         >
                             <Icon className="h-5 w-5" />
                             {item.label}

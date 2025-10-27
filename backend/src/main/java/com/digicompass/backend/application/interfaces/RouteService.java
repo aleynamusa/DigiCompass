@@ -1,7 +1,7 @@
 package com.digicompass.backend.application.interfaces;
 
-import com.digicompass.backend.domain.models.Route;
-import com.digicompass.backend.domain.models.RouteGeometry;
+import com.digicompass.backend.infrastucture.persistence.models.Route;
+import com.digicompass.backend.infrastucture.persistence.models.RouteGeometry;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,4 +14,6 @@ public interface RouteService {
     List<Route> getRoutesByDistance(float distance);
     List<Route> getRoutesByKeyword(String keyword);
     List<Route> getRouteByDifficulty(String difficulty);
+    List<Route> getFilteredRoutes(String type, String difficulty, Float distance);
+
 }

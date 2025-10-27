@@ -1,6 +1,6 @@
 package com.digicompass.backend.application.interfaces;
 
-import com.digicompass.backend.domain.models.User;
+import com.digicompass.backend.infrastucture.persistence.models.User;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

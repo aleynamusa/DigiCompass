@@ -1,15 +1,17 @@
-package com.digicompass.backend.infrastucture.persistence.entity;
+package com.digicompass.backend.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,9 +28,4 @@ public class UserEntity {
 
     @Column(nullable=false)
     private String password;
-
-//    private String resetToken;
-//
-//    @Column(name = "reset_token_expiry")
-//    private LocalDateTime resetTokenExpiry;
 }

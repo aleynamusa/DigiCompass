@@ -1,82 +1,114 @@
 package com.digicompass.backend.application.services;
 
+import com.digicompass.backend.application.mapper.UserMapper;
 import com.digicompass.backend.application.services.helpers.PasswordHasher;
-import com.digicompass.backend.domain.models.User;
+import com.digicompass.backend.domain.entity.UserEntity;
+import com.digicompass.backend.infrastucture.persistence.models.User;
 import com.digicompass.backend.infrastucture.persistence.repository.interfaces.UserInterface;
+import jakarta.validation.Valid;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockedStatic;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mockStatic;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class AuthServiceImplTest {
+    @Mock
+    private UserInterface repoMock;
+    @Mock
+    private UserMapper userMapperMock;
 
     @InjectMocks
     private AuthServiceImpl service;
 
-    @Mock
-    private UserInterface repoMock;
+    private User user;
+    private UserEntity userEntity;
 
-    @Test
-    void signUp() {
-        User user = new User(null, "aleyna", "aleyna@gmail.com", (byte)19, "helloooo");
+    @BeforeEach
+    void setUp() {
 
-        when(repoMock.save(any(User.class))).thenAnswer(invocation -> {
-            User u = invocation.getArgument(0);
-            u.setId((long)123);
-            return u;
-        });
+        user = new User();
+        user.setId(1L);
+        user.setUsername("testuser");
+        user.setPassword("plainPassword12@");
+        user.setAge((byte)20);
+        user.setEmail("test@gmail.com");
 
-        try (MockedStatic<PasswordHasher> mockedHasher = mockStatic(PasswordHasher.class)) {
-            mockedHasher.when(() -> PasswordHasher.hash("helloooo")).thenReturn("hashedPassword");
-
-            User savedUser = service.signUp(user);
-
-            assertNotNull(savedUser.getId());
-            assertEquals("aleyna", savedUser.getUsername());
-            assertEquals("aleyna@gmail.com", savedUser.getEmail());
-            assertEquals("hashedPassword", savedUser.getPassword());
-        }
+        userEntity = new UserEntity();
+        userEntity.setId(1L);
+        userEntity.setUsername("testuser");
+        userEntity.setPassword("hashedPassword");
     }
 
     @Test
-    void signUp_NullUser_ThrowsException() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            service.signUp(null);
-        });
+    void signUp_ShouldHashPassword_AndSaveUser() {
+        //arrange
+        when(userMapperMock.toEntity(any(User.class))).thenReturn(userEntity);
+        when(repoMock.save(any(UserEntity.class))).thenReturn(userEntity);
+        when(userMapperMock.toDomain(any(UserEntity.class))).thenReturn(user);
+
+        //act
+        User result = service.signUp(user);
+
+        //assert
+        assertNotNull(result);
+        verify(repoMock, times(1)).save(any(UserEntity.class));
+        verify(userMapperMock, times(1)).toEntity(any(User.class));
+        verify(userMapperMock, times(1)).toDomain(any(UserEntity.class));
+
+        assertNotEquals("plainPassword", user.getPassword());
     }
 
     @Test
-    void testLogIn_Success() {
+    void signUp_ShouldThrowException_WhenPasswordIsNotValidated() {
 
-        String rawPassword = "helloooo";
-        User user = new User(123L, "aleyna", "aleyna@gmail.com", (byte) 19, PasswordHasher.hash(rawPassword));
+        User invalidUser = new User(1L, "testuser", "test@gmail.com", (byte)20, "plainPassword");
 
-        when(repoMock.findByUsername("aleyna")).thenReturn(user);
-        User loggedIn = service.logIn("aleyna", rawPassword);
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> service.signUp(invalidUser));
 
-        assertNotNull(loggedIn);
-        assertEquals("aleyna", loggedIn.getUsername());
-
-        assertTrue(PasswordHasher.verify(user.getPassword(), rawPassword));
+        assertTrue(
+                ex.getMessage().contains("Password"),
+                "Expected password validation error but got: " + ex.getMessage()
+        );
     }
 
     @Test
-    void testLogIn_WrongPassword(){
-        User user = new User((long)123, "aleyna", "aleyna@gmail.com", (byte)19, PasswordHasher.hash("helloooo"));
+    void signUp_ShouldThrowException_WhenEmailIsNotValid() {
 
-        when(repoMock.findByUsername("aleyna")).thenReturn(user);
+        User invalidUser = new User(1L, "testuser", "testgm.com", (byte)20, "plainPassword12@");
 
-        User loggedIn = service.logIn("aleyna", "helloo");
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> service.signUp(invalidUser));
 
-        assertNull(loggedIn);
+        assertTrue(
+                ex.getMessage().contains("Email"),
+                "Expected email validation error but got: " + ex.getMessage()
+        );
+    }
+
+    @Test
+    void signUp_ShouldThrowException_WhenUserIsNull() {
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> service.signUp(null));
+
+        assertEquals("User cannot be null", ex.getMessage());
+    }
+
+    @Test
+    void signUp_ShouldThrowException_WhenUserIsUnder14() {
+        user.setAge((byte)13);
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> service.signUp(user));
+
+        assertEquals("User cannot be less than 14 years old.", ex.getMessage());
     }
 
     @Test
@@ -86,5 +118,54 @@ class AuthServiceImplTest {
         User loggedIn = service.logIn("unknownUser", "anyPassword");
 
         assertNull(loggedIn);
+    }
+
+    @Test
+    void logIn_ShouldReturnUser_WhenPasswordMatches() {
+        when(repoMock.findByUsername("testuser")).thenReturn(userEntity);
+        when(userMapperMock.toDomain(userEntity)).thenReturn(user);
+
+        try (MockedStatic<PasswordHasher> mockedHasher = mockStatic(PasswordHasher.class)) {
+            mockedHasher.when(() -> PasswordHasher.verify("hashedPassword", "correctPassword"))
+                    .thenReturn(true);
+
+            User result = service.logIn("testuser", "correctPassword");
+
+            assertNotNull(result);
+            assertEquals("testuser", result.getUsername());
+            verify(repoMock).findByUsername("testuser");
+            verify(userMapperMock).toDomain(userEntity);
+        }
+    }
+
+    @Test
+    void logIn_ShouldReturnNull_WhenPasswordIsIncorrect() {
+        when(repoMock.findByUsername("testuser")).thenReturn(userEntity);
+
+        try (MockedStatic<PasswordHasher> mockedHasher = mockStatic(PasswordHasher.class)) {
+            mockedHasher.when(() -> PasswordHasher.verify("hashedPassword", "wrongPassword"))
+                    .thenReturn(false);
+
+            User result = service.logIn("testuser", "wrongPassword");
+
+            assertNull(result);
+            verify(repoMock).findByUsername("testuser");
+            verifyNoInteractions(userMapperMock);
+        }
+    }
+
+    @Test
+    void logIn_ShouldHandleNullPassword() {
+        when(repoMock.findByUsername("testuser")).thenReturn(userEntity);
+
+        try (MockedStatic<PasswordHasher> mockedHasher = mockStatic(PasswordHasher.class)) {
+            mockedHasher.when(() -> PasswordHasher.verify(anyString(), isNull()))
+                    .thenReturn(false);
+
+            User result = service.logIn("testuser", null);
+
+            assertNull(result);
+            verify(repoMock).findByUsername("testuser");
+        }
     }
 }

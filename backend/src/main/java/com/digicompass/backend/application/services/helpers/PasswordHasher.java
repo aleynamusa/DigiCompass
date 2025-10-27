@@ -14,10 +14,12 @@ public final class PasswordHasher {
     private PasswordHasher() {}
 
     public static String hash(String password) {
+        if (password == null) throw new IllegalArgumentException("Password cannot be null");
         return argon2.hash(ITERATIONS, MEMORY, PARALLELISM, password.toCharArray());
     }
 
     public static boolean verify(String hash, String password) {
+        if (hash == null || password == null) throw new IllegalArgumentException("Password and hash cannot be null");
         return argon2.verify(hash, password.toCharArray());
     }
 }

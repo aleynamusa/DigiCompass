@@ -16,7 +16,7 @@ import java.util.logging.Logger;
 public class AuthController {
 
     private final PasswordResetService passwordResetService;
-    private static final Logger LOGGER = Logger.getLogger( ClassName.class.getName() );
+    private static final Logger LOGGER = Logger.getLogger( AuthController.class.getName() );
 
     public AuthController(PasswordResetService passwordResetService) {
         this.passwordResetService = passwordResetService;

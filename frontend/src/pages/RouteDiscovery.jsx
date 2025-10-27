@@ -1,30 +1,19 @@
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
 import {Button} from "@/components/ui/button"
-import {Badge} from "@/components/ui/badge"
+import {RouteCard} from "@/components/route_card.jsx"
 import {Input} from "@/components/ui/input"
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select"
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { MapContainer, TileLayer, Polyline, Marker, Popup, useMap } from "react-leaflet"
 import {
-    MapPinIcon,
-    SearchIcon,
-    FilterIcon,
-    MountainIcon,
-    BikeIcon,
-    FootprintsIcon,
-    StarIcon,
-    ClockIcon,
-    TrendingUpIcon,
-    UsersIcon,
-    HeartIcon,
-    ShareIcon,
+    SearchIcon
 } from "lucide-react"
 import {CgAdd} from "react-icons/cg";
 import {Sidebar} from "@/components/sidebar.jsx";
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import axios from "axios";
-import L, { LatLngBounds }  from "leaflet";
+import {RouteDetails} from "@/components/route_details.jsx";
+
+
 
 
 
@@ -34,24 +23,137 @@ const RouteDiscovery = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [selectedRoute, setSelectedRoute] = useState(null);
+    const [searchRoutes, setSearchRoutes] = useState([]);
+    const [filteredRoutes, setFilteredRoutes] = useState([]);
+    const [searchTerm, setSearchTerm] = useState("");
+
+    const [selectedType, setSelectedType] = useState("all");
+    const [selectedDifficulty, setSelectedDifficulty] = useState("all");
+    const [selectedDistanceRange, setSelectedDistanceRange] = useState("all");
+
+
     // selectedRoute.routeGeometry = undefined;
+    const fetchRoutes = useCallback(async () => {
+        try {
+            const response = await axios.get(`${API_URL}/route`);
+            setRoutes(response.data);
+        } catch (err) {
+            setError("There has been a problem and the data is unavailable at the moment.");
+        } finally {
+            setLoading(false);
+        }
+    }, [API_URL]);
+
 
     useEffect(() => {
-        const fetchRoutes = async () => {
-            try {
-                const response = await axios.get(`${API_URL}/route`);
-                setRoutes(response.data);
-            } catch (err) {
-                console.error(err);
-                setError(err.response?.data?.message || "Failed to fetch routes");
-            } finally {
-                setLoading(false);
-            }
-        };
-
         fetchRoutes();
     }, []);
 
+    const handleViewDetails = async (route) => {
+        try {
+            const response = await axios.get(`${API_URL}/route/${route.id}/geometry`);
+            const geojson = response.data.geojson;
+
+            console.log("Fetched GeoJSON:", geojson);
+
+            console.log("Review", response.data)
+
+            setSelectedRoute({
+                ...response.data,
+                routeGeometry: geojson,
+            });
+        } catch (err) {
+            console.error(err);
+            setError("There has been a problem and the data is unavailable at the moment.");
+        }
+
+    };
+
+    const handleSearch = async (keyword) => {
+        try {
+            const response = await axios.get(`${API_URL}/route/keyword?keyword=${keyword}`);
+            setSearchRoutes(response.data);
+        } catch (err) {
+            console.error(err);
+            setError("There has been a problem and the data is unavailable at the moment.");
+        }
+    };
+
+    const handleFilter = async (type, difficulty, distanceRange) => {
+        try {
+            if (type === "all" && difficulty === "all" && distanceRange === "all") {
+                const res = await axios.get(`${API_URL}/route`);
+                setFilteredRoutes(res.data);
+                return;
+            }
+
+            const params = new URLSearchParams();
+            if (type !== "all") params.append("type", type);
+            if (difficulty !== "all") params.append("difficulty", difficulty);
+
+            if (distanceRange !== "all") {
+                if (distanceRange === "short") params.append("distance", "5");
+                if (distanceRange === "medium") params.append("distance", "15");
+                if (distanceRange === "long") params.append("distance", "100");
+            }
+
+            const res = await axios.get(`${API_URL}/route/filter?${params.toString()}`);
+            setFilteredRoutes(res.data);
+        } catch (err) {
+            console.error(err);
+            setError("There has been a problem and the data is unavailable at the moment.");
+        }
+
+    };
+
+    useEffect(() => {
+        const delay = setTimeout(() => {
+            if (searchTerm.trim()) {
+                handleSearch(searchTerm);
+            } else {
+                setSearchRoutes([]);
+            }
+        }, 500); // waits 0.5s after typing stops
+
+        return () => clearTimeout(delay);
+    }, [searchTerm]);
+
+    useEffect(() => {
+        handleFilter(selectedType, selectedDifficulty, selectedDistanceRange);
+    }, [selectedType, selectedDifficulty, selectedDistanceRange]);
+
+
+
+    const handleResetFilters = async () => {
+        setSelectedType("all");
+        setSelectedDifficulty("all");
+        setSelectedDistanceRange("all");
+        setSearchTerm("");
+        setSearchRoutes([]);
+
+        // Load all routes again
+        await fetchRoutes();
+        setFilteredRoutes(res.data);
+    };
+
+    const isFiltering =
+        selectedType !== "all" ||
+        selectedDifficulty !== "all" ||
+        selectedDistanceRange !== "all";
+
+    const isSearching = searchTerm.trim().length > 0;
+
+    const baseRoutes = isFiltering ? filteredRoutes : routes;
+
+    const displayRoutes = isSearching
+        ? baseRoutes.filter((route) =>
+            route.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            route.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            route.routeType?.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+        : baseRoutes;
+
+    // Needs to be used after every hook is defined others doesnt work
     if (loading) {
         return (
             <div className="flex items-center justify-center h-screen">
@@ -68,64 +170,13 @@ const RouteDiscovery = () => {
         );
     }
 
-    const handleViewDetails = async (route) => {
-        try {
-            const response = await axios.get(`${API_URL}/route/${route.id}/geometry`);
-            const geojson = response.data.geojson;
-
-            console.log("Fetched GeoJSON:", geojson);
-
-            setSelectedRoute({
-                ...route,
-                routeGeometry: geojson,
-            });
-        } catch (err) {
-            console.error("Failed to fetch route geometry:", err);
-        }
-    };
-
-    const getRouteCoords = (geojson) => {
-        if (!geojson) return [];
-        if (geojson.type === "LineString") return geojson.coordinates.map(c => [c[1], c[0]]);
-        if (geojson.type === "MultiLineString")
-            return geojson.coordinates.flat().map(c => [c[1], c[0]]);
-        return [];
-    };
-
-    const getRouteBounds = (geojson) => {
-        const coords = getRouteCoords(geojson);
-        if (!coords.length) return null;
-        return new LatLngBounds(coords);
-    };
-
-    const FitBoundsOnLoad = ({ geojson }) => {
-        const map = useMap();
-
-        useEffect(() => {
-            const coords = getRouteCoords(geojson);
-            if (coords.length > 0) {
-                map.fitBounds(coords, { padding: [20, 20] });
-            }
-        }, [geojson, map]);
-
-        return null;
-    };
-
-    const smallIcon = L.divIcon({
-        className: "custom-marker",
-        html: '<div style="background-color:#007bff;width:10px;height:10px;border-radius:50%;border:1px solid white;"></div>',
-        iconSize: [10, 10],
-    });
-
     return (
         <div className="h-screen w-full relative">
-            {/* Fixed sidebar */}
             <Sidebar />
 
-            {/* Main content shifted to the right */}
             <main
                 className="h-full overflow-y-auto p-3"
-                style={{ marginLeft: "var(--sidebar-width)" }}
+                // style={{ marginLeft: "var(--sidebar-width)" }}
             >
                 <div className=" flex items-center justify-between text-left">
                     <div>
@@ -146,6 +197,7 @@ const RouteDiscovery = () => {
                     <CardContent className="p-5">
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
 
+
                             {/* Search Input */}
                             <div className="relative flex-1 min-w-[250px]">
                                 <SearchIcon
@@ -153,13 +205,17 @@ const RouteDiscovery = () => {
                                 <Input
                                     placeholder="Search routes by name, location, or tags..."
                                     className="pl-10 w-full"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
                                 />
                             </div>
 
                             {/* Filters */}
                             <div
                                 className="flex flex-wrap md:flex-nowrap gap-3 justify-between md:justify-end w-full md:w-auto">
-                                <Select className="size-32">
+                                {/*TypeFilter*/}
+                                <Select value={selectedType} onValueChange={setSelectedType} className="size-32"
+                                >
                                     <SelectTrigger className="min-w-[150px]">
                                         <SelectValue placeholder="Type"/>
                                     </SelectTrigger>
@@ -168,10 +224,13 @@ const RouteDiscovery = () => {
                                         <SelectItem value="hiking">Hiking</SelectItem>
                                         <SelectItem value="cycling">Cycling</SelectItem>
                                         <SelectItem value="walking">Walking</SelectItem>
+                                        <SelectItem value="kayaking">Kayaking</SelectItem>
                                     </SelectContent>
                                 </Select>
 
-                                <Select className="size-52">
+                                {/*DifficultyFilter*/}
+                                <Select className="size-52"
+                                        value={selectedDifficulty} onValueChange={setSelectedDifficulty}>
                                     <SelectTrigger className="min-w-[150px]">
                                         <SelectValue placeholder="Difficulty"/>
                                     </SelectTrigger>
@@ -183,8 +242,22 @@ const RouteDiscovery = () => {
                                     </SelectContent>
                                 </Select>
 
-                                <Button variant="outline" size="icon">
-                                    <FilterIcon className="h-4 w-4"/>
+                                {/*DistanceFilter*/}
+                                <Select value={selectedDistanceRange} onValueChange={setSelectedDistanceRange}>
+                                    <SelectTrigger className="min-w-[150px]">
+                                        <SelectValue placeholder="Distance" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">All Distances</SelectItem>
+                                        <SelectItem value="short">0–5 km</SelectItem>
+                                        <SelectItem value="medium">5–15 km</SelectItem>
+                                        <SelectItem value="long">15+ km</SelectItem>
+                                    </SelectContent>
+                                </Select>
+
+                                {/*ResetButton*/}
+                                <Button variant="outline" onClick={handleResetFilters}>
+                                    Reset
                                 </Button>
                             </div>
                         </div>
@@ -203,165 +276,31 @@ const RouteDiscovery = () => {
                     <TabsContent value="all" className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-                            {routes.map((route) => (
-                                <Card
-                                    key={route.id}
-                                    className="overflow-hidden hover:shadow-lg transition-shadow"
-                                >
-                                    <div className="relative">
-                                        <img
-                                            src={"/vite.svg"}
-                                            alt={route.name}
-                                            className="w-full h-48 object-cover"
-                                        />
-                                        <div className="absolute top-2 right-2 flex gap-1">
-                                            <Button
-                                                size="icon"
-                                                variant="secondary"
-                                                className="h-8 w-8 bg-white/80 hover:bg-white"
-                                            >
-                                                <HeartIcon className="h-4 w-4"/>
-                                            </Button>
-                                            <Button
-                                                size="icon"
-                                                variant="secondary"
-                                                className="h-8 w-8 bg-white/80 hover:bg-white"
-                                            >
-                                                <ShareIcon className="h-4 w-4"/>
-                                            </Button>
-                                        </div>
-                                        <div className="absolute top-2 left-2">
-                                            <Badge className="border-0">
-                                                {route.difficulty || "Unknown"}
-                                            </Badge>
-                                        </div>
-                                    </div>
+                            {displayRoutes.length === 0 ? (
+                                <div className="text-center text-gray-600 col-span-full py-10">
+                                    <p className="text-lg font-medium">No routes found</p>
+                                    <p className="text-sm text-gray-500">Try adjusting your filters or search keywords.</p>
+                                </div>
+                            ) : (
+                                displayRoutes.map((route) => (
+                                    <RouteCard key={route.id} route={route} onViewDetails={handleViewDetails} />
 
-                                    <CardHeader className="pb-2">
-                                        <div className="flex items-start justify-between">
-                                            <CardTitle className="text-lg">
-                                                {route.name}
-                                            </CardTitle>
-                                            <div className="flex items-center gap-1 text-sm">
-                                                <StarIcon className="h-4 w-4 fill-yellow-400 text-yellow-400"/>
-                                                <span className="font-medium">
-                                                    {route.rating || "4.5"}
-                                    </span>
-                                            </div>
-                                        </div>
-                                        <CardDescription className="text-sm text-left">
-                                            {route.description}
-                                        </CardDescription>
-                                    </CardHeader>
-
-                                    <CardContent className="space-y-3">
-                                        <div className="flex items-center justify-between text-sm">
-                                            <div className="flex items-center gap-1">
-                                                <span className="capitalize">
-                                                    {route.routeType}
-                                                </span>
-                                            </div>
-                                            <div className="flex items-center gap-1">
-                                                <UsersIcon className="h-4 w-4 text-muted-foreground"/>
-                                                <span>
-                                                    {route.createdByUserId?.username || "Unknown"}
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                        <div className="grid grid-cols-3 gap-2 text-sm">
-                                            <div className="flex items-center gap-1">
-                                                <MapPinIcon className="h-4 w-4 text-muted-foreground"/>
-                                                <span>{route.distance} km</span>
-                                            </div>
-                                            <div className="flex items-center gap-1">
-                                                <ClockIcon className="h-4 w-4 text-muted-foreground"/>
-                                                <span>{route.duration}</span>
-                                            </div>
-                                            <div className="flex items-center gap-1">
-                                                <TrendingUpIcon className="h-4 w-4 text-muted-foreground"/>
-                                                <span>{route.difficulty}</span>
-                                            </div>
-                                        </div>
-
-                                        <div className="flex gap-2 pt-2">
-                                            <Button className="flex-1" size="sm" onClick={() => handleViewDetails(route)}>
-                                                View Details
-                                            </Button>
-                                            <Button variant="outline" size="sm">
-                                                Add to Trip
-                                            </Button>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            ))}
+                                )))}
                         </div>
                     </TabsContent>
 
                     <TabsContent value="popular">...</TabsContent>
                     <TabsContent value="nearby">...</TabsContent>
                     <TabsContent value="saved">...</TabsContent>
-
                 </Tabs>
-
-
             </main>
 
-
-            {/* Route Details Popup */}
-            <Dialog open={!!selectedRoute} onOpenChange={() => setSelectedRoute(null)}>
-                <DialogContent className="max-w-3xl">
-                    {selectedRoute && (
-                        <>
-                            <DialogHeader>
-                                <DialogTitle>{selectedRoute.name}</DialogTitle>
-                                <p className="text-sm text-gray-600">{selectedRoute.description}</p>
-                            </DialogHeader>
-
-                            <div className="space-y-3">
-                                <div className="flex justify-between text-sm text-gray-700">
-                                    <p><strong>Distance:</strong> {selectedRoute.distance} km</p>
-                                    <p><strong>Duration:</strong> {selectedRoute.duration}</p>
-                                    <p><strong>Difficulty:</strong> {selectedRoute.difficulty}</p>
-                                </div>
-
-                                {/* Map Section */}
-                                <div className="h-80 w-full rounded-md overflow-hidden">
-                                    <MapContainer
-                                        center={[45.4642, 9.19]} // fallback if geometry is missing
-                                        zoom={13}
-                                        style={{ height: "100%", width: "100%" }}
-                                    >
-                                        <TileLayer
-                                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                                            attribution="© OpenStreetMap contributors"
-                                        />
-
-                                        {/* Auto-fit map to the route */}
-                                        {selectedRoute.routeGeometry && <FitBoundsOnLoad geojson={selectedRoute.routeGeometry} />}
-
-                                        {/* Draw the polyline */}
-                                        {selectedRoute.routeGeometry && (
-                                            <Polyline positions={getRouteCoords(selectedRoute.routeGeometry)} color="blue" />
-                                        )}
+            <RouteDetails
+                selectedRoute={selectedRoute}
+                onOpenChange={() => setSelectedRoute(null)}
+            />
 
 
-                                        {selectedRoute.routeGeometry?.coordinates && (
-                                            getRouteCoords(selectedRoute.routeGeometry).map((point, index) => (
-                                                <Marker key={index} position={point} icon={smallIcon}>
-                                                    <Popup>Point {index + 1}</Popup>
-                                                </Marker>
-                                            ))
-                                        )}
-
-                                    </MapContainer>
-
-                                </div>
-                            </div>
-                        </>
-                    )}
-                </DialogContent>
-            </Dialog>
         </div>
     );
 };

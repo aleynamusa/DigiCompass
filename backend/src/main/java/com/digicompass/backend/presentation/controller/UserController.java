@@ -2,7 +2,7 @@ package com.digicompass.backend.presentation.controller;
 
 import com.digicompass.backend.application.interfaces.AuthService;
 import com.digicompass.backend.application.interfaces.UserService;
-import com.digicompass.backend.domain.models.User;
+import com.digicompass.backend.infrastucture.persistence.models.User;
 import com.digicompass.backend.presentation.controller.dto.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

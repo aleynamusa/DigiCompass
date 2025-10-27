@@ -1,4 +1,4 @@
-package com.digicompass.backend.domain.models;
+package com.digicompass.backend.infrastucture.persistence.models;
 
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.*;

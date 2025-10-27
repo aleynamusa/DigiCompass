@@ -1,18 +1,25 @@
-package com.digicompass.backend.infrastucture.persistence.entity;
+package com.digicompass.backend.domain.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.locationtech.jts.geom.Geometry;
+
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "routes")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+
 public class RouteEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -47,11 +54,27 @@ public class RouteEntity {
     private LocalDateTime updatedAt;
 
     @JsonIgnore
+    @Basic(fetch = FetchType.LAZY)
     @Column(name = "route_geometry", columnDefinition = "geometry")
     private Geometry routeGeometry;
 
-//    @Column()
-//    private List<String> images;
+    @OneToMany(mappedBy = "route", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<RouteImageEntity> images = new ArrayList<>();
+
+//    @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
+//    @JsonManagedReference
+//    private List<ReviewEntity> reviews = new ArrayList<>();
+
+    @OneToMany(mappedBy = "routeId", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<ReviewEntity> reviews = new ArrayList<>();
+
+    @OneToMany(mappedBy = "routeId", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<RatingEntity> ratings = new ArrayList<>();
+
+
 
 }
 

@@ -1,13 +1,14 @@
 package com.digicompass.backend.application.services;
 
 import com.digicompass.backend.application.mapper.UserMapper;
+import com.digicompass.backend.application.security.EmailValidator;
+import com.digicompass.backend.application.security.PasswordValidator;
 import com.digicompass.backend.application.services.helpers.PasswordHasher;
 import com.digicompass.backend.application.interfaces.AuthService;
-import com.digicompass.backend.domain.models.User;
-import com.digicompass.backend.infrastucture.persistence.entity.UserEntity;
+import com.digicompass.backend.domain.entity.UserEntity;
+import com.digicompass.backend.infrastucture.persistence.models.User;
 import com.digicompass.backend.infrastucture.persistence.repository.interfaces.UserInterface;
 import jakarta.validation.Valid;
-import org.springframework.javapoet.ClassName;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -30,11 +31,28 @@ public class AuthServiceImpl implements AuthService {
 
 
     @Override
-    public User signUp(@Valid User user) {
+    public User signUp(User user) {
 
         if (user == null) {
             LOGGER.log(Level.WARNING, "User cannot be null, when registering.");
             throw new IllegalArgumentException("User cannot be null");
+        }
+
+        if (user.getAge() < 14){
+            LOGGER.log(Level.WARNING, "User cannot be less than 14 years old.");
+            throw new IllegalArgumentException("User cannot be less than 14 years old.");
+        }
+
+        String pwError = PasswordValidator.getValidationError(user.getPassword());
+        if (pwError != null) {
+            LOGGER.warning("Password validation failed: " + pwError);
+            throw new IllegalArgumentException(pwError);
+        }
+
+        String emailError = EmailValidator.getValidationError(user.getEmail());
+        if (emailError != null) {
+            LOGGER.warning("Email validation failed: " + emailError);
+            throw new IllegalArgumentException(emailError);
         }
 
         LOGGER.log(Level.INFO, "Starting sign up process for username: {0}", user.getUsername());

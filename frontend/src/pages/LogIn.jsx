@@ -32,7 +32,7 @@ const LogIn = () => {
                 Cookies.set("username", response.data.username);
                 Cookies.set("auth", "th679"); // TODO: replace with real token
 
-                // optionally persist longer if "Remember me" is checked
+
                 if (isChecked) {
                     Cookies.set("remember", "true", { expires: 365 });
                 }
