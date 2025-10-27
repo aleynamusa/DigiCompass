@@ -37,8 +37,8 @@ class PasswordHasherTest {
 
     @Test
     void testHash_ShouldThrowException_ForNullPassword() {
-        assertThrows(NullPointerException.class, () -> PasswordHasher.hash(null),
-                "Hashing null should throw NullPointerException");
+        assertThrows(IllegalArgumentException.class, () -> PasswordHasher.hash(null),
+                "Hashing null should throw IllegalArgumentException");
     }
 
     @Test
