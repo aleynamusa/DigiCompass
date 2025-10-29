@@ -2,7 +2,7 @@ import {useEffect, useRef, useState} from "react";
 import {Dialog, DialogContent, DialogHeader, DialogTitle} from "@/components/ui/dialog"
 import {MapContainer, TileLayer, Polyline, Marker, Popup, useMap} from "react-leaflet"
 import L, {LatLngBounds} from "leaflet";
-import {Rating, Stack, Group, Button, Textarea, Tabs, FloatingIndicator} from "@mantine/core";
+import {Rating, Stack, Group, Button, Textarea, Tabs, FloatingIndicator, Flex} from "@mantine/core";
 import classes from '@/components/card.module.css';
 import axios from "axios";
 
@@ -223,15 +223,26 @@ export function RouteDetails({selectedRoute, onOpenChange}) {
 
                 <Tabs variant="none" value={value} onChange={setValue}>
                     <Tabs.List ref={setRootRef} className={classes.list}>
-                        <Tabs.Tab value="1" ref={setControlRef('1')} className={classes.tab}>
-                            Reviews
-                        </Tabs.Tab>
-                        <Tabs.Tab value="2" ref={setControlRef('2')} className={classes.tab}>
-                            Second tab
-                        </Tabs.Tab>
-                        <Tabs.Tab value="3" ref={setControlRef('3')} className={classes.tab}>
-                            Third tab
-                        </Tabs.Tab>
+                        <Flex
+                            mih={50}
+                            bg="rgba(0, 0, 0, .3)"
+                            gap="md"
+                            justify="center"
+                            align="flex-start"
+                            direction="row"
+                            wrap="wrap"
+                        >
+                            <Tabs.Tab value="1" ref={setControlRef('1')} className={classes.tab}>
+                                Reviews
+                            </Tabs.Tab>
+                            <Tabs.Tab value="2" ref={setControlRef('2')} className={classes.tab}>
+                                Ratings
+                            </Tabs.Tab>
+                            <Tabs.Tab value="3" ref={setControlRef('3')} className={classes.tab}>
+                                Images{/* TODO Show the images */}
+                            </Tabs.Tab>
+                        </Flex>
+
 
                         <FloatingIndicator
                             target={value ? controlsRefs[value] : null}

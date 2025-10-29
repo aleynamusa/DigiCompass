@@ -16,4 +16,6 @@ public interface   UserInterface {
     void delete(UserEntity user);
     UserEntity findByUsername(String username);
     UserEntity findByEmail(String email);
+    List<String> findAllEmails();
+    List<String> findAllUsernames();
 }

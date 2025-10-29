@@ -1,7 +1,5 @@
-package com.digicompass.backend.infrastucture.persistence.models;
+package com.digicompass.backend.application.models;
 
-import com.digicompass.backend.presentation.controller.dto.RatingDto;
-import com.digicompass.backend.presentation.controller.dto.ReviewDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

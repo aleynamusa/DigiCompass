@@ -10,7 +10,6 @@ import {
 } from "lucide-react";
 import {Button} from "@/components/ui/button.jsx";
 import {Badge} from "@/components/ui/badge.jsx";
-import {RouteDetails} from "@/components/route_details"
 import {Carousel} from "@mantine/carousel";
 import classes from '@/components/card.module.css';
 

@@ -6,6 +6,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+import java.util.Date;
+
 @Entity
 @Table(name = "users")
 @Data
@@ -24,7 +27,7 @@ public class UserEntity {
     private String email;
 
     @Column(nullable=false)
-    private Integer age;
+    private LocalDate birthDate;
 
     @Column(nullable=false)
     private String password;

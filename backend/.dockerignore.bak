@@ -1,0 +1,57 @@
+# Version control
+.git/
+.gitignore
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Node.js dependencies and debug files
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Java build outputs and artifacts
+build/
+out/
+target/
+*.class
+
+# Test sources and outputs
+test/
+tests/
+*.log
+
+# Temporary and cache files
+tmp/
+temp/
+*.tmp
+
+# Environment and secrets
+.env*
+*.env
+*.pem
+*.key
+*.crt
+
+# Local and development config
+.local/
+local/
+config.local.*
+*.local.yml
+
+# Documentation and markdown
+*.md
+README*
+docs/
+HELP.md
+
+
+# Miscellaneous
+*.bak
+*.old
+*.orig
+

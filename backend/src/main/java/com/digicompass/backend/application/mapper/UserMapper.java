@@ -1,10 +1,9 @@
 package com.digicompass.backend.application.mapper;
 
 import com.digicompass.backend.domain.entity.UserEntity;
-import com.digicompass.backend.infrastucture.persistence.models.User;
+import com.digicompass.backend.application.models.User;
 
 import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 

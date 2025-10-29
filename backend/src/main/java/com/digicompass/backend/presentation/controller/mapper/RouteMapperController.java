@@ -1,12 +1,11 @@
 package com.digicompass.backend.presentation.controller.mapper;
 
 import com.digicompass.backend.domain.entity.RouteImageEntity;
-import com.digicompass.backend.infrastucture.persistence.models.Route;
-import com.digicompass.backend.infrastucture.persistence.models.RouteGeometry;
+import com.digicompass.backend.application.models.Route;
+import com.digicompass.backend.application.models.RouteGeometry;
 import com.digicompass.backend.presentation.controller.dto.RouteDto;
 import com.digicompass.backend.presentation.controller.dto.RouteGeometryDto;
 import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
 
 import java.util.ArrayList;
 import java.util.List;

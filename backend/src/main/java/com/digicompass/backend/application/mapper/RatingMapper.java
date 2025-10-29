@@ -1,17 +1,12 @@
 package com.digicompass.backend.application.mapper;
 
 import com.digicompass.backend.domain.entity.RatingEntity;
-import com.digicompass.backend.domain.entity.ReviewEntity;
-import com.digicompass.backend.infrastucture.persistence.models.Rating;
-import com.digicompass.backend.infrastucture.persistence.models.Review;
-import com.digicompass.backend.infrastucture.persistence.models.Route;
-import com.digicompass.backend.infrastucture.persistence.models.User;
+import com.digicompass.backend.application.models.Rating;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Mapper(componentModel = "spring", uses = {RouteMapper.class, UserMapper.class})

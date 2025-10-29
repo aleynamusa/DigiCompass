@@ -1,8 +1,7 @@
 package com.digicompass.backend.presentation.controller.dto;
 
-import com.digicompass.backend.domain.entity.RouteEntity;
 import com.digicompass.backend.domain.entity.UserEntity;
-import com.digicompass.backend.infrastucture.persistence.models.RouteImage;
+import com.digicompass.backend.application.models.RouteImage;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

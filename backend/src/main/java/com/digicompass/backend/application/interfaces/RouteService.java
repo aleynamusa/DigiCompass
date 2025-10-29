@@ -1,7 +1,7 @@
 package com.digicompass.backend.application.interfaces;
 
-import com.digicompass.backend.infrastucture.persistence.models.Route;
-import com.digicompass.backend.infrastucture.persistence.models.RouteGeometry;
+import com.digicompass.backend.application.models.Route;
+import com.digicompass.backend.application.models.RouteGeometry;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

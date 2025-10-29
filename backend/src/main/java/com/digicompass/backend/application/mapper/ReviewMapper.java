@@ -1,7 +1,7 @@
 package com.digicompass.backend.application.mapper;
 
 import com.digicompass.backend.domain.entity.ReviewEntity;
-import com.digicompass.backend.infrastucture.persistence.models.Review;
+import com.digicompass.backend.application.models.Review;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

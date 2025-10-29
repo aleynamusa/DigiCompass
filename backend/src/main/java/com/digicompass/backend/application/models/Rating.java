@@ -1,8 +1,5 @@
-package com.digicompass.backend.infrastucture.persistence.models;
+package com.digicompass.backend.application.models;
 
-import com.digicompass.backend.domain.entity.RouteEntity;
-import com.digicompass.backend.domain.entity.UserEntity;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

@@ -1,12 +1,6 @@
-package com.digicompass.backend.infrastucture.persistence.models;
+package com.digicompass.backend.application.models;
 
-import com.digicompass.backend.domain.entity.RatingEntity;
-import com.digicompass.backend.domain.entity.ReviewEntity;
-import com.digicompass.backend.domain.entity.RouteImageEntity;
-import com.digicompass.backend.domain.entity.UserEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

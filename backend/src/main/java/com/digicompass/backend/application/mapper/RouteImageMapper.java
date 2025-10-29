@@ -1,7 +1,7 @@
 package com.digicompass.backend.application.mapper;
 
 import com.digicompass.backend.domain.entity.RouteImageEntity;
-import com.digicompass.backend.infrastucture.persistence.models.RouteImage;
+import com.digicompass.backend.application.models.RouteImage;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")

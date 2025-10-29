@@ -55,4 +55,14 @@ public class UserRepositoryImpl implements UserInterface {
         }
         return entity;
     }
+
+    @Override
+    public List<String> findAllEmails() {
+        return jpaRepository.findAllEmails();
+    }
+
+    @Override
+    public List<String> findAllUsernames() {
+        return jpaRepository.findAllUsernames();
+    }
 }

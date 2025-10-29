@@ -3,7 +3,7 @@ package com.digicompass.backend.application.services;
 import com.digicompass.backend.application.interfaces.EmailService;
 import com.digicompass.backend.application.mapper.UserMapper;
 import com.digicompass.backend.domain.entity.UserEntity;
-import com.digicompass.backend.infrastucture.persistence.models.User;
+import com.digicompass.backend.application.models.User;
 import com.digicompass.backend.infrastucture.persistence.repository.interfaces.UserInterface;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

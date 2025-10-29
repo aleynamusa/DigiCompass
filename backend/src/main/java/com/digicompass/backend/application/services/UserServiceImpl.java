@@ -1,10 +1,9 @@
 package com.digicompass.backend.application.services;
 
 import com.digicompass.backend.application.mapper.UserMapper;
-import com.digicompass.backend.infrastucture.persistence.models.User;
+import com.digicompass.backend.application.models.User;
 import com.digicompass.backend.application.interfaces.UserService;
 import com.digicompass.backend.infrastucture.persistence.repository.interfaces.UserInterface;
-import org.springframework.javapoet.ClassName;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -65,6 +64,16 @@ public class UserServiceImpl implements UserService {
         LOGGER.log(Level.INFO, "Deleting user with id: {0}", user.getId());
         userRepository.delete(userMapper.toEntity(user));
         LOGGER.log(Level.INFO, "User deleted with id: {0}", user.getId());
+    }
+
+    @Override
+    public boolean checkUsernameAvailability(String username) {
+        return userRepository.findAllUsernames().contains(username);
+    }
+
+    @Override
+    public boolean checkEmailAvailability(String email) {
+        return userRepository.findAllEmails().contains(email);
     }
 
 }

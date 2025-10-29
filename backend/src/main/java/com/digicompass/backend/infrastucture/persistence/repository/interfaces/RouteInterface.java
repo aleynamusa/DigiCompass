@@ -18,4 +18,5 @@ public interface RouteInterface {
     List<RouteEntity> getAllRoutesByDifficulty(String difficulty);
     List<RouteEntity> getAllRoutesByDistance(float distance);
     List<RouteEntity> filterAll(String type, String difficulty, Float distance);
+    List<Long> getAllIds();
 }

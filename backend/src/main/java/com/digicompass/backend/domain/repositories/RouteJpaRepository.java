@@ -34,6 +34,9 @@ WHERE (LOWER(r.routeType) = LOWER(:type) OR :type IS NULL )
             @Param("distance") Float distance
     );
 
+    @Query("select r.id from RouteEntity r")
+    List<Long> getAllIds();
+
 
 
 

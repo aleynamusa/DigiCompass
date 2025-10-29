@@ -2,8 +2,12 @@ import React, { useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
+import {Checkbox} from "@mantine/core";
+import ShowPassword from "@/components/showPassword.jsx";
 
 const API_URL = import.meta.env.VITE_BACKEND_URL;
+
+
 
 const LogIn = () => {
     const [loginData, setLoginData] = useState({
@@ -13,11 +17,14 @@ const LogIn = () => {
     const [isChecked, setChecked] = useState(true);
     const [errors, setErrors] = useState({});
     const [success, setSuccess] = useState("");
+
+
     const navigate = useNavigate();
 
     const handleChange = (e) => {
         setLoginData({ ...loginData, [e.target.name]: e.target.value });
     };
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -86,63 +93,27 @@ const LogIn = () => {
                     {errors.username && <p style={{ color: "red" }}>{errors.username}</p>}
                 </div>
 
-                {/* Password */}
-                <div className="text-left relative z-0 w-full mb-5 group">
-                    <input
-                        type="password"
-                        name="password"
-                        id="password"
-                        className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-slate-400 dark:focus:border-amber-50 focus:outline-none focus:ring-0 focus:border-amber-50 peer"placeholder=" "
-                        required
-                        value={loginData.password}
-                        onChange={handleChange}
-                        minLength={8}
-                    />
-                    <label
-                        htmlFor="password"
-                        className="peer-focus:font-medium absolute text-sm text-gray-800 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-amber-50 peer-focus:dark:text-amber-50 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-                    >
-                        Password
-                    </label>
-                    {errors.password && <p style={{ color: "red" }}>{errors.password}</p>}
-                </div>
+                <ShowPassword
+                    name="password"
+                    value={loginData.password}
+                    onChange={handleChange}
+                    error={errors.password}
+                />
 
-                <div className="checkbox-wrapper mb-3 justify-items-center">
-                    <input
+                <div className="justify-items-center">
+                    <Checkbox
                         onChange={(e) => {
                             setChecked(e.target.checked);
                             if (e.target.checked) {
-                                Cookies.set("auth", "token-gFVn244", { expires: 365, secure: true });
+                                Cookies.set("auth", "token-gFVn244", {expires: 365, secure: true});
                             } else {
                                 Cookies.remove("auth");
                             }
                         }}
-                        type="checkbox"
-                        className="check"
-                        id="check1-61"
+                        label="Remember me"
+                        radius="xs"
+
                     />
-                    <label htmlFor="check1-61" className="label flex items-center gap-2">
-                        <svg width="20" height="20" viewBox="0 0 95 95">
-                            <rect
-                                x="30"
-                                y="20"
-                                width="50"
-                                height="50"
-                                stroke="black"
-                                fill="none"
-                            ></rect>
-                            <g transform="translate(0,-952.36222)">
-                                <path
-                                    d="m 56,963 c -102,122 6,9 7,9 17,-5 -66,69 -38,52 122,-77 -7,14 18,4 29,-11 45,-43 23,-4"
-                                    stroke="#cc2323"
-                                    strokeWidth="3"
-                                    fill="none"
-                                    className="path1"
-                                ></path>
-                            </g>
-                        </svg>
-                        <span>Remember me</span>
-                    </label>
                 </div>
 
                 <Link

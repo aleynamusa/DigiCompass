@@ -37,6 +37,13 @@ public class RouteRepositoryImpl implements RouteInterface {
     }
 
     @Override
+    public List<Long> getAllIds(){
+        List<Long> ids = jpaRepository.getAllIds();
+
+        return ids;
+    }
+
+    @Override
     public RouteEntity getRouteByName(String name) {
         return jpaRepository.findRouteEntityByName(name);
     }

@@ -1,7 +1,7 @@
 package com.digicompass.backend.presentation.controller;
 
 import com.digicompass.backend.application.interfaces.RouteService;
-import com.digicompass.backend.infrastucture.persistence.models.Route;
+import com.digicompass.backend.application.models.Route;
 import com.digicompass.backend.presentation.controller.dto.RouteDto;
 import com.digicompass.backend.presentation.controller.dto.RouteGeometryDto;
 import com.digicompass.backend.presentation.controller.mapper.RouteMapperController;

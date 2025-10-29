@@ -1,0 +1,168 @@
+package com.digicompass.backend.application.services;
+
+import com.digicompass.backend.application.interfaces.RatingService;
+import com.digicompass.backend.application.interfaces.ReviewService;
+import com.digicompass.backend.application.mapper.RouteMapper;
+import com.digicompass.backend.domain.entity.RouteEntity;
+import com.digicompass.backend.application.models.Rating;
+import com.digicompass.backend.application.models.Review;
+import com.digicompass.backend.application.models.Route;
+import com.digicompass.backend.application.models.RouteGeometry;
+import com.digicompass.backend.infrastucture.persistence.repository.interfaces.RouteInterface;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(SpringExtension.class)
+class RouteServiceImplTest {
+    @Mock
+    private RouteInterface routeRepository;
+
+    @Mock
+    private RouteMapper routeMapper;
+
+    @Mock
+    private ObjectMapper objectMapper;
+
+    @Mock
+    private RatingService ratingService;
+
+    @Mock
+    private ReviewService reviewService;
+
+    @InjectMocks
+    private RouteServiceImpl routeService;
+
+    private Route route;
+    private Long routeId;
+
+    @BeforeEach
+    void setUp() {
+        routeId = 1L;
+        route = new Route();
+        route.setId(routeId);
+        route.setName("Test Route");
+
+        Geometry geometry = new GeometryFactory().createPoint();
+        route.setRouteGeometry(geometry);
+    }
+
+    @Test
+    void getRoutes_ReturnsListOfRoutesSuccessfully() {
+        List<Route> mappedRoutes = List.of(route);
+        when(routeMapper.toDomain(anyList())).thenReturn(mappedRoutes);
+        when(routeRepository.getAllRoutes()).thenReturn(List.of());
+        when(ratingService.getRouteRating(routeId)).thenReturn(4.5);
+        when(reviewService.getReviewsByRoute(routeId)).thenReturn(List.of(new Review()));
+
+        List<Route> result = routeService.getRoutes();
+
+        assertEquals(1, result.size());
+        assertEquals(4.5, result.get(0).getAverageRating());
+        verify(routeRepository).getAllRoutes();
+        verify(ratingService).getRouteRating(routeId);
+        verify(reviewService).getReviewsByRoute(routeId);
+    }
+
+    @Test
+    void getRoutes_ThrowsResponseStatusException_WhenRepositoryFails() {
+        when(routeRepository.getAllRoutes()).thenThrow(new RuntimeException("DB error"));
+
+        ResponseStatusException ex = assertThrows(
+                ResponseStatusException.class,
+                () -> routeService.getRoutes()
+        );
+
+        assertTrue(ex.getReason().contains("Failed to fetch routes"));
+    }
+
+    @Test
+    void getRouteById_ReturnsRouteGeometrySuccessfully() throws Exception {
+        when(routeRepository.findById(routeId)).thenReturn(new RouteEntity());
+        when(routeRepository.getAllIds()).thenReturn(List.of(1L, 2L, 3L));
+        when(routeMapper.toDomain(new RouteEntity())).thenReturn(route);
+
+        when(reviewService.getReviewsByRoute(routeId)).thenReturn(List.of(new Review()));
+        when(ratingService.getRatingsByRouteId(routeId)).thenReturn(List.of(new Rating()));
+
+        when(objectMapper.readTree(anyString())).thenReturn(null);
+
+        RouteGeometry result = routeService.getRouteById(routeId);
+
+        assertEquals(routeId, result.getId());
+        verify(routeRepository).findById(routeId);
+        verify(reviewService).getReviewsByRoute(routeId);
+        verify(ratingService).getRatingsByRouteId(routeId);
+    }
+
+    @Test
+    void getRouteById_ThrowsNotFound_WhenRouteMissing() {
+        when(routeRepository.findById(routeId)).thenReturn(null);
+        when(routeRepository.getAllIds()).thenReturn(List.of(1L, 2L, 3L));
+
+        ResponseStatusException ex = assertThrows(
+                ResponseStatusException.class,
+                () -> routeService.getRouteById(routeId)
+        );
+
+        assertEquals(404, ex.getStatusCode().value());
+        assertTrue(ex.getReason().contains("Route not found"));
+    }
+
+    @Test
+    void getRouteById_ThrowsResponseStatusException_WhenJsonFails() throws Exception {
+        when(routeRepository.findById(routeId)).thenReturn(new RouteEntity());
+        when(routeRepository.getAllIds()).thenReturn(List.of(routeId));
+        when(routeMapper.toDomain(new RouteEntity())).thenReturn(route);
+
+        when(reviewService.getReviewsByRoute(routeId)).thenReturn(List.of());
+        when(ratingService.getRatingsByRouteId(routeId)).thenReturn(List.of());
+        when(objectMapper.readTree(anyString())).thenThrow(new JsonProcessingException("Bad JSON") {});
+
+        ResponseStatusException ex = assertThrows(
+                ResponseStatusException.class,
+                () -> routeService.getRouteById(routeId)
+        );
+
+        assertEquals(500, ex.getStatusCode().value());
+        assertTrue(ex.getReason().contains("Failed to convert route geometry"));
+    }
+
+    @Test
+    void getRoutesByType_ReturnsRoutesSuccessfully() {
+        when(routeMapper.toDomain(anyList())).thenReturn(List.of(route));
+        when(routeRepository.getAllRoutesByType("Hiking")).thenReturn(List.of());
+
+        List<Route> result = routeService.getRoutesByType("Hiking");
+
+        assertEquals(1, result.size());
+        verify(routeRepository).getAllRoutesByType("Hiking");
+    }
+
+    @Test
+    void getRoutesByType_ThrowsResponseStatusException_WhenErrorOccurs() {
+        when(routeRepository.getAllRoutesByType(anyString())).thenThrow(new RuntimeException("DB crash"));
+
+        ResponseStatusException ex = assertThrows(
+                ResponseStatusException.class,
+                () -> routeService.getRoutesByType("Hiking")
+        );
+
+        assertEquals(500, ex.getStatusCode().value());
+        assertTrue(ex.getReason().contains("Route not found with type"));
+    }
+}

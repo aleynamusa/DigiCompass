@@ -3,7 +3,7 @@ package com.digicompass.backend.application.mapper;
 import com.digicompass.backend.application.services.S3ServiceImpl;
 import com.digicompass.backend.domain.entity.RouteEntity;
 import com.digicompass.backend.domain.entity.RouteImageEntity;
-import com.digicompass.backend.infrastucture.persistence.models.Route;
+import com.digicompass.backend.application.models.Route;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

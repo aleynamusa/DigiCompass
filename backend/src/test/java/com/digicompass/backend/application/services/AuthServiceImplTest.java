@@ -3,16 +3,15 @@ package com.digicompass.backend.application.services;
 import com.digicompass.backend.application.mapper.UserMapper;
 import com.digicompass.backend.application.services.helpers.PasswordHasher;
 import com.digicompass.backend.domain.entity.UserEntity;
-import com.digicompass.backend.infrastucture.persistence.models.User;
+import com.digicompass.backend.application.models.User;
 import com.digicompass.backend.infrastucture.persistence.repository.interfaces.UserInterface;
-import jakarta.validation.Valid;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.logging.Logger;
+import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -38,7 +37,7 @@ class AuthServiceImplTest {
         user.setId(1L);
         user.setUsername("testuser");
         user.setPassword("plainPassword12@");
-        user.setAge((byte)20);
+        user.setBirthDate(LocalDate.of(1997, 10, 03));
         user.setEmail("test@gmail.com");
 
         userEntity = new UserEntity();
@@ -69,7 +68,7 @@ class AuthServiceImplTest {
     @Test
     void signUp_ShouldThrowException_WhenPasswordIsNotValidated() {
 
-        User invalidUser = new User(1L, "testuser", "test@gmail.com", (byte)20, "plainPassword");
+        User invalidUser = new User(1L, "testuser", "test@gmail.com", LocalDate.of(1997, 10, 03), "plainPassword");
 
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
                 () -> service.signUp(invalidUser));
@@ -83,7 +82,7 @@ class AuthServiceImplTest {
     @Test
     void signUp_ShouldThrowException_WhenEmailIsNotValid() {
 
-        User invalidUser = new User(1L, "testuser", "testgm.com", (byte)20, "plainPassword12@");
+        User invalidUser = new User(1L, "testuser", "testgm.com", LocalDate.of(1997, 10, 03), "plainPassword12@");
 
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
                 () -> service.signUp(invalidUser));
@@ -104,7 +103,7 @@ class AuthServiceImplTest {
 
     @Test
     void signUp_ShouldThrowException_WhenUserIsUnder14() {
-        user.setAge((byte)13);
+        user.setBirthDate(LocalDate.of(2015, 10, 03));
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
                 () -> service.signUp(user));
 
@@ -168,4 +167,6 @@ class AuthServiceImplTest {
             verify(repoMock).findByUsername("testuser");
         }
     }
+
+
 }

@@ -1,6 +1,6 @@
 package com.digicompass.backend.application.interfaces;
 
-import com.digicompass.backend.infrastucture.persistence.models.User;
+import com.digicompass.backend.application.models.User;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,4 +11,6 @@ public interface UserService {
     List<User> getAllUsers();
     Optional<User> getUserById(Long id);
     void deleteUser(User user);
+    boolean checkUsernameAvailability(String username);
+    boolean checkEmailAvailability( String email);
 }

@@ -1,4 +1,4 @@
-package com.digicompass.backend.infrastucture.persistence.models;
+package com.digicompass.backend.application.models;
 
 
 import com.digicompass.backend.domain.entity.RouteEntity;

@@ -1,9 +1,21 @@
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import axios from "axios";
+import ShowPassword from "@/components/showPassword.jsx";
+import ShowCalendarForBirthDate from "@/components/BirthDate.jsx";
+import debounce from "lodash.debounce";
+import dayjs from "dayjs";
 
 
+
+const API_URL = import.meta.env.VITE_BACKEND_URL;
 
 const SignUpForm = () => {
+
+    const [availability, setAvailability] = useState({
+        username: null,
+        email: null,
+    });
+    const [passwordMatch, setPasswordMatch] = useState(null);
 
     const isEmail = (email) => /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);
 
@@ -20,8 +32,9 @@ const SignUpForm = () => {
     const [formData, setFormData] = useState({
         username: "",
         email: "",
-        age: "",
+        birthDate: "",
         password: "",
+        confirmPassword: "",
     });
 
     const [passwordRules, setPasswordRules] = useState({
@@ -45,24 +58,46 @@ const SignUpForm = () => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    const isOldEnough = (birthDate) => {
+        if (!birthDate) return false;
+        const age = dayjs().diff(dayjs(birthDate), "year");
+        return age >= 14;
+    };
+
+
+    useEffect(() => {
+        if (!formData.password || !formData.confirmPassword) {
+            setPasswordMatch(null);
+        } else {
+            setPasswordMatch(formData.password === formData.confirmPassword);
+        }
+    }, [formData.password, formData.confirmPassword]);
+
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setErrors({});
         setSuccess("");
 
-        if(!isEmail(formData.email)){
-            setErrors({ email: "Invalid email format" });
+        if (formData.password !== formData.confirmPassword) {
+            setErrors({ confirmPassword: "Passwords do not match" });
             return;
         }
 
+        console.log("Sending data:", JSON.stringify(formData, null, 2));
+
         try {
-            const response = await
-            axios.post(
-                `${API_URL}/users/signUp`,
-                formData
-            );
+            const response = await axios.post(`${API_URL}/users/signUp`, formData);
             setSuccess(`User ${response.data.username} registered successfully!`);
-            setFormData({ username: "", email: "", age: "", password: "" });
+
+            setFormData({
+                username: "",
+                email: "",
+                birthDate: "",
+                password: "",
+                confirmPassword: "",
+            });
+            setAvailability({ username: null, email: null });
         } catch (err) {
             if (err.response && err.response.data) {
                 setErrors(err.response.data);
@@ -71,6 +106,25 @@ const SignUpForm = () => {
             }
         }
     };
+
+    const checkAvailability = debounce(async (field, value) => {
+        if (!value) return;
+
+        try {
+            const response = await axios.get(
+                `${API_URL}/users/${field === "username" ? "usernames" : "emails"}`,
+                { params: { [field]: value } }
+            );
+
+            setAvailability((prev) => ({
+                ...prev,
+                [field]: response.data.available ? "taken" : "available",
+            }));
+        } catch (error) {
+            console.error("Availability check failed:", error);
+        }
+    }, 500); // wait 0.5s after typing stops, so I dont call the function every time
+
 
     return (
         <div className="bg-cyan-700 rounded-md shadow-2xl" style={{ maxWidth: "550px", margin: "auto", padding: "20px" }}>
@@ -86,12 +140,29 @@ const SignUpForm = () => {
                            className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-slate-400 dark:focus:border-amber-50 focus:outline-none focus:ring-0 focus:border-amber-50 peer"
                            placeholder=" "
                            value={formData.email}
-                           onChange={handleChange}
+                           onChange={(e) => {
+                               handleChange(e);
+
+                               if (!isEmail(e.target.value)) {
+                                   setErrors((prev) => ({ ...prev, email: "Invalid email format" }));
+                               } else {
+                                   setErrors((prev) => {
+                                       const { email, ...rest } = prev;
+                                       return rest;
+                                   });
+                                   checkAvailability("email", e.target.value);
+                               }
+                           }}
                            required/>
                     <label htmlFor="email"
                            className="peer-focus:font-medium absolute text-sm text-gray-800 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-amber-50 peer-focus:dark:text-amber-50 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Email
                         address</label>
-                    {errors.email && <p style={{color: "red"}}>{errors.email}</p>}
+                    {errors.email && <p style={{color: "red"}}>{errors.email}</p>
+                    }
+
+                    {availability.email === "taken" && (
+                        <p style={{ color: "red" }}>Email is already registered in our system</p>
+                    )}
                 </div>
 
                 <div className="text-left relative z-0 w-full mb-5 group">
@@ -99,38 +170,69 @@ const SignUpForm = () => {
                            className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-slate-400 dark:focus:border-amber-50 focus:outline-none focus:ring-0 focus:border-amber-50 peer"
                            placeholder=" "
                            value={formData.username}
-                           onChange={handleChange}
+                           onChange={(e) => {
+                               handleChange(e);
+                               if (formData.password !== formData.confirmPassword) {
+                                   setErrors((prev) => ({ ...prev, confirmPassword: "Passwords do not match" }));
+                               }
+
+                               checkAvailability("username", e.target.value);
+                           }}
                            required/>
                     <label htmlFor="username"
                            className="peer-focus:font-medium absolute text-sm text-gray-800 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-amber-50 peer-focus:dark:text-amber-50 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Username</label>
-                    {errors.username && <p style={{color: "red"}}>{errors.username}</p>}
+                    {errors.username && <p style={{color: "red"}}>{errors.username}</p>
+                    }
+
+                    {availability.username === "available" && (
+                        <p style={{ color: "darkgreen" }}>Username available</p>
+                    )}
+                    {availability.username === "taken" && (
+                        <p style={{ color: "red" }}>Username already taken</p>
+                    )}
                 </div>
 
-                <div className="text-left relative z-0 w-full mb-5 group">
-                    <input type="number" name="age" id="age"
-                           className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-slate-400 dark:focus:border-amber-50 focus:outline-none focus:ring-0 focus:border-amber-50 peer"
-                           placeholder=" "
-                           value={formData.age}
-                           onChange={handleChange}
-                           required
-                           min={14}
-                           max={127}/>
-                    <label htmlFor="age"
-                           className="peer-focus:font-medium absolute text-sm text-gray-800 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-amber-50 peer-focus:dark:text-amber-50 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
-                        Age</label>
-                    {errors.age && <p style={{color: "red"}}>{errors.age}</p>}
-                </div>
 
-                <div className="text-left relative z-0 w-full mb-5 group">
-                    <input type="password" name="password" id="password"
-                           className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-slate-400 dark:focus:border-amber-50 focus:outline-none focus:ring-0 focus:border-amber-50 peer"
-                           placeholder=" " required
-                           value={formData.password}
-                           onChange={handlePasswordChange}
-                           minLength={8}/>
-                    <label htmlFor="password"
-                           className="peer-focus:font-medium absolute text-sm text-gray-800 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-amber-50 peer-focus:dark:text-amber-50 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Password</label>
-                    {errors.password && <p style={{color: "red"}}>{errors.password}</p>}
+                <ShowCalendarForBirthDate
+                    value={formData.birthDate}
+                    onChange={(e) => {
+                        handleChange(e);
+                        const date = e.target.value;
+
+                        if (!isOldEnough(date)) {
+                            setErrors((prev) => ({
+                                ...prev,
+                                birthDate: "You must be at least 14 years old",
+                            }));
+                        } else {
+                            setErrors((prev) => {
+                                const { birthDate, ...rest } = prev;
+                                return rest;
+                            });
+                        }
+                    }}
+                    error={errors.birthDate}
+                />
+
+                <ShowPassword
+                    name="password"
+                    value={formData.password}
+                    onChange={handlePasswordChange}
+                />
+
+                <div className="text-left relative z-0 w-full  group">
+                    <ShowPassword
+                        name="confirmPassword"
+                        label="Confirm Password"
+                        value={formData.confirmPassword}
+                        onChange={handleChange}
+
+                    />
+                    {passwordMatch === false && (
+                        <p style={{ color: "red" }}>Passwords do not match</p>
+                    )}
+
+
                 </div>
 
                 {/* password rules display */}
