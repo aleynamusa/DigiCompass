@@ -98,7 +98,7 @@ class AuthServiceImplTest {
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
                 () -> service.signUp(null));
 
-        assertEquals("User cannot be null", ex.getMessage());
+        assertEquals("User cannot be null.", ex.getMessage());
     }
 
     @Test
@@ -154,18 +154,10 @@ class AuthServiceImplTest {
     }
 
     @Test
-    void logIn_ShouldHandleNullPassword() {
-        when(repoMock.findByUsername("testuser")).thenReturn(userEntity);
+    void logIn_ShouldThrowException_NullPassword() {
 
-        try (MockedStatic<PasswordHasher> mockedHasher = mockStatic(PasswordHasher.class)) {
-            mockedHasher.when(() -> PasswordHasher.verify(anyString(), isNull()))
-                    .thenReturn(false);
+            assertThrows(IllegalArgumentException.class, () -> service.logIn("testuser", null));
 
-            User result = service.logIn("testuser", null);
-
-            assertNull(result);
-            verify(repoMock).findByUsername("testuser");
-        }
     }
 
 

@@ -71,5 +71,5 @@ docker:build-and-push:
     - echo "Pushing images to GitLab registry..."
     - docker push "$CI_REGISTRY_IMAGE/backend:latest"
     - docker push "$CI_REGISTRY_IMAGE/frontend:latest"
-  only:
-    - main
+#  only:
+#    - main
