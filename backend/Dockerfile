@@ -1,7 +1,7 @@
 # Build stage
 FROM eclipse-temurin:24-jdk-alpine AS build
 
-WORKDIR /back-end
+WORKDIR /app
 
 # Copy Gradle wrapper and build files
 COPY gradlew .
@@ -12,14 +12,11 @@ COPY settings.gradle .
 RUN chmod +x gradlew && ./gradlew dependencies --no-daemon
 
 # Copy source code
-COPY src src
+COPY src ./src
 
 # Build the application
-RUN ./gradlew bootJar --no-daemon
+RUN ./gradlew bootJar --no-daemon -x test
 
-WORKDIR /app
-
-EXPOSE 8080
 
 # Runtime Stage
 FROM eclipse-temurin:24-jre-alpine
@@ -27,7 +24,7 @@ FROM eclipse-temurin:24-jre-alpine
 WORKDIR /app
 
 # Copy the built JAR file from the build stage
-COPY build/libs/*.jar app.jar
+COPY --from=build /app/build/libs/*.jar app.jar
 
 # Expose the application port
 EXPOSE 8080

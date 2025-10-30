@@ -31,8 +31,6 @@ const RouteDiscovery = () => {
     const [selectedDifficulty, setSelectedDifficulty] = useState("all");
     const [selectedDistanceRange, setSelectedDistanceRange] = useState("all");
 
-
-    // selectedRoute.routeGeometry = undefined;
     const fetchRoutes = useCallback(async () => {
         try {
             const response = await axios.get(`${API_URL}/route`);
@@ -192,13 +190,10 @@ const RouteDiscovery = () => {
                     </Button>
                 </div>
 
-                {/* Search and Filters */}
                 <Card style={{backgroundColor: "#E3E0E0"}}>
                     <CardContent className="p-5">
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
 
-
-                            {/* Search Input */}
                             <div className="relative flex-1 min-w-[250px]">
                                 <SearchIcon
                                     className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground"/>
@@ -210,10 +205,8 @@ const RouteDiscovery = () => {
                                 />
                             </div>
 
-                            {/* Filters */}
                             <div
                                 className="flex flex-wrap md:flex-nowrap gap-3 justify-between md:justify-end w-full md:w-auto">
-                                {/*TypeFilter*/}
                                 <Select value={selectedType} onValueChange={setSelectedType} className="size-32"
                                 >
                                     <SelectTrigger className="min-w-[150px]">
@@ -228,7 +221,6 @@ const RouteDiscovery = () => {
                                     </SelectContent>
                                 </Select>
 
-                                {/*DifficultyFilter*/}
                                 <Select className="size-52"
                                         value={selectedDifficulty} onValueChange={setSelectedDifficulty}>
                                     <SelectTrigger className="min-w-[150px]">
@@ -242,7 +234,6 @@ const RouteDiscovery = () => {
                                     </SelectContent>
                                 </Select>
 
-                                {/*DistanceFilter*/}
                                 <Select value={selectedDistanceRange} onValueChange={setSelectedDistanceRange}>
                                     <SelectTrigger className="min-w-[150px]">
                                         <SelectValue placeholder="Distance" />
@@ -255,7 +246,6 @@ const RouteDiscovery = () => {
                                     </SelectContent>
                                 </Select>
 
-                                {/*ResetButton*/}
                                 <Button variant="outline" onClick={handleResetFilters}>
                                     Reset
                                 </Button>

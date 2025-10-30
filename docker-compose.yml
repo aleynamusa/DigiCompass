@@ -1,37 +1,27 @@
-version: '3.8'
 
 services:
   backend:
     build:
       context: ./backend
-      dockerfile: Dockerfile.backend
+      dockerfile: Dockerfile
     ports:
       - "8080:8080"
-    depends_on:
-      - postgresql
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://aws-1-eu-west-3.pooler.supabase.com:5432/postgres
+      SPRING_DATASOURCE_USERNAME: postgres.mfhwglyfwlceqwmcuucr
+      SPRING_DATASOURCE_PASSWORD: z/pGBiv*Wj.W24$
+      SPRING_FLYWAY_ENABLED: true
     networks:
       - app-network
 
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile.frontend
+      dockerfile: Dockerfile
     ports:
       - "5173:5173"
     depends_on:
       - backend
-    networks:
-      - app-network
-
-
-  postgresql:
-    image: postgres:latest
-    environment:
-      POSTGRES_USER: postgres.mfhwglyfwlceqwmcuucr
-      POSTGRES_PASSWORD: z/pGBiv*Wj.W24$
-      POSTGRES_DB: digicompass
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
     networks:
       - app-network
 

@@ -18,7 +18,6 @@ const endIcon = L.divIcon({
     iconSize: [14, 14],
 });
 
-// Routing component using OSRM
 function SmartRoutePath({ geojson }) {
     const map = useMap();
     const [routedCoords, setRoutedCoords] = useState([]);
@@ -26,10 +25,8 @@ function SmartRoutePath({ geojson }) {
     useEffect(() => {
         if (!geojson?.coordinates || geojson.coordinates.length < 2) return;
 
-        // Convert coordinates to "lon,lat" for OSRM
         const coordsStr = geojson.coordinates.map(c => `${c[0]},${c[1]}`).join(";");
 
-        // You can change 'foot' -> 'bike' or 'driving'
         const url = `https://router.project-osrm.org/route/v1/foot/${coordsStr}?overview=full&geometries=geojson`;
 
         fetch(url)
@@ -46,16 +43,13 @@ function SmartRoutePath({ geojson }) {
 
     if (!routedCoords.length) return null;
 
-    // Define start and end from routed path
     const start = routedCoords[0];
     const end = routedCoords[routedCoords.length - 1];
 
     return (
         <>
-            {/* Polyline for the full route */}
             <Polyline positions={routedCoords} color="blue" weight={4} />
 
-            {/* Start Marker */}
             {start && (
                 <Marker position={start} icon={startIcon}>
                     <Popup><b>Start</b></Popup>

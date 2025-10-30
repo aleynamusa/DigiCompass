@@ -8,9 +8,9 @@ const Home = () => {
     const navigate = useNavigate();
 
     const handleLogout = () => {
-        Cookies.remove("auth"); // remove auth cookie
+        Cookies.remove("auth");
         console.log("You have logged out.");
-        navigate("/login"); // ✅ now navigate works
+        navigate("/login");
     };
 
     return (
