@@ -9,7 +9,7 @@ services:
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://aws-1-eu-west-3.pooler.supabase.com:5432/postgres
       SPRING_DATASOURCE_USERNAME: postgres.mfhwglyfwlceqwmcuucr
-      SPRING_DATASOURCE_PASSWORD: z/pGBiv*Wj.W24$
+      SPRING_DATASOURCE_PASSWORD: neda@MQ567@
       SPRING_FLYWAY_ENABLED: true
     networks:
       - app-network
