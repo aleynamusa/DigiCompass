@@ -60,16 +60,19 @@ docker:build-and-push:
   services:
     - docker:dind
   variables:
-    DOCKER_TLS_CERTDIR: "/certs"
+      DOCKER_TLS_CERTDIR: ""
   before_script:
     - echo "Logging into GitLab container registry..."
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" "$CI_REGISTRY" --password-stdin
   script:
     - echo "Building Docker images..."
-    - docker build -t "$CI_REGISTRY_IMAGE/backend:latest" ./backend
-    - docker build -t "$CI_REGISTRY_IMAGE/frontend:latest" ./frontend
+    - docker build -t "$CI_REGISTRY_IMAGE/backend:latest" -t "$CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHORT_SHA" ./backend
+    - docker build -t "$CI_REGISTRY_IMAGE/frontend:latest" -t "$CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHORT_SHA" ./frontend
+
     - echo "Pushing images to GitLab registry..."
     - docker push "$CI_REGISTRY_IMAGE/backend:latest"
+    - docker push "$CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHORT_SHA"
     - docker push "$CI_REGISTRY_IMAGE/frontend:latest"
+    - docker push "$CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHORT_SHA"
 #  only:
 #    - main
