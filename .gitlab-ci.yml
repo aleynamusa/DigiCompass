@@ -62,12 +62,9 @@ docker:build-and-push:
   variables:
     DOCKER_TLS_CERTDIR: "/certs"
   before_script:
-    - echo "Decoding registry password..."
-    - export DECODED_PASSWORD=$(echo "$DB_PASSWORD_B64" | base64 --decode)
-    - echo "Logging into GitLab container registry..."
-    - echo "$DECODED_PASSWORD" | docker login -u "$CI_REGISTRY_USER" "$CI_REGISTRY" --password-stdin
+    - echo "Switching to bash..."
   script:
-    - echo "Building Docker images..."
+    - bash -c 'echo "Decoding registry password..." && export DECODED_PASSWORD=$(echo "$REGISTRY_PASSWORD_B64" | base64 --decode) && echo "$DECODED_PASSWORD" | docker login -u "$CI_REGISTRY_USER" "$CI_REGISTRY" --password-stdin'
     - docker build -t "$CI_REGISTRY_IMAGE/backend:latest" ./backend
     - docker build -t "$CI_REGISTRY_IMAGE/frontend:latest" ./frontend
     - echo "Pushing images to GitLab registry..."
