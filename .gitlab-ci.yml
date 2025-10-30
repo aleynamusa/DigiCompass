@@ -1,57 +1,57 @@
 # GitLab CI/CD Pipeline for Java Spring Boot Application with Docker
 
 # Define pipeline stages
-stages:
-  - build
-  - test
-  - deploy
-
-backend:build:
-  stage: build
-  image: gradle:8.3-jdk24
-  script:
-    - echo "Building Spring Boot backend..."
-    - cd backend
-    - ./gradlew.bat clean bootJar --no-daemon
-  artifacts:
-    paths:
-      - backend/build/libs/*.jar
-    expire_in: 1 hour
-  only:
-    - development
-    - merge_requests
-
-
-frontend:build:
-  stage: build
-  image: node:22-alpine
-  script:
-    - echo "Building Vite + React frontend..."
-    - cd frontend
-    - npm install
-    - npm run build
-  artifacts:
-    paths:
-      - frontend/dist
-    expire_in: 1 hour
-  only:
-    - development
-    - merge_requests  
-
-
-unit-tests:
-  stage: test
-  image: gradle:8.3-jdk24
-  script:
-    - echo "Running tests with Mockito..."
-    - cd backend
-    - ./gradlew clean test --no-daemon
-  artifacts:
-    when: always
-    reports:
-      junit: backend/build/test-results/test/TEST-*.xml
-    paths:
-      - backend/build/reports/tests/test
+#stages:
+#  - build
+#  - test
+#  - deploy
+#
+#backend:build:
+#  stage: build
+#  image: gradle:8.3-jdk24
+#  script:
+#    - echo "Building Spring Boot backend..."
+#    - cd backend
+#    - ./gradlew.bat clean bootJar --no-daemon
+#  artifacts:
+#    paths:
+#      - backend/build/libs/*.jar
+#    expire_in: 1 hour
+#  only:
+#    - development
+#    - merge_requests
+#
+#
+#frontend:build:
+#  stage: build
+#  image: node:22-alpine
+#  script:
+#    - echo "Building Vite + React frontend..."
+#    - cd frontend
+#    - npm install
+#    - npm run build
+#  artifacts:
+#    paths:
+#      - frontend/dist
+#    expire_in: 1 hour
+#  only:
+#    - development
+#    - merge_requests
+#
+#
+#unit-tests:
+#  stage: test
+#  image: gradle:8.3-jdk24
+#  script:
+#    - echo "Running tests with Mockito..."
+#    - cd backend
+#    - ./gradlew clean test --no-daemon
+#  artifacts:
+#    when: always
+#    reports:
+#      junit: backend/build/test-results/test/TEST-*.xml
+#    paths:
+#      - backend/build/reports/tests/test
 
 # later implement deploy
 docker:build-and-push:
@@ -61,7 +61,7 @@ docker:build-and-push:
     - docker:dind
   variables:
     DOCKER_TLS_CERTDIR: ""
-    CI_REGISTRY_IMAGE: registry.git.fhict.nl/I547282/digicompass
+    CI_REGISTRY_IMAGE: https://git.fhict.nl/I547282/digicompass
   before_script:
     - echo "Logging into GitLab container registry..."
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u aleynam "$CI_REGISTRY" --password-stdin
