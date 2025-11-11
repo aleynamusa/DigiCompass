@@ -51,50 +51,6 @@ public class RouteController {
         }
     }
 
-    @GetMapping("/keyword")
-    public ResponseEntity<List<RouteDto>> getRoutesByKeyword(@RequestParam String keyword) {
-        try {
-            List<RouteDto> routes = routeMapper.toControllerRoute(routeService.getRoutesByKeyword(keyword));
-            return ResponseEntity.ok(routes);
-        }
-        catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
-    }
-
-    @GetMapping("/distance")
-    public ResponseEntity<List<RouteDto>> getRoutesByDistance(@RequestParam float distance) {
-        try {
-            List<RouteDto> routes = routeMapper.toControllerRoute(routeService.getRoutesByDistance(distance));
-            return ResponseEntity.ok(routes);
-        }
-        catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
-    }
-
-    @GetMapping("/type")
-    public ResponseEntity<List<RouteDto>> getRoutesByType(@RequestParam String type) {
-        try {
-            List<RouteDto> routes = routeMapper.toControllerRoute(routeService.getRoutesByType(type));
-            return ResponseEntity.ok(routes);
-        }
-        catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
-    }
-
-    @GetMapping("/difficulty")
-    public ResponseEntity<List<RouteDto>> getRoutesByDifficulty(@RequestParam String difficulty) {
-        try {
-            List<RouteDto> routes = routeMapper.toControllerRoute(routeService.getRouteByDifficulty(difficulty));
-            return ResponseEntity.ok(routes);
-        }
-        catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
-    }
-
     @GetMapping("/filter")
     public ResponseEntity<List<RouteDto>> getAllRoutes(@RequestParam(required = false) String type,
                                                        @RequestParam(required = false) String difficulty,
@@ -110,6 +66,4 @@ public class RouteController {
             return ResponseEntity.badRequest().build();
         }
     }
-
-
 }

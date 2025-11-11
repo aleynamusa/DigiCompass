@@ -6,4 +6,7 @@ import java.util.List;
 
 public interface ReviewInterface {
     List<ReviewEntity> getReviewsByRoute(Long routeId);
+    boolean deleteReviewByRoute(Long routeId);
+    boolean createReview(ReviewEntity r);
+    boolean updateReview(ReviewEntity r);
 }

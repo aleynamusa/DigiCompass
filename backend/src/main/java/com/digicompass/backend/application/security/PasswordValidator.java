@@ -2,6 +2,7 @@ package com.digicompass.backend.application.security;
 
 import java.util.regex.Pattern;
 
+
 public class PasswordValidator {
     private static final Pattern UPPERCASE = Pattern.compile("[A-Z]");
     private static final Pattern LOWERCASE = Pattern.compile("[a-z]");

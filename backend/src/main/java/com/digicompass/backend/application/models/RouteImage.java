@@ -14,5 +14,7 @@ public class RouteImage {
 
     private String presignedUrl;
 
-    private RouteEntity route;
+    private Long route;
+
+
 }

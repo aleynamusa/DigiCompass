@@ -1,33 +1,73 @@
 {
   "paths": {
-    "/users/{id}": {
-      "get": {
-        "summary": "Retrieve a user",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
+    "/review": {
+      "post": {
+        "summary": "Create a new review",
+        "description": "Allows a user to submit a review for a product or service. An optional image can be attached.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "product_id": {
+                    "type": "integer",
+                    "description": "ID of the route being reviewed"
+                  },
+                  "user_id": {
+                    "type": "integer",
+                    "description": "ID of the user submitting the review"
+                  },
+                  "review": {
+                    "type": "string",
+                    "description": "Text content of the review"
+                  },
+                  "image": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Optional image attached to the review"
+                  }
+                },
+                "required": ["product_id", "user_id", "review"]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Review"
+              }
             }
           }
-        ],
+        },
         "responses": {
-          "200": {
-            "description": "User found",
+          "201": {
+            "description": "Review created successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/User"
+                  "$ref": "#/components/schemas/Review"
                 }
               }
             }
           },
-          "404": {
-            "description": "User not found"
+          "400": {
+            "description": "Invalid input"
           }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Review": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "product_id": { "type": "integer" },
+          "user_id": { "type": "integer" },
+          "review": { "type": "string" },
+          "image_url": { "type": "string", "format": "uri" },
+          "created_at": { "type": "string", "format": "date-time" }
         }
       }
     }

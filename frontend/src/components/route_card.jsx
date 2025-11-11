@@ -14,19 +14,6 @@ import {Carousel} from "@mantine/carousel";
 import classes from '@/components/card.module.css';
 
 export function RouteCard({ route, onViewDetails }) {
-    const [current, setCurrent] = useState(0);
-    const routeNew = route;
-
-    const nextImage = () => {
-        if (!route.images || route.images.length === 0) return;
-        setCurrent((prev) => (prev + 1) % route.images.length);
-    };
-
-    const prevImage = () => {
-        if (!route.images || route.images.length === 0) return;
-        setCurrent((prev) => (prev - 1 + route.images.length) % route.images.length);
-    };
-
     return (
         <div>
         <Card className="overflow-hidden hover:shadow-lg transition-shadow">

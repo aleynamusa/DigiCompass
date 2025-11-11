@@ -22,9 +22,10 @@ import {
 import '/src/index.css';
 import '/src/App.css'
 import { useNavigate } from "react-router-dom";
+import {useAuth} from "@/context/AuthContext.jsx";
 
 
-export function Sidebar({ activeTab, setActiveTab, user, onShowAuth, onLogout }) {
+export function Sidebar({ activeTab, setActiveTab}) {
     const navItems = [
         { id: "dashboard", label: "Dashboard", icon: HomeIcon, path: "/" },
         { id: "routes", label: "Route Discovery", icon: MapIcon, path: "/routeDiscovery" },
@@ -33,7 +34,14 @@ export function Sidebar({ activeTab, setActiveTab, user, onShowAuth, onLogout })
         { id: "community", label: "Community", icon: UsersIcon, path: "/community" },
     ];
 
+    const { user, logout, isAuthenticated } = useAuth();
+
     const navigate = useNavigate();
+
+    const navigateLogIn = () => {
+        navigate("/LogIn");
+    };
+
 
     return (
         <div
@@ -82,18 +90,17 @@ export function Sidebar({ activeTab, setActiveTab, user, onShowAuth, onLogout })
             </nav>
 
             <div className="border-t border-sidebar-border pt-4">
-                {user ? (
+                {isAuthenticated ? (
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="ghost" className="w-full justify-start gap-3 p-2">
                                 <Avatar className="h-8 w-8">
                                     <AvatarFallback className="bg-primary text-primary-foreground">
-                                        {user.name.charAt(0).toUpperCase()}
+                                        {user?.username?.charAt(0)?.toUpperCase() || "?"}
                                     </AvatarFallback>
                                 </Avatar>
                                 <div className="flex-1 text-left">
-                                    <p className="text-sm font-medium text-sidebar-foreground">{user.name}</p>
-                                    <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                                    <p className="text-sm font-medium text-sidebar-foreground">{user.username}</p>
                                 </div>
                             </Button>
                         </DropdownMenuTrigger>
@@ -103,7 +110,7 @@ export function Sidebar({ activeTab, setActiveTab, user, onShowAuth, onLogout })
                                 Profile Settings
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={onLogout}>
+                            <DropdownMenuItem onClick={logout}>
                                 <LogOutIcon className="h-4 w-4 mr-2" />
                                 Sign Out
                             </DropdownMenuItem>
@@ -114,13 +121,14 @@ export function Sidebar({ activeTab, setActiveTab, user, onShowAuth, onLogout })
                         variant="ghost"
                         size="sm"
                         className="w-full justify-start gap-3 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                        onClick={onShowAuth}
+                        onClick={() => navigate("/login")}
                     >
                         <LogInIcon className="h-4 w-4" />
                         Sign In
                     </Button>
                 )}
             </div>
+
         </div>
     )
 }

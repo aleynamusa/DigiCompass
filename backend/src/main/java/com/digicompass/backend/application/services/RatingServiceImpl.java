@@ -79,4 +79,19 @@ public class RatingServiceImpl implements RatingService {
             throw new ArithmeticException("Unexpected error while fetching route ratings: " + e.getMessage());
         }
     }
+
+    @Override
+    public boolean addRating(Rating rating) {
+        try {
+            boolean response = ratingRepo.addRating(ratingMapper.toEntity(rating));
+            if (response) {
+                LOGGER.log(Level.INFO, "Added Rating {0}", rating.getId());
+            }
+
+            return response;
+        }catch (IllegalArgumentException e) {
+            LOGGER.log(Level.WARNING, "Validation error adding rating: {0}", e.getMessage());
+        }
+        return false;
+    }
 }

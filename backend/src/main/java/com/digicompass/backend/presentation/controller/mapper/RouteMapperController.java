@@ -10,8 +10,9 @@ import org.mapstruct.Mapper;
 import java.util.ArrayList;
 import java.util.List;
 
-@Mapper(componentModel = "spring", uses = RatingMapperController.class)
+@Mapper(componentModel = "spring", uses = {RatingMapperController.class, ReviewMapperController.class})
 public interface RouteMapperController {
+
 
     RouteGeometryDto toControllerGeometry(RouteGeometry model);
     RouteDto toControllerRoute(Route model);

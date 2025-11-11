@@ -3,6 +3,7 @@ package com.digicompass.backend.application.services;
 import com.digicompass.backend.application.mapper.UserMapper;
 import com.digicompass.backend.application.models.User;
 import com.digicompass.backend.application.interfaces.UserService;
+import com.digicompass.backend.application.security.JWTToken;
 import com.digicompass.backend.infrastucture.persistence.repository.interfaces.UserInterface;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -19,7 +20,8 @@ public class UserServiceImpl implements UserService {
     private static final Logger LOGGER = Logger.getLogger( UserServiceImpl.class.getName() );
 
 
-    UserInterface userRepository;
+    private final UserInterface userRepository;
+
 
     private UserMapper userMapper;
 

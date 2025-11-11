@@ -1,10 +1,12 @@
 package com.digicompass.backend.presentation.controller.dto;
 
+import com.digicompass.backend.application.models.User;
 import com.digicompass.backend.domain.entity.UserEntity;
 import com.digicompass.backend.application.models.RouteImage;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -18,13 +20,14 @@ public class ReviewDto {
 
     private String review;
 
-    private UserEntity userId;
+    private UserDto userId;
 
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
 
-    private List<RouteImage> images = new ArrayList<>();
+    private List<MultipartFile> images = new ArrayList<>();
 
-    private RouteDto routeId;
+    private Long routeId;
+
 }

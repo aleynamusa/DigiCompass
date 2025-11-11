@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="DataSourcePerFileMappings">
-    <file url="file://$APPLICATION_CONFIG_DIR$/consoles/db/fb1df3e3-ecd5-454f-b779-ad2f4b324ed6/console.sql" value="fb1df3e3-ecd5-454f-b779-ad2f4b324ed6" />
-    <file url="file://$PROJECT_DIR$/backend/src/main/resources/db/migration/V1__Initial_Migration.sql" value="fb1df3e3-ecd5-454f-b779-ad2f4b324ed6" />
-    <file url="file://$PROJECT_DIR$/backend/src/main/resources/db/migration/V2__Adding_Image_Option_To_Review.sql" value="fb1df3e3-ecd5-454f-b779-ad2f4b324ed6" />
-  </component>
-</project>

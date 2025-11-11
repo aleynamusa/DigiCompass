@@ -1,0 +1,56 @@
+-- Enable PostGIS (only runs once)
+CREATE EXTENSION IF NOT EXISTS postgis;
+
+INSERT INTO users(username, email, birth_date, password)
+Values('lele', 'lelemana7@gmail.com', '1995-04-12'::date, 'Tetradka1011@');
+
+
+INSERT INTO routes (
+    id,
+    name,
+    description,
+    route_type,
+    difficulty,
+    distance,
+    duration,
+    created_by_user_id,
+    created_at,
+    updated_at,
+    route_geometry
+)
+VALUES
+    (1, 'Scenic Mountain Trail',
+     'A beautiful hiking trail through mountain ridges with panoramic views.',
+     'HIKING', 'MEDIUM', 12.5, '3h 45m', 1, NOW(), NOW(),
+     ST_GeomFromText('LINESTRING(30 10, 10 30, 40 40)', 4326)),
+
+    (2, 'Coastal Breeze Path',
+     'A relaxing route along the coastline with ocean views and fresh air.',
+     'CYCLING', 'EASY', 8.3, '1h 20m', 1, NOW(), NOW(),
+     ST_GeomFromText('LINESTRING(-122.4 37.8, -122.5 37.7, -122.6 37.8)', 4326)),
+
+    (3, 'Riverbank Run',
+     'A flat running route following the riverbank, popular among locals.',
+     'RUNNING', 'EASY', 5.0, '0h 35m', 1, NOW(), NOW(),
+     ST_GeomFromText('LINESTRING(14.4 50.1, 14.45 50.12, 14.5 50.15)', 4326)),
+
+    (4, 'Forest Explorer Trail',
+     'A dense forest route ideal for exploration and bird watching.',
+     'HIKING', 'HARD', 16.8, '4h 10m', 1, NOW(), NOW(),
+     ST_GeomFromText('LINESTRING(12.48 41.89, 12.50 41.88, 12.52 41.90)', 4326)),
+
+    (5, 'Urban Commute Ride',
+     'A cycling path through the city connecting key urban landmarks.',
+     'CYCLING', 'MEDIUM', 10.0, '0h 55m', 1, NOW(), NOW(),
+     ST_GeomFromText('LINESTRING(-0.12 51.50, -0.10 51.51, -0.08 51.52)', 4326)),
+
+    (6, 'Desert Sunset Route',
+     'A scenic desert ride best enjoyed during sunset hours.',
+     'OFFROAD', 'HARD', 22.4, '5h 10m', 1, NOW(), NOW(),
+     ST_GeomFromText('LINESTRING(55.27 25.20, 55.28 25.25, 55.29 25.30)', 4326)),
+
+    (7, 'Lakeside Family Walk',
+     'A short and easy trail around the lake, perfect for families.',
+     'WALKING', 'EASY', 3.2, '0h 50m', 1, NOW(), NOW(),
+     ST_GeomFromText('LINESTRING(11.57 48.13, 11.58 48.14, 11.59 48.13)', 4326))
+ON CONFLICT (id) DO NOTHING;

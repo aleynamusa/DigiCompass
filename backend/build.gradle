@@ -12,7 +12,7 @@ description = 'backend'
 //openApiGenerate {
 //    generatorName = "spring"
 //    inputSpec = "$rootDir/src/main/resources/digicompass.yml"
-//    outputDir = "$rootDir/src/main/java/presentation/controller/"
+//    outputDir = "$rootDir/src/main/java/com/digicompass/backend/presentation/controller/"
 //    apiPackage = "com.example.api"
 //    modelPackage = "com.example.model"
 //    configOptions = [
@@ -22,18 +22,6 @@ description = 'backend'
 //            useBeanValidation: "true",
 //            skipDefaultInterface: "true"
 //    ]
-//}
-
-//
-//liquibase {
-//    activities {
-//        main {
-//            changeLogFile 'src/main/resources/db/changelog/db.changelog-master.xml'
-//            url 'jdbc:mysql://localhost/mydb'
-//            username 'myUser'
-//            password 'mySecretPwd'
-//        }
-//    }
 //}
 
 java {
@@ -71,10 +59,10 @@ dependencies {
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.hibernate.orm:hibernate-spatial:6.4.0.Final'
-    implementation 'org.postgresql:postgresql:42.7.2'
     implementation 'org.n52.jackson:jackson-datatype-jts:2.0.0'
     implementation 'org.locationtech.jts:jts-io:1.20.0'
     implementation 'org.locationtech.jts.io:jts-io-common:1.20.0'
+    implementation 'org.hibernate.validator:hibernate-validator:8.0.1.Final'
 
 
     //mapper
@@ -90,6 +78,13 @@ dependencies {
     //aws s3 - image storage
     implementation 'software.amazon.awssdk:s3:2.35.11'
     implementation 'software.amazon.awssdk:auth:2.35.11'
+
+    //auth
+    implementation 'io.jsonwebtoken:jjwt-api:0.13.0'
+    implementation 'io.jsonwebtoken:jjwt-impl:0.13.0'
+    implementation 'io.jsonwebtoken:jjwt-jackson:0.13.0'
+    implementation 'org.springframework.security:spring-security-oauth2-client'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
 }
 
 

@@ -31,7 +31,6 @@ public class RatingEntity {
     @Column(nullable = false)
     private LocalDateTime updatedAt =  LocalDateTime.now();
 
-
     @ManyToOne()
     @JoinColumn(name = "route_id", nullable = false)
     private RouteEntity routeId;

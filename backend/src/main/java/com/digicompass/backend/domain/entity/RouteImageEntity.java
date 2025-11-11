@@ -25,5 +25,4 @@ public class RouteImageEntity {
     @JsonBackReference
     private RouteEntity route;
 
-
 }

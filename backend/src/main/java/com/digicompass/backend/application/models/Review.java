@@ -22,8 +22,8 @@ public class Review {
 
     private LocalDateTime updatedAt;
 
-    private List<RouteImage> images = new ArrayList<>();
+    private List<String> images = new ArrayList<>();
 
-    private Route routeId;
+    private Long routeId;
 
 }

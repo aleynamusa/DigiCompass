@@ -9,5 +9,6 @@ import java.util.List;
 @Service
 public interface RatingService {
     Double getRouteRating(Long id);
-    List<Rating>  getRatingsByRouteId(Long routeId);
+    List<Rating> getRatingsByRouteId(Long routeId);
+    boolean addRating(Rating rating);
 }

@@ -13,6 +13,6 @@ public class RouteGeometryDto {
     private Long id;
     private String name;
     private Object geojson;
-    private List<ReviewDto> reviews;
-    private List<RatingDto> ratings;
+    private List<String> reviews;
+    private List<Double> ratings;
 }

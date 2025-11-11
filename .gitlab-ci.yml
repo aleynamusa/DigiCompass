@@ -1,79 +1,79 @@
 # GitLab CI/CD Pipeline for Java Spring Boot Application with Docker
 
 # Define pipeline stages
-#stages:
-#  - build
-#  - test
-#  - deploy
-#
-#backend:build:
-#  stage: build
-#  image: gradle:8.3-jdk24
-#  script:
-#    - echo "Building Spring Boot backend..."
-#    - cd backend
-#    - ./gradlew.bat clean bootJar --no-daemon
-#  artifacts:
-#    paths:
-#      - backend/build/libs/*.jar
-#    expire_in: 1 hour
-#  only:
-#    - development
-#    - merge_requests
-#
-#
-#frontend:build:
-#  stage: build
-#  image: node:22-alpine
-#  script:
-#    - echo "Building Vite + React frontend..."
-#    - cd frontend
-#    - npm install
-#    - npm run build
-#  artifacts:
-#    paths:
-#      - frontend/dist
-#    expire_in: 1 hour
-#  only:
-#    - development
-#    - merge_requests
-#
-#
-#unit-tests:
-#  stage: test
-#  image: gradle:8.3-jdk24
-#  script:
-#    - echo "Running tests with Mockito..."
-#    - cd backend
-#    - ./gradlew clean test --no-daemon
-#  artifacts:
-#    when: always
-#    reports:
-#      junit: backend/build/test-results/test/TEST-*.xml
-#    paths:
-#      - backend/build/reports/tests/test
+stages:
+  - build
+  - test
+  - deploy
+
+backend:build:
+  stage: build
+  image: gradle:8.3-jdk24
+  script:
+    - echo "Building Spring Boot backend..."
+    - cd backend
+    - ./gradlew.bat clean bootJar --no-daemon
+  artifacts:
+    paths:
+      - backend/build/libs/*.jar
+    expire_in: 1 hour
+  only:
+    - development
+    - merge_requests
+
+
+frontend:build:
+  stage: build
+  image: node:22-alpine
+  script:
+    - echo "Building Vite + React frontend..."
+    - cd frontend
+    - npm install
+    - npm run build
+  artifacts:
+    paths:
+      - frontend/dist
+    expire_in: 1 hour
+  only:
+    - development
+    - merge_requests
+
+
+unit-tests:
+  stage: test
+  image: gradle:8.3-jdk24
+  script:
+    - echo "Running tests with Mockito..."
+    - cd backend
+    - ./gradlew clean test --no-daemon
+  artifacts:
+    when: always
+    reports:
+      junit: backend/build/test-results/test/TEST-*.xml
+    paths:
+      - backend/build/reports/tests/test
 
 # later implement deploy
-docker:build-and-push:
-  stage: deploy
-  image: docker:26.1.3
-  services:
-    - docker:dind
-  variables:
-    DOCKER_TLS_CERTDIR: ""
-    CI_REGISTRY_IMAGE: https://git.fhict.nl/I547282/digicompass
-  before_script:
-    - echo "Logging into GitLab container registry..."
-    - echo "$CI_REGISTRY_PASSWORD" | docker login -u aleynam "$CI_REGISTRY" --password-stdin
-  script:
-    - echo "Building Docker images..."
-    - docker build -t "$CI_REGISTRY_IMAGE/backend:latest" -t "$CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHORT_SHA" ./backend
-    - docker build -t "$CI_REGISTRY_IMAGE/frontend:latest" -t "$CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHORT_SHA" ./frontend
-
-    - echo "Pushing images to GitLab registry..."
-    - docker push "$CI_REGISTRY_IMAGE/backend:latest"
-    - docker push "$CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHORT_SHA"
-    - docker push "$CI_REGISTRY_IMAGE/frontend:latest"
-    - docker push "$CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHORT_SHA"
-#  only:
-#    - main
+#docker:build-and-push:
+#  stage: deploy
+#  image: docker:26.1.3
+#  services:
+#    - docker:dind
+#  variables:
+#    DOCKER_TLS_CERTDIR: ""
+#    CI_REGISTRY_IMAGE: https://git.fhict.nl/I547282/digicompass
+#  before_script:
+#    - echo "Logging into GitLab container registry..."
+#    - echo "$CI_REGISTRY_PASSWORD" | docker login -u aleynam "$CI_REGISTRY" --password-stdin
+#  script:
+#    - echo "Building Docker images..."
+#    - docker build -t "$CI_REGISTRY_IMAGE/backend:latest" -t "$CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHORT_SHA" ./backend
+#    - docker build -t "$CI_REGISTRY_IMAGE/frontend:latest" -t "$CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHORT_SHA" ./frontend
+#
+#    - echo "Pushing images to GitLab registry..."
+#    - docker push "$CI_REGISTRY_IMAGE/backend:latest"
+#    - docker push "$CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHORT_SHA"
+#    - docker push "$CI_REGISTRY_IMAGE/frontend:latest"
+#    - docker push "$CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHORT_SHA"
+##  only:
+##    - main

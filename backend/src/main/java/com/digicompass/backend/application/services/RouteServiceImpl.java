@@ -29,18 +29,16 @@ public class RouteServiceImpl implements RouteService {
     private final RouteMapper routeMapper;
     private final ObjectMapper objectMapper;
     private final RatingService ratingService;
-    private final ReviewService reviewService;
+
 
     public RouteServiceImpl(RouteInterface routeRepository,
                             RouteMapper routeMapper,
                             ObjectMapper objectMapper,
-                            RatingService ratingService,
-                            ReviewService reviewService) {
+                            RatingService ratingService) {
         this.routeRepository = routeRepository;
         this.routeMapper = routeMapper;
         this.objectMapper = objectMapper;
         this.ratingService = ratingService;
-        this.reviewService = reviewService;
     }
 
     @Override
@@ -52,7 +50,6 @@ public class RouteServiceImpl implements RouteService {
 
             for (Route route : routes) {
                 route.setAverageRating(ratingService.getRouteRating(route.getId()));
-                route.setReviews(reviewService.getReviewsByRoute(route.getId()));
             }
 
             LOGGER.log(Level.INFO, "Successfully fetched {0} routes.", routes.size());
@@ -76,17 +73,8 @@ public class RouteServiceImpl implements RouteService {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Route not found with id: " + id);
             }
 
-            List<Review> reviews = reviewService.getReviewsByRoute(route.getId());
-            route.setReviews(reviews);
-
-            List<Rating> ratings = ratingService.getRatingsByRouteId(id);
-            route.setRatings(ratings);
-
             GeoJsonWriter writer = new GeoJsonWriter();
             String geojson = writer.write(route.getRouteGeometry());
-
-            LOGGER.log(Level.INFO, "Fetched route {0} with {1} reviews and {2} ratings.",
-                    new Object[]{id, reviews.size(), ratings.size()});
 
             return new RouteGeometry(
                     route.getId(),
@@ -105,7 +93,6 @@ public class RouteServiceImpl implements RouteService {
                     e
             );
         } catch (ResponseStatusException e) {
-            // Pass through for NOT_FOUND or other explicit HTTP errors
             throw e;
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Unexpected error fetching route by id {0}: {1}",
@@ -115,78 +102,6 @@ public class RouteServiceImpl implements RouteService {
                     "Unexpected error while fetching route by id.",
                     e
             );
-        }
-    }
-
-    @Override
-    public List<Route> getRoutesByType(String type) {
-        try {
-            LOGGER.log(Level.INFO, "Fetching routes by type: {0}", type);
-
-            List<Route> routes = routeMapper.toDomain(routeRepository.getAllRoutesByType(type));
-            routes.forEach(r -> r.setRouteGeometry(null));
-
-            LOGGER.log(Level.INFO, "Found {0} routes for type: {1}", new Object[]{routes.size(), type});
-            return routes;
-
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error fetching routes by type {0}: {1}", new Object[]{type, e.getMessage()});
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Route not found with type: " + type, e);
-        }
-    }
-
-    @Override
-    public List<Route> getRoutesByDistance(float distance) {
-        try {
-            LOGGER.log(Level.INFO, "Fetching routes by distance: {0}", distance);
-
-            List<Route> routes = routeMapper.toDomain(routeRepository.getAllRoutesByDistance(distance));
-            routes.forEach(r -> r.setRouteGeometry(null));
-
-            LOGGER.log(Level.INFO, "Found {0} routes for distance: {1}", new Object[]{routes.size(), distance});
-            return routes;
-
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error fetching routes by distance {0}: {1}", new Object[]{distance, e.getMessage()});
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Route not found with distance: " + distance, e);
-        }
-    }
-
-    @Override
-    public List<Route> getRoutesByKeyword(String keyword) {
-        try {
-            LOGGER.log(Level.INFO, "Fetching routes by keyword: {0}", keyword);
-
-            List<Route> routes = routeMapper.toDomain(routeRepository.getRoutesByKeyword(keyword));
-            routes.forEach(r -> r.setRouteGeometry(null));
-
-            LOGGER.log(Level.INFO, "Found {0} routes matching keyword: {1}", new Object[]{routes.size(), keyword});
-            return routes;
-
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error fetching routes by keyword {0}: {1}", new Object[]{keyword, e.getMessage()});
-            throw new ResponseStatusException(
-                    HttpStatus.INTERNAL_SERVER_ERROR,
-                    "There was a problem finding routes by keyword.",
-                    e
-            );
-        }
-    }
-
-    @Override
-    public List<Route> getRouteByDifficulty(String difficulty) {
-        try {
-            LOGGER.log(Level.INFO, "Fetching routes by difficulty: {0}", difficulty);
-
-            List<Route> routes = routeMapper.toDomain(routeRepository.getAllRoutesByDifficulty(difficulty));
-            routes.forEach(r -> r.setRouteGeometry(null));
-
-            LOGGER.log(Level.INFO, "Found {0} routes for difficulty: {1}", new Object[]{routes.size(), difficulty});
-            return routes;
-
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error fetching routes by difficulty {0}: {1}", new Object[]{difficulty, e.getMessage()});
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Route not found with difficulty: " + difficulty, e);
         }
     }
 

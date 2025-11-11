@@ -22,7 +22,7 @@ public class RouteDto {
     private String difficulty;  //BEGINNER, EASY, MODERATE, HARD, EXPERT, EXTREME
     private float distance;
     private String duration;
-    private UserEntity createdByUserId;
+    private UserDto createdByUserId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private Geometry routeGeometry;

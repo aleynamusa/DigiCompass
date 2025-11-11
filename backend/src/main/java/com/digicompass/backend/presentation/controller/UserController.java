@@ -3,14 +3,19 @@ package com.digicompass.backend.presentation.controller;
 import com.digicompass.backend.application.interfaces.AuthService;
 import com.digicompass.backend.application.interfaces.UserService;
 import com.digicompass.backend.application.models.User;
-import com.digicompass.backend.presentation.controller.dto.*;
+import com.digicompass.backend.presentation.controller.dto.request.LogInRequest;
+import com.digicompass.backend.presentation.controller.dto.request.UserRequestDto;
+import com.digicompass.backend.presentation.controller.dto.response.UserResponseDto;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -81,22 +86,89 @@ public class UserController {
         catch (Exception e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
-
     }
 
     @PostMapping("/logIn")
-    public ResponseEntity<?> logIn(@RequestBody LogInRequest request) {
-        User user = authService.logIn(request.getUsername(), request.getPassword());
-        if (user != null) {
-            return ResponseEntity.ok(Map.of(
-                    "username", user.getUsername(),
-                    "email", user.getEmail()
-            ));
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("message", "Invalid username or password"));
+    public ResponseEntity<?> logIn(@RequestBody LogInRequest request, HttpServletResponse response) {
+        try {
+            Map<String, String> tokens = authService.logIn(request.getUsername(), request.getPassword());
+            boolean rememberMe = request.isRememberMe();
+            if (tokens == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("error", "Invalid username or password"));
+            }
+            ResponseCookie cookie = ResponseCookie.from("refreshToken", tokens.get("refreshToken"))
+                    .httpOnly(true)
+                    .sameSite("Lax")
+                    .secure(false)
+                    .path("/")
+                    .maxAge(rememberMe ? 7 * 24 * 60 * 60 : -1) //-1session-only
+                    .build();
+
+            response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+
+
+            Map<String, String> body = Map.of("accessToken", tokens.get("accessToken"));
+            return ResponseEntity.ok(body);
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Unexpected error while logging in"));
         }
     }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<Map<String, String>> refresh(HttpServletRequest request, HttpServletResponse response) {
+        String refreshToken = Arrays.stream(Optional.ofNullable(request.getCookies())
+                        .orElse(new Cookie[0]))
+                .filter(c -> "refreshToken".equals(c.getName()))
+                .findFirst()
+                .map(Cookie::getValue)
+                .orElse(null);
+        if (refreshToken == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "No refresh token"));
+        }
+
+        var newTokens = authService.refresh(Map.of("refreshToken", refreshToken));
+        if (newTokens == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Invalid refresh token"));
+        }
+
+        // reissue cookie
+        ResponseCookie cookie = ResponseCookie.from("refreshToken", newTokens.get("refreshToken"))
+                .httpOnly(true)
+                .sameSite("Lax")
+                .secure(false)
+                .path("/")
+                .maxAge(7 * 24 * 60 * 60)
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+
+        return ResponseEntity.ok(Map.of("accessToken", newTokens.get("accessToken")));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(HttpServletResponse response) {
+        ResponseCookie cookie = ResponseCookie.from("refreshToken", "")
+                .httpOnly(true)
+                .sameSite("Lax")
+                .secure(false)
+                .path("/")
+                .maxAge(0)
+                .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        return ResponseEntity.noContent().build();
+    }
+
+
+
 
     @GetMapping("/usernames")
     public ResponseEntity<Map<String, Object>> getUsernames(@RequestParam String username) {

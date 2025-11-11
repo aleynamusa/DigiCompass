@@ -10,10 +10,6 @@ import java.util.List;
 public interface RouteService {
     List<Route> getRoutes();
     RouteGeometry getRouteById(Long id);
-    List<Route> getRoutesByType(String type);
-    List<Route> getRoutesByDistance(float distance);
-    List<Route> getRoutesByKeyword(String keyword);
-    List<Route> getRouteByDifficulty(String difficulty);
     List<Route> getFilteredRoutes(String type, String difficulty, Float distance);
 
 }

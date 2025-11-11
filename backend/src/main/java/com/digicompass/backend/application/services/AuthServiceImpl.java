@@ -2,21 +2,20 @@ package com.digicompass.backend.application.services;
 
 import com.digicompass.backend.application.mapper.UserMapper;
 import com.digicompass.backend.application.security.EmailValidator;
+import com.digicompass.backend.application.security.JWTToken;
 import com.digicompass.backend.application.security.PasswordValidator;
 import com.digicompass.backend.application.services.helpers.PasswordHasher;
 import com.digicompass.backend.application.interfaces.AuthService;
 import com.digicompass.backend.domain.entity.UserEntity;
 import com.digicompass.backend.application.models.User;
 import com.digicompass.backend.infrastucture.persistence.repository.interfaces.UserInterface;
+import io.jsonwebtoken.Claims;
 import jakarta.validation.Valid;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
-import java.time.LocalDate;
-import java.time.Period;
-import java.time.ZoneId;
-import java.util.Date;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -26,12 +25,14 @@ public class AuthServiceImpl implements AuthService {
 
     private final UserInterface userRepository;
     private final UserMapper userMapper;
+    private final JWTToken jwt;
 
     private static final Logger LOGGER = Logger.getLogger(AuthServiceImpl.class.getName());
 
-    public AuthServiceImpl(UserInterface userRepository, UserMapper userMapper) {
+    public AuthServiceImpl(UserInterface userRepository, UserMapper userMapper, JWTToken jwt) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
+        this.jwt = jwt;
     }
 
     @Override
@@ -61,30 +62,26 @@ public class AuthServiceImpl implements AuthService {
 
             LOGGER.log(Level.INFO, "Starting sign-up process for username: {0}", user.getUsername());
 
-            // Hash the password securely
+
             String hashedPw = PasswordHasher.hash(user.getPassword());
             user.setPassword(hashedPw);
             LOGGER.log(Level.FINE, "Password hashed successfully for username: {0}", user.getUsername());
 
-            // Save to the database
             UserEntity savedUser = userRepository.save(userMapper.toEntity(user));
             LOGGER.log(Level.INFO, "User signed up successfully with id: {0}", savedUser.getId());
 
             return userMapper.toDomain(savedUser);
 
         } catch (IllegalArgumentException e) {
-            // Validation failure → rethrow directly
             LOGGER.log(Level.WARNING, "Validation error during sign-up: {0}", e.getMessage());
             throw e;
 
         } catch (DataAccessException e) {
-            // Database-related problem
             LOGGER.log(Level.SEVERE, "Database access error during sign-up for {0}: {1}",
                     new Object[]{user != null ? user.getUsername() : "unknown", e.getMessage()});
             throw new RuntimeException("Database error while creating user account.", e);
 
         } catch (Exception e) {
-            // Unexpected runtime issues (e.g. hashing failure)
             LOGGER.log(Level.SEVERE, "Unexpected error during sign-up for {0}: {1}",
                     new Object[]{user != null ? user.getUsername() : "unknown", e.getMessage()});
             throw new RuntimeException("Unexpected error during sign-up process.", e);
@@ -92,7 +89,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public User logIn(String username, String password) {
+    public Map<String, String> logIn(String username, String password) {
         try {
             LOGGER.log(Level.INFO, "Login attempt for username: {0}", username);
 
@@ -110,7 +107,13 @@ public class AuthServiceImpl implements AuthService {
             boolean verified = PasswordHasher.verify(userEntity.getPassword(), password);
             if (verified) {
                 LOGGER.log(Level.INFO, "Login successful for username: {0}", username);
-                return userMapper.toDomain(userEntity);
+                String accessToken = jwt.generateAccessToken(userMapper.toDomain(userEntity));
+                String refreshToken = jwt.generateRefreshToken(userMapper.toDomain(userEntity));
+                Map<String, String> tokens = Map.of(
+                        "accessToken", accessToken,
+                        "refreshToken", refreshToken
+                );
+                return tokens;
             } else {
                 LOGGER.log(Level.WARNING, "Login failed: invalid password for username: {0}", username);
                 return null;
@@ -130,5 +133,37 @@ public class AuthServiceImpl implements AuthService {
                     new Object[]{username, e.getMessage()});
             throw new RuntimeException("Unexpected error while logging in.", e);
         }
+    }
+
+    public Map<String, String> refresh(Map<String, String> tokens) {
+        try {
+            String refreshToken = tokens.get("refreshToken");
+
+            if (jwt.isTokenExpired(refreshToken) || !jwt.isRefreshToken(refreshToken)) {
+                throw new IllegalArgumentException("Refresh token expired or not valid.");
+            }
+
+            Claims claims = jwt.extractAllClaims(refreshToken);
+            User user = new User();
+            user.setId(claims.get("id", Long.class));
+            user.setUsername(claims.getSubject());
+
+            String newAccessToken = jwt.generateAccessToken(user);
+            String newRefreshToken = jwt.generateRefreshToken(user);
+
+            Map<String, String> newTokens = Map.of(
+                    "accessToken", newAccessToken,
+                    "refreshToken", newRefreshToken
+            );
+
+            return newTokens;
+        }catch (IllegalArgumentException e) {
+            LOGGER.log(Level.WARNING, "Validation error during refresh token: {0}", e.getMessage());
+            throw e;
+        }catch(Exception e) {
+            LOGGER.log(Level.SEVERE, "Unexpected error during refresh token.", e);
+            throw new RuntimeException("Unexpected error during refresh token.", e);
+        }
+
     }
 }

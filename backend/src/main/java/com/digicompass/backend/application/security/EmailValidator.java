@@ -4,7 +4,6 @@ import java.util.regex.Pattern;
 
 public class EmailValidator {
 
-    // Same regex you used in the frontend
     private static final Pattern EMAIL_PATTERN = Pattern.compile(
             "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
     );

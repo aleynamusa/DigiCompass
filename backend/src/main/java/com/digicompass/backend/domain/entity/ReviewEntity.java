@@ -32,13 +32,8 @@ public class ReviewEntity {
     @Column(nullable = false)
     private LocalDateTime updatedAt =  LocalDateTime.now();
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "review_images",
-            joinColumns = @JoinColumn(name = "review_entity_id"),
-            inverseJoinColumns = @JoinColumn(name = "images_id")
-    )
-    private List<RouteImageEntity> images = new ArrayList<>();
+    @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReviewImageEntity> images = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "route_id", nullable = false)

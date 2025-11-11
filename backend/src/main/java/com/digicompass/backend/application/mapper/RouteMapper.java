@@ -1,98 +1,89 @@
 package com.digicompass.backend.application.mapper;
 
-import com.digicompass.backend.application.services.S3ServiceImpl;
+import com.digicompass.backend.application.interfaces.S3Service;
+import com.digicompass.backend.application.models.Route;
+import com.digicompass.backend.domain.entity.RatingEntity;
+import com.digicompass.backend.domain.entity.ReviewEntity;
 import com.digicompass.backend.domain.entity.RouteEntity;
 import com.digicompass.backend.domain.entity.RouteImageEntity;
-import com.digicompass.backend.application.models.Route;
-import org.springframework.stereotype.Component;
+import org.mapstruct.*;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Component
-public class RouteMapper {
+@Mapper(componentModel = "spring", uses = {UserMapper.class, ReviewMapper.class})
+public abstract class RouteMapper {
 
-    private final S3ServiceImpl s3Service;
-    private final UserMapper userMapper;
+    @Autowired
+    protected S3Service s3Service;
+    @Mapping(source = "createdByUserId", target = "createdByUserId")
+    @Mapping(target = "images", ignore = true)
+    @Mapping(target = "reviews", ignore = true)
+    @Mapping(target = "ratings", ignore = true)
+    @Mapping(target = "averageRating", ignore = true)
+    public abstract Route toDomain(RouteEntity entity);
 
+    @Mapping(source = "createdByUserId", target = "createdByUserId")
+    @Mapping(target = "images", ignore = true)
+    @Mapping(target = "reviews", ignore = true)
+    @Mapping(target = "ratings", ignore = true)
+    public abstract RouteEntity toEntity(Route model);
 
-    public RouteMapper(S3ServiceImpl s3Service, UserMapper userMapper) {
-        this.s3Service = s3Service;
-        this.userMapper = userMapper;
-
-    }
-
-    public Route toDomain(RouteEntity entity) {
-        if (entity == null) return null;
-
-        Route route = new Route();
-        route.setId(entity.getId());
-        route.setName(entity.getName());
-        route.setDescription(entity.getDescription());
-        route.setRouteType(entity.getRouteType());
-        route.setDifficulty(entity.getDifficulty());
-        route.setDistance(entity.getDistance());
-        route.setDuration(entity.getDuration());
-        route.setCreatedAt(entity.getCreatedAt());
-        route.setUpdatedAt(entity.getUpdatedAt());
-        route.setCreatedByUserId(userMapper.toDomain(entity.getCreatedByUserId()));
-        route.setRouteGeometry(entity.getRouteGeometry());
+    public abstract List<Route> toDomain(List<RouteEntity> entities);
+    public abstract List<RouteEntity> toEntity(List<Route> models);
 
 
-        // Convert image entities → signed URLs
-        if (entity.getImages() != null) {
+    @AfterMapping
+    protected void mapImagesToDomain(RouteEntity entity, @MappingTarget Route route) {
+        if (entity.getImages() != null && s3Service != null) {
             List<String> signedUrls = entity.getImages().stream()
                     .map(img -> s3Service.getPreSignedUrl(img.getImageUrl()))
                     .collect(Collectors.toList());
             route.setImages(signedUrls);
         }
-
-        return route;
     }
 
-
-    public RouteEntity toEntity(Route model) {
-        if (model == null) return null;
-
-        RouteEntity entity = new RouteEntity();
-        entity.setId(model.getId());
-        entity.setName(model.getName());
-        entity.setDescription(model.getDescription());
-        entity.setRouteType(model.getRouteType());
-        entity.setDifficulty(model.getDifficulty());
-        entity.setDistance(model.getDistance());
-        entity.setDuration(model.getDuration());
-        entity.setCreatedAt(model.getCreatedAt());
-        entity.setUpdatedAt(model.getUpdatedAt());
-        entity.setCreatedByUserId(userMapper.toEntity(model.getCreatedByUserId()));
-        entity.setRouteGeometry(model.getRouteGeometry());
-
-        // Convert image URLs → image entities
+    @AfterMapping
+    protected void mapImagesToEntity(Route model, @MappingTarget RouteEntity entity) {
         if (model.getImages() != null) {
             List<RouteImageEntity> imageEntities = model.getImages().stream()
                     .map(url -> {
                         RouteImageEntity imgEntity = new RouteImageEntity();
                         imgEntity.setImageUrl(url);
-                        imgEntity.setRoute(entity); // back reference
+                        imgEntity.setRoute(entity);
                         return imgEntity;
                     })
                     .collect(Collectors.toList());
             entity.setImages(imageEntities);
         }
-
-        return entity;
-    }
-
-    public List<Route> toDomain(List<RouteEntity> entities) {
-        return entities == null ? null :
-                entities.stream().map(this::toDomain).collect(Collectors.toList());
-    }
-
-    public List<RouteEntity> toEntity(List<Route> models) {
-        return models == null ? null :
-                models.stream().map(this::toEntity).collect(Collectors.toList());
     }
 
 
+    protected List<String> mapReviews(List<ReviewEntity> entities) {
+        if (entities == null) return new ArrayList<>();
+        return entities.stream()
+                .map(ReviewEntity::getReview)
+                .map(Object::toString)
+                .collect(Collectors.toList());
+    }
 
+    protected List<Double> mapRatings(List<RatingEntity> entities) {
+        if (entities == null) return new ArrayList<>();
+        return entities.stream()
+                .map(RatingEntity::getRating)
+                .collect(Collectors.toList());
+    }
+
+    protected List<RatingEntity> mapDoubles(List<Double> ratings) {
+        if (ratings == null) return new ArrayList<>();
+        return ratings.stream()
+                .map(rating -> {
+                    RatingEntity entity = new RatingEntity();
+                    entity.setRating(rating);
+                    return entity;
+                })
+                .collect(Collectors.toList());
+    }
 }
