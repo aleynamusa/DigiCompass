@@ -1,10 +1,10 @@
 package com.digicompass.backend.application.services;
 
+import com.digicompass.backend.repository.repositories.RouteJpaRepository;
 import com.digicompass.backend.application.mapper.ReviewMapper;
-import com.digicompass.backend.domain.entity.ReviewEntity;
+import com.digicompass.backend.repository.entity.ReviewEntity;
 import com.digicompass.backend.application.models.Review;
-import com.digicompass.backend.infrastucture.persistence.repository.interfaces.ReviewInterface;
-import com.digicompass.backend.infrastucture.persistence.repository.interfaces.RouteInterface;
+import com.digicompass.backend.repository.repositories.ReviewJpaRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,12 +23,12 @@ import static org.mockito.Mockito.*;
 class ReviewServiceImplTest {
 
     @Mock
-    ReviewInterface reviewRepoMock;
+    ReviewJpaRepository reviewRepoMock;
     @Mock
     ReviewMapper reviewMapperMock;
 
     @Mock
-    RouteInterface routeRepoMock;
+    RouteJpaRepository routeRepoMock;
 
     @InjectMocks
     ReviewServiceImpl reviewServiceMock;

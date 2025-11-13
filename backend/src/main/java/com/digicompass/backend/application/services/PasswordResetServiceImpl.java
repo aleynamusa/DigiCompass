@@ -5,7 +5,7 @@ import com.digicompass.backend.application.interfaces.PasswordResetService;
 import com.digicompass.backend.application.mapper.UserMapper;
 import com.digicompass.backend.application.services.helpers.PasswordHasher;
 import com.digicompass.backend.application.models.User;
-import com.digicompass.backend.infrastucture.persistence.repository.interfaces.UserInterface;
+import com.digicompass.backend.repository.repositories.UserJpaRepository;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -21,13 +21,13 @@ public class PasswordResetServiceImpl implements PasswordResetService {
 
     private static final Logger LOGGER = Logger.getLogger(PasswordResetServiceImpl.class.getName());
 
-    private final UserInterface userRepository;
+    private final UserJpaRepository userRepository;
     private final StringRedisTemplate redisTemplate;
     private final EmailService emailService;
     private final UserMapper userMapper;
 
     public PasswordResetServiceImpl(
-            UserInterface userRepository,
+            UserJpaRepository userRepository,
             StringRedisTemplate redisTemplate,
             EmailService emailService,
             UserMapper userMapper

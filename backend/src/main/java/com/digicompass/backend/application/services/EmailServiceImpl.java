@@ -2,18 +2,16 @@ package com.digicompass.backend.application.services;
 
 import com.digicompass.backend.application.interfaces.EmailService;
 import com.digicompass.backend.application.security.EmailValidator;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 @Service
+@Slf4j
 public class EmailServiceImpl implements EmailService {
 
-    private static final Logger LOGGER = Logger.getLogger(EmailServiceImpl.class.getName());
     private final JavaMailSender mailSender;
 
     public EmailServiceImpl(JavaMailSender mailSender) {
@@ -48,20 +46,20 @@ public class EmailServiceImpl implements EmailService {
 
             mailSender.send(message);
 
-            LOGGER.log(Level.INFO, "Password reset email successfully sent to {0}", toEmail);
+            log.info("Password reset email successfully sent to {0}", toEmail);
 
         } catch (IllegalArgumentException e) {
-            LOGGER.log(Level.WARNING, "Invalid input when sending reset link: {0}", e.getMessage());
+            log.warn("Invalid input when sending reset link: {0}", e.getMessage());
             throw e;
 
         } catch (MailException e) {
-            LOGGER.log(Level.SEVERE,
+            log.error(
                     String.format("Failed to send email to %s due to mail server error: %s", toEmail, e.getMessage()),
                     e);
             throw new RuntimeException("Unable to send password reset email at this time.", e);
 
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE,
+            log.error(
                     String.format("Unexpected error occurred while sending reset link to %s: %s", toEmail, e.getMessage()),
                     e);
             throw new RuntimeException("An unexpected error occurred while sending email.", e);

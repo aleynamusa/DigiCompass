@@ -1,9 +1,9 @@
 package com.digicompass.backend.application.mapper;
 
-import com.digicompass.backend.domain.entity.RatingEntity;
+import com.digicompass.backend.repository.entity.RatingEntity;
 import com.digicompass.backend.application.models.Rating;
-import com.digicompass.backend.domain.entity.RouteEntity;
-import com.digicompass.backend.domain.entity.UserEntity;
+import com.digicompass.backend.repository.entity.RouteEntity;
+import com.digicompass.backend.repository.entity.UserEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

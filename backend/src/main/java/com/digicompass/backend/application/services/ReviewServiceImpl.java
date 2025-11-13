@@ -4,30 +4,32 @@ import com.digicompass.backend.application.interfaces.ReviewService;
 import com.digicompass.backend.application.interfaces.S3Service;
 import com.digicompass.backend.application.mapper.ReviewMapper;
 import com.digicompass.backend.application.models.Review;
-import com.digicompass.backend.domain.entity.ReviewEntity;
-import com.digicompass.backend.domain.entity.ReviewImageEntity;
-import com.digicompass.backend.infrastucture.persistence.repository.interfaces.ReviewInterface;
-import com.digicompass.backend.infrastucture.persistence.repository.interfaces.RouteInterface;
+import com.digicompass.backend.repository.entity.ReviewEntity;
+import com.digicompass.backend.repository.entity.ReviewImageEntity;
+import com.digicompass.backend.repository.repositories.ReviewJpaRepository;
+import com.digicompass.backend.repository.repositories.RouteJpaRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Slf4j
 @Service
 public class ReviewServiceImpl implements ReviewService {
-    private final ReviewInterface reviewRepo;
+    private final ReviewJpaRepository reviewRepo;
     private final ReviewMapper reviewMapper;
-    private final RouteInterface routeRepo;
+    private final RouteJpaRepository routeRepo;
 
     private final S3Service s3Service;
 
 
-    public ReviewServiceImpl(ReviewInterface reviewRepo, ReviewMapper reviewMapper, RouteInterface routeRepo,
+    public ReviewServiceImpl(ReviewJpaRepository reviewRepo, ReviewMapper reviewMapper, RouteJpaRepository routeRepo,
                               S3Service s3Service) {
         this.reviewRepo = reviewRepo;
         this.reviewMapper = reviewMapper;
@@ -39,13 +41,13 @@ public class ReviewServiceImpl implements ReviewService {
     public List<Review> getReviewsByRoute(Long routeId) {
         try {
             if (routeId == null || routeId <= 0 || !routeRepo.getAllIds().contains(routeId)) {
-                log.warn("Invalid routeId provided: {0}", routeId);
+                log.warn("[Service] Invalid routeId provided: {0}", routeId);
                 throw new IllegalArgumentException("Route ID must not be null or negative.");
             }
 
             var entities = reviewRepo.getReviewsByRoute(routeId);
             if (entities == null) {
-                log.warn("No reviews found for routeId: {0}", routeId);
+                log.warn("[Service] No reviews found for routeId: {0}", routeId);
                 return List.of();
             }
 
@@ -60,72 +62,86 @@ public class ReviewServiceImpl implements ReviewService {
                 }
             }
 
-            log.info("Fetched {0} reviews for routeId {1}", new Object[]{reviews.size(), routeId});
+            log.info("[Service] Fetched {0} reviews for routeId {1}", new Object[]{reviews.size(), routeId});
             return reviews;
 
         } catch (IllegalArgumentException e) {
-            log.warn("Validation error fetching reviews: {0}", e.getMessage());
+            log.warn("[Service] Validation error fetching reviews: {0}", e.getMessage());
             throw e;
 
         } catch (Exception e) {
-//            LOGGER.log(Level.SEVERE, "Unexpected error while fetching reviews for routeId {0}: {1}",
-//                    new Object[]{routeId, e.getMessage()});
+            log.error("Unexpected error while fetching reviews for routeId {0}: {1}",
+                    new Object[]{routeId, e.getMessage()});
             throw new RuntimeException("Unexpected error while fetching reviews.", e);
         }
     }
 
     @Override
-    public boolean createReview(Review review, List<MultipartFile> images) throws IOException {
-        if (review.getRouteId() == null || !routeRepo.getAllIds().contains(review.getRouteId())) {
-            log.warn("Invalid routeId: {0}", review.getRouteId());
-            throw new IllegalArgumentException("Invalid route ID");
-        }
+    @Transactional
+    public Review createReview(Review review, List<MultipartFile> images) throws IOException {
+        validateRouteId(review.getRouteId());
 
-        List<String> uploadedKeys = new ArrayList<>();
+        List<String> imageKeys = uploadImages(review.getRouteId(), images);
+
         try {
-            List<ReviewImageEntity> imageEntities = new ArrayList<>();
-            if (images != null && !images.isEmpty()) {
-                for (MultipartFile image : images) {
-                    if (image != null && !image.isEmpty()) {
-                        String key = s3Service.uploadImage("reviews/" + review.getRouteId(), image);
-                        uploadedKeys.add(key);
+            ReviewEntity entity = reviewMapper.toEntity(review);
 
-                        ReviewImageEntity imageEntity = new ReviewImageEntity();
-                        imageEntity.setImageUrl(key);
-                        imageEntities.add(imageEntity);
-                    }
-                }
-            }
+            List<ReviewImageEntity> imageEntities = imageKeys.stream()
+                    .map(key -> {
+                        ReviewImageEntity img = new ReviewImageEntity();
+                        img.setImageUrl(key);
+                        img.setReview(entity);
+                        return img;
+                    })
+                    .toList();
 
-            ReviewEntity reviewEntity = reviewMapper.toEntity(review);
-            for (ReviewImageEntity img : imageEntities) {
-                img.setReview(reviewEntity);
-            }
-            reviewEntity.setImages(imageEntities);
+            entity.setImages(imageEntities);
 
-            boolean saved = reviewRepo.createReview(reviewEntity);
-            if (!saved) throw new RuntimeException("Failed to save review");
-
-            log.info( "Created review for routeId: {0} with {1} images",
-                    new Object[]{review.getRouteId(), imageEntities.size()});
-            return true;
+            ReviewEntity saved = reviewRepo.save(entity);
+            return reviewMapper.toDomain(saved);
 
         } catch (Exception e) {
-//            LOGGER.log(Level.SEVERE, "Rolling back due to error: {0}", e.getMessage());
-            for (String key : uploadedKeys) {
-                try {
-                    s3Service.deleteImage(key);
-                } catch (Exception ex) {
-                    log.warn("Failed to delete S3 image {0} during rollback", key);
-                }
-            }
-            throw e;
+            rollbackS3Uploads(imageKeys);
+            throw new RuntimeException("Failed to create review", e);
         }
     }
 
+    private void validateRouteId(Long routeId) {
+        if (routeId == null || routeId <= 0) {
+            throw new IllegalArgumentException("Invalid route ID: " + routeId);
+        }
+        if (!routeRepo.existsById(routeId)) {
+            throw new IllegalArgumentException("Route not found: " + routeId);
+        }
+    }
+
+    private List<String> uploadImages(Long routeId, List<MultipartFile> images) throws IOException {
+        List<String> keys = new ArrayList<>();
+        if (images != null) {
+            for (MultipartFile image : images) {
+                if (image != null && !image.isEmpty()) {
+                    String key = s3Service.uploadImage("reviews/" + routeId, image);
+                    keys.add(key);
+                }
+            }
+        }
+        return keys;
+    }
+
+    private void rollbackS3Uploads(List<String> keys) {
+        keys.forEach(key -> {
+            try {
+                s3Service.deleteImage(key);
+            } catch (Exception ex) {
+                log.warn("Failed to delete S3 image during rollback: {}", key, ex);
+            }
+        });
+    }
+
     @Override
-    public boolean updateReview(Review review, List<MultipartFile> images) throws IOException {
+    public Review updateReview(Review review, List<MultipartFile> images, List<String> existingImageUrls) throws IOException {
         log.debug("[SERVICE] Attempting to update review with id={}", review.getId());
+        log.debug("[SERVICE] Existing image URLs to keep: {}", existingImageUrls);
 
         if (review.getId() == null) {
             log.warn("[SERVICE] Review ID is required for update");
@@ -139,44 +155,100 @@ public class ReviewServiceImpl implements ReviewService {
                     .findFirst()
                     .orElseThrow(() -> new IllegalArgumentException("Review not found with id=" + review.getId()));
 
+            // Update review text
             existing.setReview(review.getReview());
 
-            List<ReviewImageEntity> imageEntities = new ArrayList<>();
+            // Log current images before filtering
+            log.debug("[SERVICE] Current images in DB: {}",
+                    existing.getImages().stream()
+                            .map(ReviewImageEntity::getImageUrl)
+                            .collect(Collectors.toList()));
+
+            // Handle existing images
+            if (existingImageUrls != null && !existingImageUrls.isEmpty()) {
+                // Extract S3 keys from full URLs (remove domain and query parameters)
+                List<String> existingKeys = existingImageUrls.stream()
+                        .map(this::extractS3Key)
+                        .collect(Collectors.toList());
+
+                log.debug("[SERVICE] Extracted keys from URLs: {}", existingKeys);
+
+                // Remove images that the user deleted (keep only those in existingKeys list)
+                existing.getImages().removeIf(img -> {
+                    boolean shouldRemove = !existingKeys.contains(img.getImageUrl());
+                    log.debug("[SERVICE] Image {}: shouldRemove={}", img.getImageUrl(), shouldRemove);
+                    return shouldRemove;
+                });
+                log.debug("[SERVICE] After filtering, kept {} existing images", existing.getImages().size());
+            } else {
+                // If no existing images specified, remove all
+                log.debug("[SERVICE] No existing images to keep, clearing all");
+                existing.getImages().clear();
+            }
+
+            // Add new uploaded images
             if (images != null && !images.isEmpty()) {
+                log.debug("[SERVICE] Adding {} new images", images.size());
                 for (MultipartFile image : images) {
                     if (image != null && !image.isEmpty()) {
                         String key = s3Service.uploadImage("reviews/" + review.getRouteId(), image);
                         ReviewImageEntity imageEntity = new ReviewImageEntity();
                         imageEntity.setImageUrl(key);
                         imageEntity.setReview(existing);
-                        imageEntities.add(imageEntity);
+                        existing.getImages().add(imageEntity);
+                        log.debug("[SERVICE] Added new image: {}", key);
                     }
                 }
-                existing.setImages(imageEntities);
             }
 
-            boolean updated = reviewRepo.updateReview(existing);
-            if (updated) {
-                log.info("[SERVICE] Successfully updated review with id={}", review.getId());
-            } else {
-                log.warn("[SERVICE] Update may not have persisted for review id={}", review.getId());
-            }
+            ReviewEntity updated = reviewRepo.save(existing);
+            log.info("[SERVICE] Successfully updated review with id={}, total images: {}",
+                    review.getId(), updated.getImages().size());
 
-            return updated;
+            return reviewMapper.toDomain(updated);
 
         } catch (IllegalArgumentException e) {
             log.warn("[SERVICE] Validation error while updating review id={}: {}", review.getId(), e.getMessage());
             throw e;
-
         } catch (Exception e) {
             log.error("[SERVICE] Unexpected error while updating review id={}: {}", review.getId(), e.getMessage(), e);
             throw new RuntimeException("Unexpected error while updating review", e);
         }
     }
 
+    // Helper method to extract S3 key from full URL
+    private String extractS3Key(String url) {
+        try {
+            // If it's already just a key (no http), return as-is
+            if (!url.startsWith("http")) {
+                return url;
+            }
+
+            // Extract key from URL like:
+            // https://digicompassip.s3.amazonaws.com/reviews/1/image.png?params...
+            // Result should be: reviews/1/image.png
+
+            String[] parts = url.split("amazonaws.com/");
+            if (parts.length > 1) {
+                // Remove query parameters if present
+                String keyWithParams = parts[1];
+                int queryStart = keyWithParams.indexOf('?');
+                if (queryStart > 0) {
+                    return keyWithParams.substring(0, queryStart);
+                }
+                return keyWithParams;
+            }
+
+            // If pattern doesn't match, return original
+            return url;
+        } catch (Exception e) {
+            log.warn("[SERVICE] Failed to extract S3 key from URL: {}", url);
+            return url;
+        }
+    }
 
     @Override
-    public boolean deleteReview(Long reviewId) {
+    public void deleteReview(Long reviewId) {
         log.debug("[SERVICE] Attempting to delete review with id={}", reviewId);
 
         try {
@@ -196,10 +268,9 @@ public class ReviewServiceImpl implements ReviewService {
                             }
                         }
                     });
-
-            boolean response =  reviewRepo.deleteReviewByRoute(reviewId);
+            reviewRepo.deleteById(reviewId);
             log.info("[SERVICE] Successfully deleted review with id={}", reviewId);
-            return response;
+
 
         } catch (Exception e) {
             log.error("[SERVICE] Error deleting review with id={}: {}", reviewId, e.getMessage(), e);

@@ -42,8 +42,6 @@ export const getRatingsByRoute = (routeId) => axiosClient.get(`/rating/route/${r
 export const handleDeleteReview = (reviewId) => axiosClient.delete(`/review/delete/${reviewId}`);
 export const handleEditReview = async (id, formData) => {
     return axiosClient.put(`/review/update/${id}`, formData, {
-        headers: {
-            "Content-Type": "multipart/form-data",
-        },
+        headers: { "Content-Type": "multipart/form-data" },
     });
 };

@@ -1,10 +1,10 @@
 package com.digicompass.backend.application.services;
 
+import com.digicompass.backend.repository.repositories.UserJpaRepository;
 import com.digicompass.backend.application.interfaces.EmailService;
 import com.digicompass.backend.application.mapper.UserMapper;
-import com.digicompass.backend.domain.entity.UserEntity;
+import com.digicompass.backend.repository.entity.UserEntity;
 import com.digicompass.backend.application.models.User;
-import com.digicompass.backend.infrastucture.persistence.repository.interfaces.UserInterface;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,7 +22,7 @@ import static org.mockito.Mockito.*;
 class PasswordResetServiceTest {
 
     @Mock
-    private UserInterface userRepository;
+    private UserJpaRepository userRepository;
 
     @Mock
     private StringRedisTemplate redisTemplate;

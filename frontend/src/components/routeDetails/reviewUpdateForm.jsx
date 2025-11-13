@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import { Textarea, Text, SimpleGrid } from "@mantine/core";
 import { Dropzone, IMAGE_MIME_TYPE } from "@mantine/dropzone";
-import {getReviewByRoute, handleEditReview} from "@/api/routeApi.jsx";
-
+import { handleEditReview } from "@/api/routeApi.jsx";
 
 export default function ReviewUpdateForm({ selectedRoute, onOpenChange }) {
     const [text, setText] = useState("");
@@ -12,6 +11,7 @@ export default function ReviewUpdateForm({ selectedRoute, onOpenChange }) {
     useEffect(() => {
         if (selectedRoute) {
             setText(selectedRoute.review || "");
+            // Store full image objects or URLs
             setExistingImages(selectedRoute.images || []);
         }
     }, [selectedRoute]);
@@ -19,17 +19,23 @@ export default function ReviewUpdateForm({ selectedRoute, onOpenChange }) {
     const handleSubmit = async () => {
         const formData = new FormData();
         formData.append("review", text);
+        formData.append("userId.id", selectedRoute.userId.id);
+        formData.append("userId.username", selectedRoute.userId.username);
+        formData.append("routeId", selectedRoute.routeId);
+        formData.append("createdAt", selectedRoute.createdAt);
+        formData.append("updatedAt", new Date().toISOString().slice(0, 19));
+
+        // Add new image files
         files.forEach((file) => formData.append("images", file));
 
-        // If you need to track which existing images to keep:
-        existingImages.forEach((img) => formData.append("existingImages", img));
+        // Add existing images to keep (as JSON string array)
+        formData.append("existingImageUrls", JSON.stringify(existingImages));
 
         try {
             await handleEditReview(selectedRoute.id, formData);
-            await getReviewByRoute(selectedRoute.id);
             onOpenChange();
         } catch (err) {
-            console.error("Update failed:", err);
+            console.error("Update failed:", err.response?.data || err);
         }
     };
 
@@ -44,63 +50,57 @@ export default function ReviewUpdateForm({ selectedRoute, onOpenChange }) {
     return (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40">
             <div className="bg-white p-6 rounded-xl shadow-xl max-w-lg w-full space-y-4">
-
                 <h2 className="text-lg font-semibold">Edit Your Review</h2>
 
-                <>
-                    <Textarea
-                        variant="filled"
-                        radius="xs"
-                        label="Your thoughts about the route:"
-                        placeholder="You can type your thoughts here."
-                        autosize
-                        minRows={2}
-                        value={text}
-                        onChange={(e) => setText(e.target.value)}
-                    />
+                <Textarea
+                    variant="filled"
+                    radius="xs"
+                    label="Your thoughts about the route:"
+                    placeholder="You can type your thoughts here."
+                    autosize
+                    minRows={2}
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
+                />
 
-                    <Dropzone
-                        accept={IMAGE_MIME_TYPE}
-                        onDrop={(acceptedFiles) => {
-                            setFiles([...files, ...acceptedFiles]);
-                        }}
-                    >
-                        <Text ta="center">Drop images here</Text>
-                    </Dropzone>
+                <Dropzone
+                    accept={IMAGE_MIME_TYPE}
+                    onDrop={(acceptedFiles) => {
+                        setFiles([...files, ...acceptedFiles]);
+                    }}
+                >
+                    <Text ta="center">Drop images here</Text>
+                </Dropzone>
 
-                    <SimpleGrid cols={{ base: 1, sm: 4 }} mt={existingImages.length + files.length > 0 ? "xl" : 0}>
-                        {/* Existing images */}
-                        {existingImages.map((img, i) => (
-                            <div key={`existing-${i}`} className="relative">
-                                <img src={img} alt={`image-${i}`} className="rounded-md object-cover w-full h-32" />
-                                <button
-                                    onClick={() => removeExistingImage(i)}
-                                    className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600"
-                                >
-                                    ×
-                                </button>
-                            </div>
-                        ))}
+                <SimpleGrid cols={{ base: 1, sm: 4 }} mt={existingImages.length + files.length > 0 ? "xl" : 0}>
+                    {existingImages.map((img, i) => (
+                        <div key={`existing-${i}`} className="relative">
+                            <img src={img} alt={`image-${i}`} className="rounded-md object-cover w-full h-32" />
+                            <button
+                                onClick={() => removeExistingImage(i)}
+                                className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600"
+                            >
+                                ×
+                            </button>
+                        </div>
+                    ))}
 
-                        {/* New files */}
-                        {files.map((file, i) => (
-                            <div key={`new-${i}`} className="relative">
-                                <img
-                                    src={URL.createObjectURL(file)}
-                                    alt={`preview-${i}`}
-                                    className="rounded-md object-cover w-full h-32"
-                                />
-                                <button
-                                    onClick={() => removeNewFile(i)}
-                                    className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600"
-                                >
-                                    ×
-                                </button>
-                            </div>
-                        ))}
-                    </SimpleGrid>
-
-                </>
+                    {files.map((file, i) => (
+                        <div key={`new-${i}`} className="relative">
+                            <img
+                                src={URL.createObjectURL(file)}
+                                alt={`preview-${i}`}
+                                className="rounded-md object-cover w-full h-32"
+                            />
+                            <button
+                                onClick={() => removeNewFile(i)}
+                                className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600"
+                            >
+                                ×
+                            </button>
+                        </div>
+                    ))}
+                </SimpleGrid>
 
                 <div className="flex justify-end gap-2 pt-2">
                     <button

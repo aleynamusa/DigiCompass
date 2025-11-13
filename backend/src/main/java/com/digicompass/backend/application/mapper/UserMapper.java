@@ -1,6 +1,6 @@
 package com.digicompass.backend.application.mapper;
 
-import com.digicompass.backend.domain.entity.UserEntity;
+import com.digicompass.backend.repository.entity.UserEntity;
 import com.digicompass.backend.application.models.User;
 
 import org.mapstruct.Mapper;

@@ -1,20 +1,16 @@
 package com.digicompass.backend.application.models;
 
-import jakarta.persistence.Column;
-import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.Period;
-import java.util.Date;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-public class  User {
+public class User {
     private Long id;
     private String username;
     private String email;
@@ -25,5 +21,10 @@ public class  User {
         Period period = Period.between(birthDate, LocalDate.now());
 
         return period.getYears();
+    }
+
+    public User(Long id, String username){
+        this.id = id;
+        this.username = username;
     }
 }

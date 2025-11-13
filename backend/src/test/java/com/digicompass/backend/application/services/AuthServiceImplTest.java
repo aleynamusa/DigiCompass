@@ -2,10 +2,9 @@ package com.digicompass.backend.application.services;
 
 import com.digicompass.backend.application.mapper.UserMapper;
 import com.digicompass.backend.application.security.JWTToken;
-import com.digicompass.backend.application.services.helpers.PasswordHasher;
-import com.digicompass.backend.domain.entity.UserEntity;
+import com.digicompass.backend.repository.entity.UserEntity;
 import com.digicompass.backend.application.models.User;
-import com.digicompass.backend.infrastucture.persistence.repository.interfaces.UserInterface;
+import com.digicompass.backend.repository.repositories.UserJpaRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,7 +20,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class AuthServiceImplTest {
     @Mock
-    private UserInterface repoMock;
+    private UserJpaRepository repoMock;
     @Mock
     private UserMapper userMapperMock;
 

@@ -107,7 +107,7 @@ const RouteDiscovery = () => {
             } else {
                 setSearchRoutes([]);
             }
-        }, 500); // waits 0.5s after typing stops
+        }, 500); //waits 0.5s after typing stops
 
         return () => clearTimeout(delay);
     }, [searchTerm]);
@@ -224,9 +224,9 @@ const RouteDiscovery = () => {
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="all">All Levels</SelectItem>
-                                        <SelectItem value="easy">Easy</SelectItem>
-                                        <SelectItem value="moderate">Moderate</SelectItem>
-                                        <SelectItem value="hard">Hard</SelectItem>
+                                        <SelectItem value="EASY">Easy</SelectItem>
+                                        <SelectItem value="MEDIUM">Medium</SelectItem>
+                                        <SelectItem value="HARD">Hard</SelectItem>
                                     </SelectContent>
                                 </Select>
 

@@ -10,7 +10,7 @@ import java.util.List;
 @Service
 public interface ReviewService {
     List<Review> getReviewsByRoute(Long routeId);
-    boolean createReview(Review review, List<MultipartFile> images) throws IOException;
-    boolean updateReview(Review review, List<MultipartFile> images) throws IOException;
-    boolean deleteReview(Long reviewId);
+    Review createReview(Review review, List<MultipartFile> images) throws IOException;
+    Review updateReview(Review review, List<MultipartFile> images, List<String> existingImageUrls) throws IOException;
+    void deleteReview(Long reviewId);
 }

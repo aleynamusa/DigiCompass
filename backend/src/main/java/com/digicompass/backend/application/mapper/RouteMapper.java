@@ -2,10 +2,10 @@ package com.digicompass.backend.application.mapper;
 
 import com.digicompass.backend.application.interfaces.S3Service;
 import com.digicompass.backend.application.models.Route;
-import com.digicompass.backend.domain.entity.RatingEntity;
-import com.digicompass.backend.domain.entity.ReviewEntity;
-import com.digicompass.backend.domain.entity.RouteEntity;
-import com.digicompass.backend.domain.entity.RouteImageEntity;
+import com.digicompass.backend.repository.entity.RatingEntity;
+import com.digicompass.backend.repository.entity.ReviewEntity;
+import com.digicompass.backend.repository.entity.RouteEntity;
+import com.digicompass.backend.repository.entity.RouteImageEntity;
 import org.mapstruct.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -24,6 +24,7 @@ public abstract class RouteMapper {
     @Mapping(target = "ratings", ignore = true)
     @Mapping(target = "averageRating", ignore = true)
     public abstract Route toDomain(RouteEntity entity);
+
 
     @Mapping(source = "createdByUserId", target = "createdByUserId")
     @Mapping(target = "images", ignore = true)

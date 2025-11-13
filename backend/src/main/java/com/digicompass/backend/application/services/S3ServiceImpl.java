@@ -1,7 +1,6 @@
 package com.digicompass.backend.application.services;
 
 import com.digicompass.backend.application.interfaces.S3Service;
-import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -16,10 +15,7 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.time.Duration;
-import java.util.List;
 import java.util.UUID;
 
 @Slf4j

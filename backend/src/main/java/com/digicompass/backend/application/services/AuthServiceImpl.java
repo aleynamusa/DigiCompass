@@ -6,30 +6,30 @@ import com.digicompass.backend.application.security.JWTToken;
 import com.digicompass.backend.application.security.PasswordValidator;
 import com.digicompass.backend.application.services.helpers.PasswordHasher;
 import com.digicompass.backend.application.interfaces.AuthService;
-import com.digicompass.backend.domain.entity.UserEntity;
+import com.digicompass.backend.repository.entity.UserEntity;
 import com.digicompass.backend.application.models.User;
-import com.digicompass.backend.infrastucture.persistence.repository.interfaces.UserInterface;
+import com.digicompass.backend.repository.repositories.UserJpaRepository;
 import io.jsonwebtoken.Claims;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
 
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Service
-@Validated
+@Slf4j
 public class AuthServiceImpl implements AuthService {
 
-    private final UserInterface userRepository;
+    private final UserJpaRepository userRepository;
     private final UserMapper userMapper;
     private final JWTToken jwt;
 
     private static final Logger LOGGER = Logger.getLogger(AuthServiceImpl.class.getName());
 
-    public AuthServiceImpl(UserInterface userRepository, UserMapper userMapper, JWTToken jwt) {
+    public AuthServiceImpl(UserJpaRepository userRepository, UserMapper userMapper, JWTToken jwt) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.jwt = jwt;
@@ -98,7 +98,7 @@ public class AuthServiceImpl implements AuthService {
                 throw new IllegalArgumentException("Username and password must not be blank.");
             }
 
-            UserEntity userEntity = userRepository.findByUsername(username);
+            UserEntity userEntity = userRepository.findUserDocumentByUsername(username);
             if (userEntity == null) {
                 LOGGER.log(Level.WARNING, "Login failed: user not found for username: {0}", username);
                 return null;

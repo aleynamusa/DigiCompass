@@ -1,11 +1,11 @@
 package com.digicompass.backend.application.services;
 
+import com.digicompass.backend.repository.repositories.RatingJpaRepository;
+import com.digicompass.backend.repository.repositories.RouteJpaRepository;
 import com.digicompass.backend.application.mapper.RatingMapper;
 import com.digicompass.backend.application.mapper.RouteMapper;
-import com.digicompass.backend.domain.entity.RatingEntity;
+import com.digicompass.backend.repository.entity.RatingEntity;
 import com.digicompass.backend.application.models.Rating;
-import com.digicompass.backend.infrastucture.persistence.repository.interfaces.RatingInterface;
-import com.digicompass.backend.infrastucture.persistence.repository.interfaces.RouteInterface;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -24,10 +24,10 @@ import static org.mockito.Mockito.*;
 class RatingServiceImplTest {
 
     @Mock
-    private RatingInterface ratingRepo;
+    private RatingJpaRepository ratingRepo;
 
     @Mock
-    private RouteInterface routeRepo;
+    private RouteJpaRepository routeRepo;
 
     @Mock
     private RatingMapper ratingMapper;
@@ -45,12 +45,12 @@ class RatingServiceImplTest {
         Long routeId = 1L;
 
         when(routeRepo.getAllIds()).thenReturn(List.of(1L, 2L));
-        when(ratingRepo.getAllRatingByRouteId(routeId)).thenReturn(4.5);
+        when(ratingRepo.getAvgRatingByRoute(routeId)).thenReturn(4.5);
 
         Double result = ratingService.getRouteRating(routeId);
 
         assertEquals(4.5, result);
-        verify(ratingRepo, times(1)).getAllRatingByRouteId(routeId);
+        verify(ratingRepo, times(1)).getRatingsByRoute(routeId);
     }
 
     @Test
@@ -58,7 +58,7 @@ class RatingServiceImplTest {
         Long routeId = 1L;
 
         when(routeRepo.getAllIds()).thenReturn(List.of(1L, 2L));
-        when(ratingRepo.getAllRatingByRouteId(routeId)).thenReturn(null);
+        when(ratingRepo.getRatingsByRoute(routeId)).thenReturn(null);
 
         Double result = ratingService.getRouteRating(routeId);
 
@@ -76,7 +76,7 @@ class RatingServiceImplTest {
         );
 
         assertTrue(exception.getMessage().contains("could not be found"));
-        verify(ratingRepo, never()).getAllRatingByRouteId(any());
+        verify(ratingRepo, never()).getRatingsByRoute(any());
     }
 
     @Test
@@ -84,7 +84,7 @@ class RatingServiceImplTest {
         Long routeId = 1L;
 
         when(routeRepo.getAllIds()).thenReturn(List.of(1L));
-        when(ratingRepo.getAllRatingByRouteId(routeId)).thenThrow(new RuntimeException("DB failure"));
+        when(ratingRepo.getRatingsByRoute(routeId)).thenThrow(new RuntimeException("DB failure"));
 
         ArithmeticException exception = assertThrows(
                 ArithmeticException.class,
@@ -105,14 +105,14 @@ class RatingServiceImplTest {
         Rating rating2 = new Rating();
 
         when(routeRepo.getAllIds()).thenReturn(List.of(1L, 2L));
-        when(ratingRepo.getRatingsByRouteId(routeId)).thenReturn(Arrays.asList(entity1, entity2));
+        when(ratingRepo.getRatingsByRoute(routeId)).thenReturn(Arrays.asList(entity1, entity2));
         when(ratingMapper.toDomain(Arrays.asList(entity1, entity2))).thenReturn(Arrays.asList(rating1, rating2));
 
 
         List<Rating> result = ratingService.getRatingsByRouteId(routeId);
 
         assertEquals(2, result.size());
-        verify(ratingRepo, times(1)).getRatingsByRouteId(routeId);
+        verify(ratingRepo, times(1)).getRatingsByRoute(routeId);
         verify(ratingMapper, times(1)).toDomain(anyList());
     }
 
@@ -128,7 +128,7 @@ class RatingServiceImplTest {
         );
 
         assertTrue(exception.getMessage().contains("could not be found"));
-        verify(ratingRepo, never()).getRatingsByRouteId(any());
+        verify(ratingRepo, never()).getRatingsByRoute(any());
     }
 
     @Test
@@ -136,7 +136,7 @@ class RatingServiceImplTest {
         Long routeId = 1L;
 
         when(routeRepo.getAllIds()).thenReturn(List.of(1L));
-        when(ratingRepo.getRatingsByRouteId(routeId)).thenThrow(new RuntimeException("Database failure"));
+        when(ratingRepo.getRatingsByRoute(routeId)).thenThrow(new RuntimeException("Database failure"));
 
         ArithmeticException exception = assertThrows(
                 ArithmeticException.class,
@@ -151,12 +151,12 @@ class RatingServiceImplTest {
         Long routeId = 1L;
 
         when(routeRepo.getAllIds()).thenReturn(List.of(1L));
-        when(ratingRepo.getRatingsByRouteId(routeId)).thenReturn(Collections.emptyList());
+        when(ratingRepo.getRatingsByRoute(routeId)).thenReturn(Collections.emptyList());
         when(ratingMapper.toDomain(anyList())).thenReturn(Collections.emptyList());
 
         List<Rating> result = ratingService.getRatingsByRouteId(routeId);
 
         assertTrue(result.isEmpty());
-        verify(ratingRepo, times(1)).getRatingsByRouteId(routeId);
+        verify(ratingRepo, times(1)).getRatingsByRoute(routeId);
     }
 }
