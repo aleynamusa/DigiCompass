@@ -42,15 +42,17 @@ class RatingServiceImplTest {
     //getRouteRating TESTS
     @Test
     void testGetRouteRating_Success() {
-        Long routeId = 1L;
+        // Arrange
+        Long id = 1L;
+        when(routeRepo.getAllIds()).thenReturn(List.of(1L));
+        when(ratingRepo.getAvgRatingByRoute(1L)).thenReturn(4.5);
 
-        when(routeRepo.getAllIds()).thenReturn(List.of(1L, 2L));
-        when(ratingRepo.getAvgRatingByRoute(routeId)).thenReturn(4.5);
+        // Act
+        Double rating = ratingService.getRouteRating(id);
 
-        Double result = ratingService.getRouteRating(routeId);
-
-        assertEquals(4.5, result);
-        verify(ratingRepo, times(1)).getRatingsByRoute(routeId);
+        // Assert
+        assertEquals(4.5, rating);
+        verify(ratingRepo).getAvgRatingByRoute(1L);
     }
 
     @Test
@@ -84,7 +86,8 @@ class RatingServiceImplTest {
         Long routeId = 1L;
 
         when(routeRepo.getAllIds()).thenReturn(List.of(1L));
-        when(ratingRepo.getRatingsByRoute(routeId)).thenThrow(new RuntimeException("DB failure"));
+        when(ratingRepo.getAvgRatingByRoute(routeId))
+                .thenThrow(new RuntimeException("DB failure"));
 
         ArithmeticException exception = assertThrows(
                 ArithmeticException.class,

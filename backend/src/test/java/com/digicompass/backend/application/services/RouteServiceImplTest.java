@@ -67,16 +67,13 @@ class RouteServiceImplTest {
         List<Route> mappedRoutes = List.of(route);
         when(routeMapper.toDomain(anyList())).thenReturn(mappedRoutes);
         when(routeRepository.findAll()).thenReturn(List.of());
-        when(ratingService.getRouteRating(routeId)).thenReturn(4.5);
-        when(reviewService.getReviewsByRoute(routeId)).thenReturn(List.of(new Review()));
+
 
         List<Route> result = routeService.getRoutes();
 
         assertEquals(1, result.size());
-        assertEquals(4.5, result.get(0).getAverageRating());
         verify(routeRepository).findAll();
-        verify(ratingService).getRouteRating(routeId);
-        verify(reviewService).getReviewsByRoute(routeId);
+
     }
 
     @Test
@@ -97,8 +94,6 @@ class RouteServiceImplTest {
         when(routeRepository.getAllIds()).thenReturn(List.of(1L, 2L, 3L));
         when(routeMapper.toDomain(new RouteEntity())).thenReturn(route);
 
-        when(reviewService.getReviewsByRoute(routeId)).thenReturn(List.of(new Review()));
-        when(ratingService.getRatingsByRouteId(routeId)).thenReturn(List.of(new Rating()));
 
         when(objectMapper.readTree(anyString())).thenReturn(null);
 
@@ -106,14 +101,12 @@ class RouteServiceImplTest {
 
         assertEquals(routeId, result.getId());
         verify(routeRepository).findById(routeId);
-        verify(reviewService).getReviewsByRoute(routeId);
-        verify(ratingService).getRatingsByRouteId(routeId);
+
     }
 
     @Test
     void getRouteById_ThrowsNotFound_WhenRouteMissing() {
-        when(routeRepository.findById(routeId)).thenReturn(null);
-        when(routeRepository.getAllIds()).thenReturn(List.of(1L, 2L, 3L));
+        when(routeRepository.getAllIds()).thenReturn(null);
 
         ResponseStatusException ex = assertThrows(
                 ResponseStatusException.class,

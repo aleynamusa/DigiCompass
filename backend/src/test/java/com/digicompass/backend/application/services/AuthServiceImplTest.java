@@ -1,9 +1,10 @@
 package com.digicompass.backend.application.services;
 
 import com.digicompass.backend.application.mapper.UserMapper;
-import com.digicompass.backend.application.security.JWTToken;
-import com.digicompass.backend.repository.entity.UserEntity;
 import com.digicompass.backend.application.models.User;
+import com.digicompass.backend.application.security.JWTToken;
+import com.digicompass.backend.application.services.helpers.PasswordHasher;
+import com.digicompass.backend.repository.entity.UserEntity;
 import com.digicompass.backend.repository.repositories.UserJpaRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,6 +13,7 @@ import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -19,8 +21,10 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class AuthServiceImplTest {
+
     @Mock
     private UserJpaRepository repoMock;
+
     @Mock
     private UserMapper userMapperMock;
 
@@ -34,145 +38,145 @@ class AuthServiceImplTest {
     private UserEntity userEntity;
 
     @BeforeEach
-    void setUp() {
-
+    void init() {
         user = new User();
         user.setId(1L);
         user.setUsername("testuser");
-        user.setPassword("plainPassword12@");
-        user.setBirthDate(LocalDate.of(1997, 10, 03));
+        user.setPassword("PlainPass12@");
         user.setEmail("test@gmail.com");
+        user.setBirthDate(LocalDate.of(1997, 10, 3));
 
         userEntity = new UserEntity();
         userEntity.setId(1L);
         userEntity.setUsername("testuser");
-        userEntity.setPassword("hashedPassword");
+        userEntity.setPassword("hashedPass");
     }
+
+   //SIGN UP TESTS
 
     @Test
     void signUp_ShouldHashPassword_AndSaveUser() {
-        //arrange
         when(userMapperMock.toEntity(any(User.class))).thenReturn(userEntity);
         when(repoMock.save(any(UserEntity.class))).thenReturn(userEntity);
         when(userMapperMock.toDomain(any(UserEntity.class))).thenReturn(user);
 
-        //act
-        User result = service.signUp(user);
+        try (MockedStatic<PasswordHasher> mocked = mockStatic(PasswordHasher.class)) {
+            mocked.when(() -> PasswordHasher.hash(any())).thenReturn("hashedPw123");
 
-        //assert
-        assertNotNull(result);
-        verify(repoMock, times(1)).save(any(UserEntity.class));
-        verify(userMapperMock, times(1)).toEntity(any(User.class));
-        verify(userMapperMock, times(1)).toDomain(any(UserEntity.class));
+            User result = service.signUp(user);
 
-        assertNotEquals("plainPassword", user.getPassword());
+            assertNotNull(result);
+            verify(repoMock).save(any(UserEntity.class));
+            assertEquals("hashedPw123", user.getPassword());
+        }
     }
 
     @Test
-    void signUp_ShouldThrowException_WhenPasswordIsNotValidated() {
-
-        User invalidUser = new User(1L, "testuser", "test@gmail.com", LocalDate.of(1997, 10, 03), "plainPassword");
-
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-                () -> service.signUp(invalidUser));
-
-        assertTrue(
-                ex.getMessage().contains("Password"),
-                "Expected password validation error but got: " + ex.getMessage()
+    void signUp_ShouldThrow_WhenUserIsNull() {
+        IllegalArgumentException ex = assertThrows(
+                IllegalArgumentException.class,
+                () -> service.signUp(null)
         );
-    }
-
-    @Test
-    void signUp_ShouldThrowException_WhenEmailIsNotValid() {
-
-        User invalidUser = new User(1L, "testuser", "testgm.com", LocalDate.of(1997, 10, 03), "plainPassword12@");
-
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-                () -> service.signUp(invalidUser));
-
-        assertTrue(
-                ex.getMessage().contains("Email"),
-                "Expected email validation error but got: " + ex.getMessage()
-        );
-    }
-
-    @Test
-    void signUp_ShouldThrowException_WhenUserIsNull() {
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-                () -> service.signUp(null));
-
         assertEquals("User cannot be null.", ex.getMessage());
     }
 
     @Test
-    void signUp_ShouldThrowException_WhenUserIsUnder14() {
-        user.setBirthDate(LocalDate.of(2015, 10, 03));
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-                () -> service.signUp(user));
+    void signUp_ShouldThrow_WhenUserUnder14() {
+        user.setBirthDate(LocalDate.now().minusYears(10));
 
+        IllegalArgumentException ex = assertThrows(
+                IllegalArgumentException.class,
+                () -> service.signUp(user)
+        );
         assertEquals("User cannot be less than 14 years old.", ex.getMessage());
     }
 
-//    @Test
-//    void testLogIn_ShouldReturnNull_UserNotFound() {
-//        when(repoMock.findByUsername("unknownUser")).thenReturn(null);
-//
-//        String result = service.logIn("unknownUser", "anyPassword");
-//
-//        assertNull(result);
-//        verify(repoMock).findByUsername("unknownUser");
-//        verifyNoMoreInteractions(repoMock, userMapperMock);
-//    }
-
-//    @Test
-//    void logIn_ShouldReturnToken_WhenPasswordMatches() {
-//
-//
-//
-//        when(repoMock.findByUsername("testuser")).thenReturn(userEntity);
-//        when(jwtMock.generateToken(userMapperMock.toDomain(userEntity)).thenReturn("mocked-jwt-token");
-//
-//        try (MockedStatic<PasswordHasher> mockedHasher = mockStatic(PasswordHasher.class)) {
-//            mockedHasher.when(() -> PasswordHasher.verify("hashedPassword", "correctPassword"))
-//                    .thenReturn(true);
-//
-//            String result = service.logIn("testuser", "correctPassword");
-//
-//            assertNotNull(result);
-//            assertEquals("mocked-jwt-token", result);
-//            verify(repoMock).findByUsername("testuser");
-//            verify(jwtMock).generateToken("testuser");
-//            verifyNoInteractions(userMapperMock);
-//        }
-//    }
-
-//    @Test
-//    void logIn_ShouldReturnNull_WhenPasswordIsIncorrect() {
-//        when(repoMock.findByUsername("testuser")).thenReturn(userEntity);
-//
-//        try (MockedStatic<PasswordHasher> mockedHasher = mockStatic(PasswordHasher.class)) {
-//            mockedHasher.when(() -> PasswordHasher.verify("hashedPassword", "wrongPassword"))
-//                    .thenReturn(false);
-//
-//            String result = service.logIn("testuser", "wrongPassword");
-//
-//            assertNull(result);
-//            verify(repoMock).findByUsername("testuser");
-//            verifyNoInteractions(userMapperMock, jwtMock);
-//        }
-//    }
-
     @Test
-    void logIn_ShouldThrowException_NullPassword() {
-            assertThrows(IllegalArgumentException.class, () -> service.logIn("testuser", null));
+    void signUp_ShouldThrow_WhenPasswordInvalid() {
+        user.setPassword("weak");
 
+        IllegalArgumentException ex = assertThrows(
+                IllegalArgumentException.class,
+                () -> service.signUp(user)
+        );
+
+        assertTrue(ex.getMessage().contains("Password"));
     }
 
     @Test
-    void shouldThrowException_WhenUsernameIsBlank() {
+    void signUp_ShouldThrow_WhenEmailInvalid() {
+        user.setEmail("wrong.com");
+
+        IllegalArgumentException ex = assertThrows(
+                IllegalArgumentException.class,
+                () -> service.signUp(user)
+        );
+
+        assertTrue(ex.getMessage().contains("Email"));
+    }
+
+    //LOGIN TESTS
+
+    @Test
+    void logIn_ShouldThrow_WhenUsernameBlank() {
         assertThrows(IllegalArgumentException.class,
-                () -> service.logIn(" ", "somePassword"));
+                () -> service.logIn(" ", "password"));
+    }
+
+    @Test
+    void logIn_ShouldThrow_WhenPasswordNull() {
+        assertThrows(IllegalArgumentException.class,
+                () -> service.logIn("testuser", null));
+    }
+
+    @Test
+    void logIn_ShouldReturnNull_WhenUserNotFound() {
+        when(repoMock.findUserDocumentByUsername("missing")).thenReturn(null);
+
+        Map<String, String> result = service.logIn("missing", "pwd");
+
+        assertNull(result);
+    }
+
+    @Test
+    void logIn_ShouldReturnTokens_WhenPasswordCorrect() {
+        when(repoMock.findUserDocumentByUsername("testuser"))
+                .thenReturn(userEntity);
+
+        when(userMapperMock.toDomain(any(UserEntity.class))).thenReturn(user);
+
+        when(jwtMock.generateAccessToken(any(User.class))).thenReturn("access123");
+        when(jwtMock.generateRefreshToken(any(User.class))).thenReturn("refresh123");
+
+        try (MockedStatic<PasswordHasher> mocked = mockStatic(PasswordHasher.class)) {
+            mocked.when(() -> PasswordHasher.verify("hashedPass", "PlainPass12@"))
+                    .thenReturn(true);
+
+            Map<String, String> tokens = service.logIn("testuser", "PlainPass12@");
+
+            assertNotNull(tokens);
+            assertEquals("access123", tokens.get("accessToken"));
+            assertEquals("refresh123", tokens.get("refreshToken"));
+
+            verify(jwtMock).generateAccessToken(any(User.class));
+            verify(jwtMock).generateRefreshToken(any(User.class));
+        }
     }
 
 
+    @Test
+    void logIn_ShouldReturnNull_WhenPasswordWrong() {
+        when(repoMock.findUserDocumentByUsername("testuser"))
+                .thenReturn(userEntity);
+
+        try (MockedStatic<PasswordHasher> mocked = mockStatic(PasswordHasher.class)) {
+            mocked.when(() -> PasswordHasher.verify("hashedPass", "wrong"))
+                    .thenReturn(false);
+
+            Map<String, String> result = service.logIn("testuser", "wrong");
+
+            assertNull(result);
+            verify(jwtMock, never()).generateAccessToken(any());
+        }
+    }
 }
