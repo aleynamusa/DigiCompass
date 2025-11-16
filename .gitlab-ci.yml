@@ -6,38 +6,38 @@ stages:
   - test
   - deploy
 
-#backend:build:
-#  stage: build
-#  image: gradle:8.3-jdk24
-#  script:
-#    - echo "Building Spring Boot backend..."
-#    - cd backend
-#    - ./gradlew.bat clean bootJar --no-daemon
-#  artifacts:
-#    paths:
-#      - backend/build/libs/*.jar
-#    expire_in: 1 hour
-#  only:
-#    - development
-#    - merge_requests
-#
-#
-#frontend:build:
-#  stage: build
-#  image: node:22-alpine
-#  script:
-#    - echo "Building Vite + React frontend..."
-#    - cd frontend
-#    - npm install
-#    - npm run build
-#  artifacts:
-#    paths:
-#      - frontend/dist
-#    expire_in: 1 hour
-#  only:
-#    - development
-#    - merge_requests
-#
+backend:build:
+  stage: build
+  image: gradle:8.3-jdk24
+  script:
+    - echo "Building Spring Boot backend..."
+    - cd backend
+    - ./gradlew.bat clean bootJar --no-daemon
+  artifacts:
+    paths:
+      - backend/build/libs/*.jar
+    expire_in: 1 hour
+  only:
+    - development
+    - merge_requests
+
+
+frontend:build:
+  stage: build
+  image: node:22-alpine
+  script:
+    - echo "Building Vite + React frontend..."
+    - cd frontend
+    - npm install
+    - npm run build
+  artifacts:
+    paths:
+      - frontend/dist
+    expire_in: 1 hour
+  only:
+    - development
+    - merge_requests
+
 #
 unit-tests:
   stage: test
