@@ -1,8 +1,8 @@
 package com.digicompass.backend.controller;
 
-import com.digicompass.backend.application.interfaces.AuthService;
-import com.digicompass.backend.application.interfaces.UserService;
-import com.digicompass.backend.application.models.User;
+import com.digicompass.backend.unit.interfaces.AuthService;
+import com.digicompass.backend.unit.interfaces.UserService;
+import com.digicompass.backend.unit.models.User;
 import com.digicompass.backend.controller.dto.request.LogInRequest;
 import com.digicompass.backend.controller.dto.request.UserRequestDto;
 import com.digicompass.backend.controller.dto.response.UserResponseDto;

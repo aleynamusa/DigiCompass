@@ -18,8 +18,8 @@ describe("Sign Up Flow", () => {
     it("should sign up successfully when given correct inputs", () => {
         cy.intercept("POST", `${backendUrl}/users/signUp`).as("signUpRequest");
 
-        cy.get('input[name="email"]').type("tryAgain1@gmail.com");
-        cy.get('input[name="username"]').type("try_11test");
+        cy.get('input[name="email"]').type("tryAgain11@gmail.com");
+        cy.get('input[name="username"]').type("try_111test");
         cy.get('input[name="birthDate"]').click();
 
         //birthdate selection

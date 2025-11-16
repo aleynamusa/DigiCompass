@@ -1,15 +1,10 @@
 package com.digicompass.backend.integration;
 
 import com.digicompass.backend.controller.mapper.ReviewMapperController;
-import com.digicompass.backend.repository.entity.ReviewEntity;
-import com.digicompass.backend.repository.entity.RouteEntity;
-import com.digicompass.backend.repository.entity.UserEntity;
 import com.digicompass.backend.repository.repositories.ReviewJpaRepository;
 import com.digicompass.backend.repository.repositories.RouteJpaRepository;
 import com.digicompass.backend.repository.repositories.UserJpaRepository;
-import com.digicompass.backend.application.mapper.ReviewMapper;
-import com.digicompass.backend.application.models.Review;
-import com.digicompass.backend.application.models.User;
+import com.digicompass.backend.unit.mapper.ReviewMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,8 +19,6 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
-
-import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;

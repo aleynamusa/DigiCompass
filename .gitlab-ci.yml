@@ -6,52 +6,68 @@ stages:
   - test
   - deploy
 
-backend:build:
-  stage: build
-  image: gradle:8.3-jdk24
-  script:
-    - echo "Building Spring Boot backend..."
-    - cd backend
-    - ./gradlew.bat clean bootJar --no-daemon
-  artifacts:
-    paths:
-      - backend/build/libs/*.jar
-    expire_in: 1 hour
-  only:
-    - development
-    - merge_requests
+#backend:build:
+#  stage: build
+#  image: gradle:8.3-jdk24
+#  script:
+#    - echo "Building Spring Boot backend..."
+#    - cd backend
+#    - ./gradlew.bat clean bootJar --no-daemon
+#  artifacts:
+#    paths:
+#      - backend/build/libs/*.jar
+#    expire_in: 1 hour
+#  only:
+#    - development
+#    - merge_requests
+#
+#
+#frontend:build:
+#  stage: build
+#  image: node:22-alpine
+#  script:
+#    - echo "Building Vite + React frontend..."
+#    - cd frontend
+#    - npm install
+#    - npm run build
+#  artifacts:
+#    paths:
+#      - frontend/dist
+#    expire_in: 1 hour
+#  only:
+#    - development
+#    - merge_requests
+#
+#
+#unit-tests:
+#  stage: test
+#  image: gradle:8.3-jdk24
+#  script:
+#    - echo "Running tests with Mockito..."
+#    - cd backend
+#    - ./gradlew clean test --no-daemon
+#  artifacts:
+#    when: always
+#    reports:
+#      junit: backend/build/test-results/test/TEST-*.xml
+#    paths:
+#      - backend/build/reports/tests/test
 
-
-frontend:build:
-  stage: build
-  image: node:22-alpine
-  script:
-    - echo "Building Vite + React frontend..."
-    - cd frontend
-    - npm install
-    - npm run build
-  artifacts:
-    paths:
-      - frontend/dist
-    expire_in: 1 hour
-  only:
-    - development
-    - merge_requests
-
-
-unit-tests:
+integration-tests:
   stage: test
   image: gradle:8.3-jdk24
   script:
-    - echo "Running tests with Mockito..."
+    - docker compose -f docker-compose.test.yml up -d
     - cd backend
-    - ./gradlew clean test --no-daemon
+    - ./gradlew integrationTest --no-daemon
   artifacts:
     when: always
     reports:
-      junit: backend/build/test-results/test/TEST-*.xml
+      junit: backend/build/test-results/integrationTest/TEST-*.xml
     paths:
-      - backend/build/reports/tests/test
+      - backend/build/reports/tests/integrationTest
+
+
 
 e2e:
   stage: test

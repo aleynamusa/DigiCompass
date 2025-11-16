@@ -36,6 +36,7 @@ configurations {
     }
 }
 
+
 repositories {
     mavenCentral()
 }
@@ -90,7 +91,32 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
 }
 
-//compileJava.dependsOn tasks.openApiGenerate
+sourceSets {
+    integrationTest {
+        java.srcDirs = ["src/test/java/com/digicompass/backend/integration"]
+        resources.srcDir "src/test/resources"
+        compileClasspath += sourceSets.main.output + configurations.testRuntimeClasspath
+        runtimeClasspath += output + compileClasspath
+    }
+}
+
+configurations {
+    integrationTestImplementation.extendsFrom testImplementation
+    integrationTestRuntimeOnly.extendsFrom testRuntimeOnly
+}
+
+tasks.register("integrationTest", Test) {
+    description = "Runs integration tests."
+    group = "verification"
+    testClassesDirs = sourceSets.integrationTest.output.classesDirs
+    classpath = sourceSets.integrationTest.runtimeClasspath
+    useJUnitPlatform()
+}
+
+tasks.named("check") {
+    dependsOn("integrationTest")
+}
+
 
 tasks.named('test', Test) {
     useJUnitPlatform()

@@ -1,8 +1,8 @@
 package com.digicompass.backend.controller.mapper;
 
 import com.digicompass.backend.repository.entity.RouteImageEntity;
-import com.digicompass.backend.application.models.Route;
-import com.digicompass.backend.application.models.RouteGeometry;
+import com.digicompass.backend.unit.models.Route;
+import com.digicompass.backend.unit.models.RouteGeometry;
 import com.digicompass.backend.controller.dto.RouteDto;
 import com.digicompass.backend.controller.dto.RouteGeometryDto;
 import org.mapstruct.Mapper;

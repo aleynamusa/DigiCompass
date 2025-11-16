@@ -1,7 +1,7 @@
 package com.digicompass.backend.configuration;
 
 // SecurityConfig.java
-import com.digicompass.backend.application.security.JWTAuthFilter;import org.springframework.context.annotation.Bean;
+import com.digicompass.backend.unit.security.JWTAuthFilter;import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 
