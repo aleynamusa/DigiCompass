@@ -76,7 +76,7 @@ e2e:
     - name: docker:26.1.3
       alias: docker
   variables:
-    CYPRESS_baseUrl: "http://frontend:5173"
+    CYPRESS_baseUrl: "http://localhost:5173"
     DOCKER_TLS_CERTDIR: ""
   script:
     - echo "Running tests with Cypress..."
