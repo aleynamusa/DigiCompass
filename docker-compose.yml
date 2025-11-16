@@ -1,9 +1,11 @@
 services:
   backend:
-    image: ${DOCKERHUB_USERNAME}/digicompass-backend:latest
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     ports:
       - "8080:8080"
-      - "5005:5005" # debugging
+      - "5005:5005" #debugging
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/digicompass
       SPRING_DATASOURCE_USERNAME: postgres
@@ -37,10 +39,11 @@ services:
     networks:
       - app-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 5s
       timeout: 5s
       retries: 5
+
 
   redis:
     image: redis:7
@@ -50,7 +53,9 @@ services:
       - app-network
 
   frontend:
-    image: ${DOCKERHUB_USERNAME}/digicompass-frontend:latest
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     ports:
       - "5173:5173"
     depends_on:
