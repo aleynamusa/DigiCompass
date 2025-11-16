@@ -53,39 +53,26 @@ unit-tests:
     paths:
       - backend/build/reports/tests/test
 
-# later implement deploy
-#docker:build-and-push:
-#  stage: deploy
-#  image: docker:26.1.3
-#  services:
-#    - docker:dind
-#  variables:
-#    DOCKER_TLS_CERTDIR: ""
-#    CI_REGISTRY_IMAGE: https://git.fhict.nl/I547282/digicompass
-#  before_script:
-#    - echo "Logging into GitLab container registry..."
-#    - echo "$CI_REGISTRY_PASSWORD" | docker login -u aleynam "$CI_REGISTRY" --password-stdin
-#  script:
-#    - echo "Building Docker images..."
-#    - docker build -t "$CI_REGISTRY_IMAGE/backend:latest" -t "$CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHORT_SHA" ./backend
-#    - docker build -t "$CI_REGISTRY_IMAGE/frontend:latest" -t "$CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHORT_SHA" ./frontend
-#
-#    - echo "Pushing images to GitLab registry..."
-#    - docker push "$CI_REGISTRY_IMAGE/backend:latest"
-#    - docker push "$CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHORT_SHA"
-#    - docker push "$CI_REGISTRY_IMAGE/frontend:latest"
-#    - docker push "$CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHORT_SHA"
-##  only:
-##    - main
-#
-#deploy:
-#  stage: deploy
-#  script:
-#    - docker login -u aleynam -p "dckr_pat_J4_VLDGSO0oSRC8f1SOjLI-ipTU"
-#    - docker tag my-app:$CI_COMMIT_SHORT_SHA mydockerhubuser/my-app:$CI_COMMIT_SHORT_SHA
-#    - docker push mydockerhubuser/my-app:$CI_COMMIT_SHORT_SHA
-#  only:
-#    - main
+e2e:
+  stage: test
+  image: cypress/included:13.6.2
+  services:
+    - name: docker:26.1.3
+      alias: docker
+  variables:
+    CYPRESS_baseUrl: "http://frontend:5173"
+    DOCKER_TLS_CERTDIR: ""
+  script:
+    - echo "Running tests with Cypress..."
+    - docker compose -f docker-compose.yml up -d --build
+    - cd frontend
+    - npx cypress run --browser chrome
+  artifacts:
+    when: always
+    paths:
+      - frontend/cypress/videos
+      - frontend/cypress/screenshots
+      - frontend/cypress/results
 
 
 docker:build-and-push:
@@ -113,5 +100,5 @@ docker:build-and-push:
 
     - docker push $DOCKERHUB_USERNAME/digicompass-frontend:latest
     - docker push $DOCKERHUB_USERNAME/digicompass-frontend:$CI_COMMIT_SHORT_SHA
-#  only:
-#    - main
+  only:
+    - main

@@ -32,8 +32,6 @@ describe("Sign Up Flow", () => {
         cy.get('.mantine-Calendar-day').contains('10').click();
 
 
-
-
         cy.get('input[name="password"]').type("Hello123@_");
         cy.get('input[name="confirmPassword"]').type("Hello123@_");
 
@@ -47,7 +45,7 @@ describe("Sign Up Flow", () => {
     it("should show if the username is already taken",()=>{
         cy.intercept("POST", `${backendUrl}/users/signUp`).as("signUpRequest");
 
-        cy.get('input[name="username"]').type("test");
+        cy.get('input[name="username"]').type("admin");
 
         cy.contains("Username already taken");
 
