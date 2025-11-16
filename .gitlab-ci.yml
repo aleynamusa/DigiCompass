@@ -6,37 +6,37 @@ stages:
   - test
   - deploy
 
-#backend:build:
-#  stage: build
-#  image: gradle:8.3-jdk24
-#  script:
-#    - echo "Building Spring Boot backend..."
-#    - cd backend
-#    - ./gradlew.bat clean bootJar --no-daemon
-#  artifacts:
-#    paths:
-#      - backend/build/libs/*.jar
-#    expire_in: 1 hour
-#  only:
-#    - development
-#    - merge_requests
-#
-#
-#frontend:build:
-#  stage: build
-#  image: node:22-alpine
-#  script:
-#    - echo "Building Vite + React frontend..."
-#    - cd frontend
-#    - npm install
-#    - npm run build
-#  artifacts:
-#    paths:
-#      - frontend/dist
-#    expire_in: 1 hour
-#  only:
-#    - development
-#    - merge_requests
+backend:build:
+  stage: build
+  image: gradle:8.3-jdk24
+  script:
+    - echo "Building Spring Boot backend..."
+    - cd backend
+    - ./gradlew.bat clean bootJar --no-daemon
+  artifacts:
+    paths:
+      - backend/build/libs/*.jar
+    expire_in: 1 hour
+  only:
+    - development
+    - merge_requests
+
+
+frontend:build:
+  stage: build
+  image: node:22-alpine
+  script:
+    - echo "Building Vite + React frontend..."
+    - cd frontend
+    - npm install
+    - npm run build
+  artifacts:
+    paths:
+      - frontend/dist
+    expire_in: 1 hour
+  only:
+    - development
+    - merge_requests
 #
 #
 unit-tests:
@@ -69,27 +69,27 @@ integration-tests:
 
 
 
-#e2e:
-#  stage: test
-#  image: node:latest
-#  services:
-#    - name: docker:26.1.3
-#      alias: docker
-#  variables:
-#    CYPRESS_baseUrl: "http://localhost:5173"
-#    DOCKER_TLS_CERTDIR: ""
-#  script:
-#    - echo "Running tests with Cypress..."
-#    - docker compose -f docker-compose.yml up -d --build
-#    - cd frontend
-#    - npm install
-#    - npx cypress run
-#  artifacts:
-#    when: always
-#    paths:
-#      - frontend/cypress/videos
-#      - frontend/cypress/screenshots
-#
+e2e:
+  stage: test
+  image: node:latest
+  services:
+    - name: docker:26.1.3
+      alias: docker
+  variables:
+    CYPRESS_baseUrl: "http://localhost:5173"
+    DOCKER_TLS_CERTDIR: ""
+  script:
+    - echo "Running tests with Cypress..."
+    - docker compose -f docker-compose.yml up -d --build
+    - cd frontend
+    - npm install
+    - npx cypress run
+  artifacts:
+    when: always
+    paths:
+      - frontend/cypress/videos
+      - frontend/cypress/screenshots
+
 
 
 docker:build-and-push:
