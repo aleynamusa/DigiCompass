@@ -82,13 +82,14 @@ e2e:
     - echo "Running tests with Cypress..."
     - docker compose -f docker-compose.yml up -d --build
     - cd frontend
-    - npx cypress run --browser chrome
+    - npm install
+    - npx cypress run
   artifacts:
     when: always
     paths:
       - frontend/cypress/videos
       - frontend/cypress/screenshots
-      - frontend/cypress/results
+
 
 
 docker:build-and-push:
