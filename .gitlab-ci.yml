@@ -19,7 +19,7 @@ backend:build:
     expire_in: 1 hour
   only:
     - development
-    - merge_requests
+    - main
 
 
 frontend:build:
@@ -36,7 +36,7 @@ frontend:build:
     expire_in: 1 hour
   only:
     - development
-    - merge_requests
+    - main
 
 #
 unit-tests:
