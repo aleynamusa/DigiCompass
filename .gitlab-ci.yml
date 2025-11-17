@@ -19,7 +19,7 @@ backend:build:
     expire_in: 1 hour
   only:
     - development
-    - merge_requests
+    - main
 
 
 frontend:build:
@@ -36,8 +36,8 @@ frontend:build:
     expire_in: 1 hour
   only:
     - development
-    - merge_requests
-#
+    - main
+
 #
 unit-tests:
   stage: test
@@ -104,10 +104,8 @@ docker:build-and-push:
   script:
     - echo "Building Docker images..."
 
-    # Build backend
     - docker build -t $DOCKERHUB_USERNAME/digicompass-backend:latest -t $DOCKERHUB_USERNAME/digicompass-backend:$CI_COMMIT_SHORT_SHA backend
 
-    # Build frontend
     - docker build -t $DOCKERHUB_USERNAME/digicompass-frontend:latest -t $DOCKERHUB_USERNAME/digicompass-frontend:$CI_COMMIT_SHORT_SHA frontend
 
     - echo "Pushing images to Docker Hub..."

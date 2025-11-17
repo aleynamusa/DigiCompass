@@ -1,6 +1,6 @@
 package com.digicompass.backend.controller;
 
-import com.digicompass.backend.unit.interfaces.RatingService;
+import com.digicompass.backend.application.interfaces.RatingService;
 import com.digicompass.backend.controller.dto.RatingDto;
 import com.digicompass.backend.controller.mapper.RatingMapperController;
 import org.springframework.http.ResponseEntity;

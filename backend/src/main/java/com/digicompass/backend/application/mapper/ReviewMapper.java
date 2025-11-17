@@ -1,0 +1,47 @@
+package com.digicompass.backend.application.mapper;
+
+import com.digicompass.backend.application.models.Review;
+import com.digicompass.backend.repository.entity.*;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses={ReviewImageMapper.class})
+public interface ReviewMapper {
+
+    @Mapping(source = "routeId.id", target = "routeId")
+    @Mapping(source = "images", target = "images")
+    Review toDomain(ReviewEntity entity);
+
+    @Mapping(source = "routeId", target = "routeId.id")
+    @Mapping(source = "images", target = "images")
+    ReviewEntity toEntity(Review review);
+
+    @Mapping(source = "routeId.id", target = "routeId")
+    @Mapping(source = "images", target = "images")
+    List<Review> toDomain(List<ReviewEntity> entities);
+    List<ReviewEntity> toEntity(List<Review> reviews);
+
+
+    default List<String> mapEntitiesToUrls(List<ReviewImageEntity> entities) {
+        if (entities == null) return null;
+        return entities.stream()
+                .map(ReviewImageEntity::getImageUrl)
+                .toList();
+    }
+
+    default List<ReviewImageEntity> mapUrlsToEntities(List<String> urls) {
+        if (urls == null) return null;
+
+        List<ReviewImageEntity> entities = new ArrayList<>();
+        for (String url : urls) {
+            ReviewImageEntity e = new ReviewImageEntity();
+            e.setImageUrl(url);
+            entities.add(e);
+        }
+        return entities;
+    }
+}

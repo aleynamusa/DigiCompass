@@ -17,5 +17,6 @@ public class UserRequestDto {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate birthDate;
     private String password;
+    private Long role;
 
 }

@@ -1,6 +1,6 @@
 package com.digicompass.backend.controller.mapper;
 
-import com.digicompass.backend.unit.models.Review;
+import com.digicompass.backend.application.models.Review;
 import com.digicompass.backend.controller.dto.request.ReviewRequestDto;
 import com.digicompass.backend.controller.dto.response.ReviewResponseDto;
 import org.mapstruct.Mapper;

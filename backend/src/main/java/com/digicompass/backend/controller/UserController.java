@@ -1,8 +1,8 @@
 package com.digicompass.backend.controller;
 
-import com.digicompass.backend.unit.interfaces.AuthService;
-import com.digicompass.backend.unit.interfaces.UserService;
-import com.digicompass.backend.unit.models.User;
+import com.digicompass.backend.application.interfaces.AuthService;
+import com.digicompass.backend.application.interfaces.UserService;
+import com.digicompass.backend.application.models.User;
 import com.digicompass.backend.controller.dto.request.LogInRequest;
 import com.digicompass.backend.controller.dto.request.UserRequestDto;
 import com.digicompass.backend.controller.dto.response.UserResponseDto;
@@ -40,7 +40,8 @@ public class UserController {
                     request.getUsername(),
                     request.getEmail(),
                     request.getBirthDate(),
-                    request.getPassword()
+                    request.getPassword(),
+                    request.getRole()
             );
             User saved = authService.signUp(user);
             return ResponseEntity.ok(saved);
@@ -79,7 +80,7 @@ public class UserController {
     @DeleteMapping()
     public ResponseEntity<String> deleteUser(@RequestBody UserRequestDto request){
         try{
-            User user = new User(request.getId(), request.getUsername(), request.getEmail(), request.getBirthDate(), request.getPassword());
+            User user = new User(request.getId(), request.getUsername(), request.getEmail(), request.getBirthDate(), request.getPassword(), request.getRole());
             userService.deleteUser(user);
             return ResponseEntity.ok("User deleted successfully");
         }
@@ -97,15 +98,16 @@ public class UserController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(Map.of("error", "Invalid username or password"));
             }
-            ResponseCookie cookie = ResponseCookie.from("refreshToken", tokens.get("refreshToken"))
-                    .httpOnly(true)
-                    .sameSite("Lax")
-                    .secure(false)
-                    .path("/")
-                    .maxAge(rememberMe ? 7 * 24 * 60 * 60 : -1) //-1session-only
-                    .build();
-
-            response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+            if (rememberMe) {
+                ResponseCookie cookie = ResponseCookie.from("refreshToken", tokens.get("refreshToken"))
+                        .httpOnly(true)
+                        .sameSite("Lax")
+                        .secure(false)
+                        .path("/")
+                        .maxAge(7 * 24 * 60 * 60)
+                        .build();
+                response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+            }
 
 
             Map<String, String> body = Map.of("accessToken", tokens.get("accessToken"));
@@ -140,7 +142,7 @@ public class UserController {
                     .body(Map.of("error", "Invalid refresh token"));
         }
 
-        // reissue cookie
+        //reissue cookie
         ResponseCookie cookie = ResponseCookie.from("refreshToken", newTokens.get("refreshToken"))
                 .httpOnly(true)
                 .sameSite("Lax")
