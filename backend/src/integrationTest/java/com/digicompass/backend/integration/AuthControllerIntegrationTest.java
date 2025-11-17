@@ -1,12 +1,10 @@
-package com.digicompass.backend.integration;
-
-
 import com.digicompass.backend.controller.dto.request.LogInRequest;
 import com.digicompass.backend.repository.entity.RoleEntity;
 import com.digicompass.backend.repository.repositories.RoleJpaRepository;
 import com.digicompass.backend.repository.repositories.UserJpaRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -26,9 +24,13 @@ import java.time.LocalDate;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@Testcontainers
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@Tag("integration")
+@SpringBootTest(
+        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        classes = com.digicompass.backend.BackendApplication.class
+)
 @AutoConfigureMockMvc
+@Testcontainers
 class AuthControllerIntegrationTest {
 
     private static final DockerImageName POSTGIS_IMAGE = DockerImageName

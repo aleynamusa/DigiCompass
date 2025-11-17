@@ -43,6 +43,8 @@ public class S3ServiceImpl implements S3Service {
                 .getObjectRequest(getObjectRequest)
                 .build();
 
+        log.info("[SERVICE] Getting presigned URL for key: {}", key);
+
         return presigner.presignGetObject(presignRequest)
                 .url()
                 .toString();
@@ -56,12 +58,14 @@ public class S3ServiceImpl implements S3Service {
                 : "";
 
         String key = folder + "/" + UUID.randomUUID() + extension;
+        log.info("[SERVICE] Uploading image to S3: {}", key);
 
         PutObjectRequest putRequest = PutObjectRequest.builder()
                 .bucket(bucketName)
                 .key(key)
                 .contentType(file.getContentType())
                 .build();
+
 
         s3.putObject(putRequest, RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
         return key;
@@ -75,9 +79,9 @@ public class S3ServiceImpl implements S3Service {
                     .bucket(bucketName)
                     .key(key)
                     .build());
-            log.debug("[S3] Deleted image with key={}", key);
+            log.debug("[SERVICE] Deleted image with key={}", key);
         } catch (SdkClientException e) {
-            log.error("[S3] SDK client error deleting image with key={}: {}", key, e.getMessage(), e);
+            log.error("[SERVICE] SDK client error deleting image with key={}: {}", key, e.getMessage(), e);
             throw e;
         }
     }

@@ -41,7 +41,7 @@ public abstract class RouteMapper {
         if (entity.getImages() != null && s3Service != null) {
             List<String> signedUrls = entity.getImages().stream()
                     .map(img -> s3Service.getPreSignedUrl(img.getImageUrl()))
-                    .collect(Collectors.toList());
+                    .toList();
             route.setImages(signedUrls);
         }
     }
@@ -56,7 +56,7 @@ public abstract class RouteMapper {
                         imgEntity.setRoute(entity);
                         return imgEntity;
                     })
-                    .collect(Collectors.toList());
+                    .toList();
             entity.setImages(imageEntities);
         }
     }

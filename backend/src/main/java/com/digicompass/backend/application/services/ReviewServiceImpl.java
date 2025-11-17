@@ -51,7 +51,7 @@ public class ReviewServiceImpl implements ReviewService {
                 return List.of();
             }
 
-            List<Review> reviews = reviewMapper.toDomain(entities);
+            List<Review> reviews = reviewMapper.toDomainList(entities);
 
             for (Review review : reviews) {
                 if (review.getImages() != null && !review.getImages().isEmpty()) {
@@ -100,13 +100,17 @@ public class ReviewServiceImpl implements ReviewService {
             ReviewEntity saved = reviewRepo.save(entity);
             return reviewMapper.toDomain(saved);
 
-        } catch (Exception e) {
+        }catch (NullPointerException e) {
+            log.warn("[Service] Validation error creating review: {0}", e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
+        }
+        catch (Exception e) {
             rollbackS3Uploads(imageKeys);
             throw new RuntimeException("Failed to create review", e);
         }
     }
 
-    private void validateRouteId(Long routeId) {
+    protected void validateRouteId(Long routeId) {
         if (routeId == null || routeId <= 0) {
             throw new IllegalArgumentException("Invalid route ID: " + routeId);
         }
@@ -115,7 +119,7 @@ public class ReviewServiceImpl implements ReviewService {
         }
     }
 
-    private List<String> uploadImages(Long routeId, List<MultipartFile> images) throws IOException {
+    protected List<String> uploadImages(Long routeId, List<MultipartFile> images) throws IOException {
         List<String> keys = new ArrayList<>();
         if (images != null) {
             for (MultipartFile image : images) {
@@ -128,7 +132,7 @@ public class ReviewServiceImpl implements ReviewService {
         return keys;
     }
 
-    private void rollbackS3Uploads(List<String> keys) {
+    protected void rollbackS3Uploads(List<String> keys) {
         keys.forEach(key -> {
             try {
                 s3Service.deleteImage(key);
@@ -155,25 +159,20 @@ public class ReviewServiceImpl implements ReviewService {
                     .findFirst()
                     .orElseThrow(() -> new IllegalArgumentException("Review not found with id=" + review.getId()));
 
-            // Update review text
             existing.setReview(review.getReview());
 
-            // Log current images before filtering
             log.debug("[SERVICE] Current images in DB: {}",
                     existing.getImages().stream()
                             .map(ReviewImageEntity::getImageUrl)
                             .collect(Collectors.toList()));
 
-            // Handle existing images
             if (existingImageUrls != null && !existingImageUrls.isEmpty()) {
-                // Extract S3 keys from full URLs (remove domain and query parameters)
                 List<String> existingKeys = existingImageUrls.stream()
                         .map(this::extractS3Key)
                         .collect(Collectors.toList());
 
                 log.debug("[SERVICE] Extracted keys from URLs: {}", existingKeys);
 
-                // Remove images that the user deleted (keep only those in existingKeys list)
                 existing.getImages().removeIf(img -> {
                     boolean shouldRemove = !existingKeys.contains(img.getImageUrl());
                     log.debug("[SERVICE] Image {}: shouldRemove={}", img.getImageUrl(), shouldRemove);
@@ -181,12 +180,10 @@ public class ReviewServiceImpl implements ReviewService {
                 });
                 log.debug("[SERVICE] After filtering, kept {} existing images", existing.getImages().size());
             } else {
-                // If no existing images specified, remove all
                 log.debug("[SERVICE] No existing images to keep, clearing all");
                 existing.getImages().clear();
             }
 
-            // Add new uploaded images
             if (images != null && !images.isEmpty()) {
                 log.debug("[SERVICE] Adding {} new images", images.size());
                 for (MultipartFile image : images) {
@@ -216,21 +213,15 @@ public class ReviewServiceImpl implements ReviewService {
         }
     }
 
-    // Helper method to extract S3 key from full URL
-    private String extractS3Key(String url) {
+    protected String extractS3Key(String url) {
         try {
-            // If it's already just a key (no http), return as-is
             if (!url.startsWith("http")) {
                 return url;
             }
 
-            // Extract key from URL like:
-            // https://digicompassip.s3.amazonaws.com/reviews/1/image.png?params...
-            // Result should be: reviews/1/image.png
 
             String[] parts = url.split("amazonaws.com/");
             if (parts.length > 1) {
-                // Remove query parameters if present
                 String keyWithParams = parts[1];
                 int queryStart = keyWithParams.indexOf('?');
                 if (queryStart > 0) {
@@ -239,7 +230,6 @@ public class ReviewServiceImpl implements ReviewService {
                 return keyWithParams;
             }
 
-            // If pattern doesn't match, return original
             return url;
         } catch (Exception e) {
             log.warn("[SERVICE] Failed to extract S3 key from URL: {}", url);

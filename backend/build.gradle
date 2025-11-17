@@ -2,8 +2,35 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.5.5'
     id 'io.spring.dependency-management' version '1.1.7'
+    id "org.sonarqube" version "4.4.1.3373"
+
+    id "jacoco"
 //    id("org.openapi.generator") version "7.16.0"
 }
+sourceSets {
+    test {
+        java.srcDirs = ["src/test/java"]
+        resources.srcDirs = ["src/test/resources"]
+        compileClasspath += sourceSets.main.output + configurations.testRuntimeClasspath
+        runtimeClasspath += output + compileClasspath
+    }
+
+    integrationTest {
+        java.srcDirs = ["src/integrationTest/java"]
+        resources.srcDir "src/integrationTest/resources"
+        compileClasspath += sourceSets.main.output + configurations.testRuntimeClasspath
+        runtimeClasspath += output + compileClasspath
+    }
+
+
+}
+
+jacocoTestReport {
+    reports {
+        xml.required = true
+    }
+}
+
 
 group = 'com.DigiCompass'
 version = '0.0.1-SNAPSHOT'
@@ -91,12 +118,17 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
 }
 
-sourceSets {
-    integrationTest {
-        java.srcDirs = ["src/test/java/com/digicompass/backend/integration"]
-        resources.srcDir "src/test/resources"
-        compileClasspath += sourceSets.main.output + configurations.testRuntimeClasspath
-        runtimeClasspath += output + compileClasspath
+
+
+sonar{
+    properties{
+        property "sonar.projectKey", "SonarDemoDigiCompass"
+        property "sonar.host.url", "http://localhost:9000"
+        property "sonar.token", "sqp_baace911f77ec2bb8eebca7ddeff86c1508c228c"
+        property "sonar.coverage.jacoco.xmlReportPaths", "build/reports/jacoco/test/jacocoTestReport.xml"
+
+        property "sonar.tests", "src/test/java"
+        property "sonar.java.binaries", "build/classes/java/main"
     }
 }
 
@@ -116,7 +148,6 @@ tasks.register("integrationTest", Test) {
 tasks.named("check") {
     dependsOn("integrationTest")
 }
-
 
 tasks.named('test', Test) {
     useJUnitPlatform()

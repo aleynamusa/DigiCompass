@@ -30,7 +30,6 @@ public class AuthServiceImpl implements AuthService {
     private final UserMapper userMapper;
     private final JWTToken jwt;
 
-    private static final Logger LOGGER = Logger.getLogger(AuthServiceImpl.class.getName());
 
     public AuthServiceImpl(UserJpaRepository userRepository, RoleJpaRepository roleRepository, UserMapper userMapper, JWTToken jwt) {
         this.userRepository = userRepository;
@@ -56,7 +55,7 @@ public class AuthServiceImpl implements AuthService {
             String emailError = EmailValidator.getValidationError(user.getEmail());
             if (emailError != null) throw new IllegalArgumentException(emailError);
 
-            LOGGER.log(Level.INFO, "Starting sign-up process for username: {0}", user.getUsername());
+            log.info("[SERVICE] Starting sign-up process for username: {}", user.getUsername());
 
             user.setPassword(PasswordHasher.hash(user.getPassword()));
 
@@ -70,11 +69,11 @@ public class AuthServiceImpl implements AuthService {
 
             UserEntity savedUser = userRepository.save(entity);
 
-            LOGGER.log(Level.INFO, "User signed up successfully with id: {0}", savedUser.getId());
+            log.info("[SERVICE] User signed up successfully with id: {}", savedUser.getId());
             return userMapper.toDomain(savedUser);
 
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error during sign-up: " + e.getMessage(), e);
+            log.error("[SERVICE] Error during sign-up: {}",e.getMessage(), e);
             throw e;
         }
     }
@@ -83,22 +82,22 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public Map<String, String> logIn(String username, String password) {
         try {
-            LOGGER.log(Level.INFO, "Login attempt for username: {0}", username);
+            log.info("Login attempt for username: {}", username);
 
             if (username == null || username.isBlank() || password == null || password.isBlank()) {
-                LOGGER.log(Level.WARNING, "Invalid login parameters (empty username or password).");
+                log.warn("[SERVICE] Invalid login parameters (empty username or password).");
                 throw new IllegalArgumentException("Username and password must not be blank.");
             }
 
             UserEntity userEntity = userRepository.findUserDocumentByUsername(username);
             if (userEntity == null) {
-                LOGGER.log(Level.WARNING, "Login failed: user not found for username: {0}", username);
+               log.warn("[SERVICE] Login failed: user not found for username: {}", username);
                 return null;
             }
 
             boolean verified = PasswordHasher.verify(userEntity.getPassword(), password);
             if (verified) {
-                LOGGER.log(Level.INFO, "Login successful for username: {0}", username);
+                log.info("[SERVICE] Login successful for username: {}", username);
                 String accessToken = jwt.generateAccessToken(userMapper.toDomain(userEntity));
                 String refreshToken = jwt.generateRefreshToken(userMapper.toDomain(userEntity));
                 Map<String, String> tokens = Map.of(
@@ -107,22 +106,22 @@ public class AuthServiceImpl implements AuthService {
                 );
                 return tokens;
             } else {
-                LOGGER.log(Level.WARNING, "Login failed: invalid password for username: {0}", username);
+                log.warn("[SERVICE] Login failed: invalid password for username: {}", username);
                 return null;
             }
 
         } catch (IllegalArgumentException e) {
-            LOGGER.log(Level.WARNING, "Validation error during login: {0}", e.getMessage());
+            log.warn("Validation error during login: {}", e.getMessage());
             throw e;
 
         } catch (DataAccessException e) {
-            LOGGER.log(Level.SEVERE, "Database access error during login for {0}: {1}",
-                    new Object[]{username, e.getMessage()});
+            log.error("[SERVICE] Database access error during login for {}: {}",
+                    username, e.getMessage());
             throw new RuntimeException("Database error while processing login.", e);
 
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Unexpected error during login for {0}: {1}",
-                    new Object[]{username, e.getMessage()});
+            log.error("[SERVICE] Unexpected error during login for {}: {}",
+                    username, e.getMessage());
             throw new RuntimeException("Unexpected error while logging in.", e);
         }
     }
@@ -148,12 +147,15 @@ public class AuthServiceImpl implements AuthService {
                     "refreshToken", newRefreshToken
             );
 
+            log.info("[SERVICE] New access token: {}", newAccessToken);
+            log.info("[SERVICE] New refresh token: {}", newRefreshToken);
+
             return newTokens;
         }catch (IllegalArgumentException e) {
-            LOGGER.log(Level.WARNING, "Validation error during refresh token: {0}", e.getMessage());
+            log.warn("[SERVICE] Validation error during refresh token: {}", e.getMessage());
             throw e;
         }catch(Exception e) {
-            LOGGER.log(Level.SEVERE, "Unexpected error during refresh token.", e);
+            log.error("[SERVICE] Unexpected error during refresh token.", e);
             throw new RuntimeException("Unexpected error during refresh token.", e);
         }
 

@@ -51,6 +51,22 @@ public class RouteController {
         }
     }
 
+    @GetMapping("/keyword")
+    public ResponseEntity<List<RouteDto>> getRoutesByKeyword(@RequestParam String keyword) {
+
+        try{
+            List<RouteDto> routes = routeMapper.toControllerRoute(
+                    routeService.searchRoutes(keyword)
+            );
+            LOGGER.info("Searched routes: " + routes.size());
+            return ResponseEntity.ok(routes);
+        }
+        catch (Exception e){
+            LOGGER.severe(e.getMessage());
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
     @GetMapping("/filter")
     public ResponseEntity<List<RouteDto>> getAllRoutes(@RequestParam(required = false) String type,
                                                        @RequestParam(required = false) String difficulty,

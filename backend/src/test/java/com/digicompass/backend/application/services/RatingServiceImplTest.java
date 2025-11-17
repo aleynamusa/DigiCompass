@@ -6,6 +6,7 @@ import com.digicompass.backend.application.mapper.RatingMapper;
 import com.digicompass.backend.application.mapper.RouteMapper;
 import com.digicompass.backend.repository.entity.RatingEntity;
 import com.digicompass.backend.application.models.Rating;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -20,6 +21,7 @@ import java.util.Collections;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@Tag("unit")
 @ExtendWith(SpringExtension.class)
 class RatingServiceImplTest {
 
@@ -161,5 +163,63 @@ class RatingServiceImplTest {
 
         assertTrue(result.isEmpty());
         verify(ratingRepo, times(1)).getRatingsByRoute(routeId);
+    }
+
+    //ADD Rating
+    @Test
+    void addRating_ReturnsTrue_WhenSaveSuccessful() {
+        Rating rating = new Rating();
+        RatingEntity entity = new RatingEntity();
+        entity.setId(1L);  // success
+
+        when(ratingMapper.toEntity(rating)).thenReturn(entity);
+        when(ratingRepo.save(entity)).thenReturn(entity);
+
+        boolean result = ratingService.addRating(rating);
+
+        assertTrue(result);
+        verify(ratingRepo).save(entity);
+    }
+
+    @Test
+    void addRating_ReturnsFalse_WhenSavedEntityHasNullId() {
+        Rating rating = new Rating();
+        RatingEntity entity = new RatingEntity(); // ID null
+
+        when(ratingMapper.toEntity(rating)).thenReturn(entity);
+        when(ratingRepo.save(entity)).thenReturn(entity);
+
+        boolean result = ratingService.addRating(rating);
+
+        assertFalse(result);
+    }
+
+
+    @Test
+    void addRating_ReturnsFalse_WhenMapperThrowsIllegalArgumentException() {
+        Rating rating = new Rating();
+
+        when(ratingMapper.toEntity(rating))
+                .thenThrow(new IllegalArgumentException("Invalid rating"));
+
+        boolean result = ratingService.addRating(rating);
+
+        assertFalse(result);
+        verify(ratingRepo, never()).save(any());
+    }
+
+
+    @Test
+    void addRating_ReturnsFalse_WhenRepoThrowsIllegalArgumentException() {
+        Rating rating = new Rating();
+        RatingEntity entity = new RatingEntity();
+
+        when(ratingMapper.toEntity(rating)).thenReturn(entity);
+        when(ratingRepo.save(entity))
+                .thenThrow(new IllegalArgumentException("Repo error"));
+
+        boolean result = ratingService.addRating(rating);
+
+        assertFalse(result);
     }
 }

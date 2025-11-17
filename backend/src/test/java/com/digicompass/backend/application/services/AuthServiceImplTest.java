@@ -4,9 +4,12 @@ import com.digicompass.backend.application.mapper.UserMapper;
 import com.digicompass.backend.application.models.User;
 import com.digicompass.backend.application.security.JWTToken;
 import com.digicompass.backend.application.services.helpers.PasswordHasher;
+import com.digicompass.backend.repository.entity.RoleEntity;
 import com.digicompass.backend.repository.entity.UserEntity;
+import com.digicompass.backend.repository.repositories.RoleJpaRepository;
 import com.digicompass.backend.repository.repositories.UserJpaRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
@@ -19,11 +22,15 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+@Tag("unit") // tag test for test planning, to differentiate them
 @ExtendWith(MockitoExtension.class)
 class AuthServiceImplTest {
 
     @Mock
     private UserJpaRepository repoMock;
+
+    @Mock
+    private RoleJpaRepository roleMock;
 
     @Mock
     private UserMapper userMapperMock;
@@ -44,11 +51,14 @@ class AuthServiceImplTest {
         user.setUsername("testuser");
         user.setPassword("PlainPass12@");
         user.setEmail("test@gmail.com");
+        user.setRole_id(2L);
         user.setBirthDate(LocalDate.of(1997, 10, 3));
 
         userEntity = new UserEntity();
         userEntity.setId(1L);
         userEntity.setUsername("testuser");
+        userEntity.setRole(new RoleEntity(2L, "user"));
+        userEntity.setBirthDate(LocalDate.of(1997, 10, 3));
         userEntity.setPassword("hashedPass");
     }
 
@@ -56,12 +66,15 @@ class AuthServiceImplTest {
 
     @Test
     void signUp_ShouldHashPassword_AndSaveUser() {
-        when(userMapperMock.toEntity(any(User.class))).thenReturn(userEntity);
-        when(repoMock.save(any(UserEntity.class))).thenReturn(userEntity);
-        when(userMapperMock.toDomain(any(UserEntity.class))).thenReturn(user);
+        when(roleMock.findByRole("user")).thenReturn(new RoleEntity(2L, "user"));
+
+        when(userMapperMock.toEntity(user)).thenReturn(userEntity);
+        when(repoMock.save(userEntity)).thenReturn(userEntity);
+        when(userMapperMock.toDomain(userEntity)).thenReturn(user);
 
         try (MockedStatic<PasswordHasher> mocked = mockStatic(PasswordHasher.class)) {
-            mocked.when(() -> PasswordHasher.hash(any())).thenReturn("hashedPw123");
+            mocked.when(() -> PasswordHasher.hash(any()))
+                    .thenReturn("hashedPw123");
 
             User result = service.signUp(user);
 
@@ -70,6 +83,7 @@ class AuthServiceImplTest {
             assertEquals("hashedPw123", user.getPassword());
         }
     }
+
 
     @Test
     void signUp_ShouldThrow_WhenUserIsNull() {

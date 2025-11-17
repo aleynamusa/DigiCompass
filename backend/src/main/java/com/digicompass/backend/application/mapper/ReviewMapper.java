@@ -22,7 +22,7 @@ public interface ReviewMapper {
 
     @Mapping(source = "routeId.id", target = "routeId")
     @Mapping(source = "images", target = "images")
-    List<Review> toDomain(List<ReviewEntity> entities);
+    List<Review> toDomainList(List<ReviewEntity> entities);
     List<ReviewEntity> toEntity(List<Review> reviews);
 
 

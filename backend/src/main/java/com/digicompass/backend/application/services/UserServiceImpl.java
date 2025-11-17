@@ -26,24 +26,24 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<User> getAllUsers() {
-        log.info("Started fetching all of the users.");
+        log.info("[SERVICE] Started fetching all of the users.");
 
         List<User> users = userMapper.toDomain(userRepository.findAll());
-        log.info("Fetched all of the users.");
+        log.info("[SERVICE] Fetched all of the users.");
         return  users;
     }
 
     @Override
     public Optional<User> getUserById(Long id) {
-        log.info("Fetching user with id: {}", id);
+        log.info("[SERVICE] Fetching user with id: {}", id);
 
         Optional<User> user = userRepository.findById(id)
                 .map(userMapper::toDomain);
 
         if (user.isPresent()) {
-            log.info("User found with id: {}", id);
+            log.info("[SERVICE] User found with id: {}", id);
         } else {
-            log.warn("No user found with id: {}", id);
+            log.warn("[SERVICE] No user found with id: {}", id);
         }
 
         return user;
@@ -52,23 +52,47 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(User user) {
         if (user == null) {
-            log.warn("Attempted to delete a null user.");
+            log.warn("[SERVICE] Attempted to delete a null user.");
             throw new IllegalArgumentException("User cannot be null");
         }
 
-        log.info("Deleting user with id: {}", user.getId());
+        log.info("[SERVICE] Deleting user with id: {}", user.getId());
         userRepository.delete(userMapper.toEntity(user));
-        log.info("User deleted with id: {}", user.getId());
+        log.info("[SERVICE] User deleted with id: {}", user.getId());
     }
 
     @Override
     public boolean checkUsernameAvailability(String username) {
-        return userRepository.findAllUsernames().contains(username);
+        try{
+            if (username == null) {
+                log.warn("[SERVICE] Attempted to check username is null.");
+                throw new IllegalArgumentException("Username cannot be null");
+            }
+            log.info("[SERVICE] Checking username availability: {}", username);
+            return userRepository.findAllUsernames().contains(username);
+        }
+        catch (Exception ex){
+            log.warn("[SERVICE] Username not found: {}", username);
+            return false;
+        }
+
     }
 
     @Override
     public boolean checkEmailAvailability(String email) {
-        return userRepository.findAllEmails().contains(email);
+        try{
+            if (email == null) {
+                log.warn("[SERVICE] Attempted to check email is null.");
+                throw new IllegalArgumentException("Email cannot be null");
+            }
+            log.info("[SERVICE] Checking email availability: {}", email);
+            return userRepository.findAllEmails().contains(email);
+        }
+        catch (Exception e){
+            log.warn("[SERVICE] Exception occurred while checking email availability: {}", e.getMessage());
+            return false;
+        }
+
     }
 
 }

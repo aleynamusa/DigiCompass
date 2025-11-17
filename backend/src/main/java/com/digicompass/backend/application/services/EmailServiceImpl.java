@@ -21,7 +21,6 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public void sendResetLink(String toEmail, String token) {
         try {
-            // Validate inputs
             if (toEmail == null || toEmail.isBlank() || !EmailValidator.isValid(toEmail)) {
                 throw new IllegalArgumentException("Recipient email address cannot be null, blank, or invalid.");
             }
@@ -29,7 +28,6 @@ public class EmailServiceImpl implements EmailService {
                 throw new IllegalArgumentException("Reset token cannot be null or blank.");
             }
 
-            // Build email content
             String resetUrl = "http://localhost:5173/reset-password?token=" + token;
             String subject = "Password Reset Request";
             String body = "Hello,\n\n" +
@@ -38,7 +36,6 @@ public class EmailServiceImpl implements EmailService {
                     "This link will expire in 15 minutes.\n\n" +
                     "If you didn’t request this, please ignore this email.";
 
-            // Create and send message
             SimpleMailMessage message = new SimpleMailMessage();
             message.setTo(toEmail);
             message.setSubject(subject);
@@ -46,22 +43,19 @@ public class EmailServiceImpl implements EmailService {
 
             mailSender.send(message);
 
-            log.info("Password reset email successfully sent to {0}", toEmail);
+            log.info("[SERVICE] Password reset email successfully sent to {}", toEmail);
 
         } catch (IllegalArgumentException e) {
-            log.warn("Invalid input when sending reset link: {0}", e.getMessage());
+            log.warn("[SERVICE] Invalid input when sending reset link: {}", e.getMessage());
             throw e;
 
         } catch (MailException e) {
             log.error(
-                    String.format("Failed to send email to %s due to mail server error: %s", toEmail, e.getMessage()),
-                    e);
+                    "[SERVICE] Failed to send email to {} due to mail server error: {}", toEmail, e.getMessage());
             throw new RuntimeException("Unable to send password reset email at this time.", e);
 
         } catch (Exception e) {
-            log.error(
-                    String.format("Unexpected error occurred while sending reset link to %s: %s", toEmail, e.getMessage()),
-                    e);
+            log.error("[SERVICE] Unexpected error occurred while sending reset link to {}: {}", toEmail, e.getMessage());
             throw new RuntimeException("An unexpected error occurred while sending email.", e);
         }
     }

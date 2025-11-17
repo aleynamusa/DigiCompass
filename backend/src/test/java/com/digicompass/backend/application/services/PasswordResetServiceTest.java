@@ -6,6 +6,7 @@ import com.digicompass.backend.application.mapper.UserMapper;
 import com.digicompass.backend.repository.entity.UserEntity;
 import com.digicompass.backend.application.models.User;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
@@ -18,6 +19,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@Tag("unit")
 @ExtendWith(MockitoExtension.class)
 class PasswordResetServiceTest {
 

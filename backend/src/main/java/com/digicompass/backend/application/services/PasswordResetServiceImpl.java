@@ -6,6 +6,7 @@ import com.digicompass.backend.application.mapper.UserMapper;
 import com.digicompass.backend.application.services.helpers.PasswordHasher;
 import com.digicompass.backend.application.models.User;
 import com.digicompass.backend.repository.repositories.UserJpaRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -17,9 +18,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Service
+@Slf4j
 public class PasswordResetServiceImpl implements PasswordResetService {
 
-    private static final Logger LOGGER = Logger.getLogger(PasswordResetServiceImpl.class.getName());
 
     private final UserJpaRepository userRepository;
     private final StringRedisTemplate redisTemplate;
@@ -42,40 +43,40 @@ public class PasswordResetServiceImpl implements PasswordResetService {
     public void createPasswordResetToken(String email) {
         try {
             if (email == null || email.isBlank()) {
-                LOGGER.log(Level.WARNING, "Email cannot be null or blank when creating reset token.");
+                log.warn("[SERVICE] Email cannot be null or blank when creating reset token.");
                 throw new IllegalArgumentException("Email cannot be null or blank.");
             }
 
             User user = userMapper.toDomain(userRepository.findByEmail(email));
             if (user == null) {
-                LOGGER.log(Level.WARNING, "No user found for email: {0}", email);
+                log.warn("[SERVICE] No user found for email: {}", email);
                 throw new IllegalArgumentException("User not found.");
             }
 
             String token = UUID.randomUUID().toString();
             redisTemplate.opsForValue().set(token, email, 15, TimeUnit.MINUTES);
-            LOGGER.log(Level.INFO, "Password reset token stored in Redis for user: {0}", email);
+            log.info("[SERVICE] Password reset token stored in Redis for user: {}", email);
 
             emailService.sendResetLink(email, token);
-            LOGGER.log(Level.INFO, "Password reset email sent successfully to: {0}", email);
+            log.info("[SERVICE] Password reset email sent successfully to: {}", email);
 
         } catch (IllegalArgumentException e) {
-            LOGGER.log(Level.WARNING, "Validation error while creating reset token: {0}", e.getMessage());
+            log.warn("[SERVICE] Validation error while creating reset token: {}", e.getMessage());
             throw e;
 
         } catch (RedisConnectionFailureException e) {
-            LOGGER.log(Level.SEVERE, "Redis connection error while creating reset token for {0}: {1}",
-                    new Object[]{email, e.getMessage()});
+            log.error("[SERVICE] Redis connection error while creating reset token for {}: {}",
+                    email, e.getMessage());
             throw new RuntimeException("Failed to connect to Redis service.", e);
 
         } catch (DataAccessException e) {
-            LOGGER.log(Level.SEVERE, "Database access error while creating reset token for {0}: {1}",
-                    new Object[]{email, e.getMessage()});
+            log.error("[SERVICE] Database access error while creating reset token for {}: {}",
+                    email, e.getMessage());
             throw new RuntimeException("Database error while creating password reset token.", e);
 
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Unexpected error creating password reset token for {0}: {1}",
-                    new Object[]{email, e.getMessage()});
+            log.error("[SERVICE] Unexpected error creating password reset token for {}: {}",
+                    email, e.getMessage());
             throw new RuntimeException("Unexpected error creating password reset token.", e);
         }
     }
@@ -84,51 +85,51 @@ public class PasswordResetServiceImpl implements PasswordResetService {
     public void resetPassword(String token, String newPassword) {
         try {
             if (token == null || token.isBlank()) {
-                LOGGER.log(Level.WARNING, "Token cannot be null or blank during password reset.");
+                log.warn("[SERVICE] Token cannot be null or blank during password reset.");
                 throw new IllegalArgumentException("Token cannot be null or blank.");
             }
 
             if (newPassword == null || newPassword.isBlank()) {
-                LOGGER.log(Level.WARNING, "New password cannot be null or blank.");
+                log.warn("[SERVICE] New password cannot be null or blank.");
                 throw new IllegalArgumentException("New password cannot be null or blank.");
             }
 
             String email = redisTemplate.opsForValue().get(token);
             if (email == null) {
-                LOGGER.log(Level.WARNING, "Invalid or expired token used for password reset.");
+                log.warn("[SERVICE] Invalid or expired token used for password reset.");
                 throw new IllegalArgumentException("Invalid or expired token.");
             }
 
             User user = userMapper.toDomain(userRepository.findByEmail(email));
             if (user == null) {
-                LOGGER.log(Level.WARNING, "User not found for token associated with email: {0}", email);
+                log.warn("[SERVICE] User not found for token associated with email: {}", email);
                 throw new IllegalArgumentException("User not found.");
             }
 
             user.setPassword(PasswordHasher.hash(newPassword));
             userRepository.save(userMapper.toEntity(user));
-            LOGGER.log(Level.INFO, "Password updated successfully for user: {0}", email);
+            log.info("[SERVICE] Password updated successfully for user: {}", email);
 
             redisTemplate.delete(token);
-            LOGGER.log(Level.INFO, "Password reset token deleted from Redis for user: {0}", email);
+            log.info("[SERVICE] Password reset token deleted from Redis for user: {}", email);
 
         } catch (IllegalArgumentException e) {
-            LOGGER.log(Level.WARNING, "Validation error during password reset: {0}", e.getMessage());
+            log.warn("[SERVICE] Validation error during password reset: {}", e.getMessage());
             throw e;
 
         } catch (RedisConnectionFailureException e) {
-            LOGGER.log(Level.SEVERE, "Redis connection failure during password reset for token {0}: {1}",
-                    new Object[]{token, e.getMessage()});
+            log.error("[SERVICE] Redis connection failure during password reset for token {}: {}",
+                    token, e.getMessage());
             throw new RuntimeException("Redis connection error during password reset.", e);
 
         } catch (DataAccessException e) {
-            LOGGER.log(Level.SEVERE, "Database access error during password reset for token {0}: {1}",
-                    new Object[]{token, e.getMessage()});
+            log.error("[SERVICE] Database access error during password reset for token {}: {}",
+                    token, e.getMessage());
             throw new RuntimeException("Database error during password reset.", e);
 
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Unexpected error during password reset for token {0}: {1}",
-                    new Object[]{token, e.getMessage()});
+            log.error("[SERVICE] Unexpected error during password reset for token {}: {}",
+                    token, e.getMessage());
             throw new RuntimeException("Unexpected error during password reset.", e);
         }
     }

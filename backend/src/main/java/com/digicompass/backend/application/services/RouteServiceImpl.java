@@ -39,7 +39,7 @@ public class RouteServiceImpl implements RouteService {
     @Override
     public List<Route> getRoutes() {
         try {
-            log.info("Fetching all routes from the database.");
+            log.info("[SERVICE] Fetching all routes from the database.");
 
             List<Route> routes = routeMapper.toDomain(routeRepository.findAll());
 
@@ -47,11 +47,11 @@ public class RouteServiceImpl implements RouteService {
                 route.setAverageRating(ratingService.getRouteRating(route.getId()));
             }
 
-            log.info("Successfully fetched {} routes.", routes.size());
+            log.info("[SERVICE] Successfully fetched {} routes.", routes.size());
             return routes;
 
         } catch (Exception e) {
-            log.error("Error occurred while fetching routes: {}", e.getMessage());
+            log.error("[SERVICE] Error occurred while fetching routes: {}", e.getMessage());
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to fetch routes.", e);
         }
     }
@@ -59,12 +59,12 @@ public class RouteServiceImpl implements RouteService {
     @Override
     public RouteGeometry getRouteById(Long id) {
         try {
-            log.info("Fetching route by id: {}", id);
+            log.info("[SERVICE] Fetching route by id: {}", id);
 
             Route route = routeMapper.toDomain(routeRepository.findById(id).orElse(null));
 
             if (route == null || !routeRepository.getAllIds().contains(id)) {
-                log.warn("Route not found with id: {}", id);
+                log.warn("[SERVICE] Route not found with id: {}", id);
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Route not found with id: " + id);
             }
 
@@ -80,7 +80,7 @@ public class RouteServiceImpl implements RouteService {
             );
 
         } catch (JsonProcessingException e) {
-            log.error("Failed to convert route geometry to GeoJSON for route id {}: {}",
+            log.error("[SERVICE] Failed to convert route geometry to GeoJSON for route id {}: {}",
                     id, e.getMessage());
             throw new ResponseStatusException(
                     HttpStatus.INTERNAL_SERVER_ERROR,
@@ -90,8 +90,8 @@ public class RouteServiceImpl implements RouteService {
         } catch (ResponseStatusException e) {
             throw e;
         } catch (Exception e) {
-            log.error("Unexpected error fetching route by id {}: {}",
-                    new Object[]{id, e.getMessage()});
+            log.error("[SERVICE] Unexpected error fetching route by id {}: {}",
+                    id, e.getMessage());
             throw new ResponseStatusException(
                     HttpStatus.INTERNAL_SERVER_ERROR,
                     "Unexpected error while fetching route by id.",
@@ -103,17 +103,34 @@ public class RouteServiceImpl implements RouteService {
     @Override
     public List<Route> getFilteredRoutes(String type, String difficulty, Float distance) {
         try {
-            log.info("Filtering routes with type={}, difficulty={}, distance={}",
-                    new Object[]{type, difficulty, distance});
+            log.info("[SERVICE] Filtering routes with type={}, difficulty={}, distance={}",
+                    type, difficulty, distance);
 
             List<Route> routes = routeMapper.toDomain(routeRepository.findFiltered(type, difficulty, distance));
             routes.forEach(r -> r.setRouteGeometry(null));
 
-            log.info("Filtered {} routes based on provided criteria.", routes.size());
+            log.info("[SERVICE] Filtered {} routes based on provided criteria.", routes.size());
             return routes;
 
         } catch (Exception e) {
-            log.error("Error filtering routes: {}", e.getMessage());
+            log.error("[SERVICE] Error filtering routes: {}", e.getMessage());
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to filter routes.", e);
+        }
+    }
+
+    @Override
+    public List<Route> searchRoutes(String keyword) {
+        try{
+            log.info("[SERVICE] Searching routes with keyword: {}", keyword);
+
+            List<Route> routes = routeMapper.toDomain(routeRepository.getRouteEntitiesByName(keyword));
+            routes.forEach(r -> r.setRouteGeometry(null));
+
+            log.info("[SERVICE] Successfully fetched {} routes.", routes.size());
+            return routes;
+        }
+        catch (Exception e){
+            log.error("[SERVICE] Error occurred while searching routes by keyword: {}", e.getMessage());
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to filter routes.", e);
         }
     }
