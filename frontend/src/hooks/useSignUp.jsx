@@ -72,6 +72,7 @@ export function useSignUp(){
             return;
         }
 
+        formData.role = 2;
         console.log("Sending data:", JSON.stringify(formData, null, 2));
 
         try {
@@ -86,6 +87,7 @@ export function useSignUp(){
                 birthDate: "",
                 password: "",
                 confirmPassword: "",
+
             });
             setAvailability({ username: null, email: null });
         } catch (err) {

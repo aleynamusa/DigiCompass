@@ -1,7 +1,7 @@
 package com.digicompass.backend.controller;
 
-import com.digicompass.backend.unit.interfaces.RouteService;
-import com.digicompass.backend.unit.models.Route;
+import com.digicompass.backend.application.interfaces.RouteService;
+import com.digicompass.backend.application.models.Route;
 import com.digicompass.backend.controller.dto.RouteDto;
 import com.digicompass.backend.controller.dto.RouteGeometryDto;
 import com.digicompass.backend.controller.mapper.RouteMapperController;
@@ -47,6 +47,22 @@ public class RouteController {
                     route
             );
         } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @GetMapping("/keyword")
+    public ResponseEntity<List<RouteDto>> getRoutesByKeyword(@RequestParam String keyword) {
+
+        try{
+            List<RouteDto> routes = routeMapper.toControllerRoute(
+                    routeService.searchRoutes(keyword)
+            );
+            LOGGER.info("Searched routes: " + routes.size());
+            return ResponseEntity.ok(routes);
+        }
+        catch (Exception e){
+            LOGGER.severe(e.getMessage());
             return ResponseEntity.badRequest().build();
         }
     }

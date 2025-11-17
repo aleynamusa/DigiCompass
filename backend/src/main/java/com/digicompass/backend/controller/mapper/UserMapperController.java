@@ -1,6 +1,6 @@
 package com.digicompass.backend.controller.mapper;
 
-import com.digicompass.backend.unit.models.User;
+import com.digicompass.backend.application.models.User;
 import com.digicompass.backend.controller.dto.UserDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;

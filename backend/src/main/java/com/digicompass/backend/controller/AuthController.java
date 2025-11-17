@@ -1,6 +1,6 @@
 package com.digicompass.backend.controller;
 
-import com.digicompass.backend.unit.interfaces.PasswordResetService;
+import com.digicompass.backend.application.interfaces.PasswordResetService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

@@ -28,14 +28,18 @@ export const AuthProvider = ({ children }) => {
         try {
             const res = await refreshApi();
             const { accessToken: newAccess } = res.data;
+
             if (newAccess) {
                 setAccessToken(newAccess);
                 setUserFromToken(newAccess);
                 localStorage.setItem("accessToken", newAccess);
             }
         } catch (err) {
-            console.warn("Token refresh failed:", err);
-            if (!isInitial) logout();
+            console.warn("No refresh token or refresh failed.");
+
+            if (!isInitial && localStorage.getItem("accessToken")) {
+                await logout();
+            }
         }
     };
 
