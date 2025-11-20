@@ -13,6 +13,7 @@ frontend:build:
     - npm install
     - npm run build
 
+
 e2e:
   stage: test
   tags: ["tests"]
