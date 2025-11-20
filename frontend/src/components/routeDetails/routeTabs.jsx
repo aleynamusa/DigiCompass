@@ -1,19 +1,21 @@
-import {Tabs, Flex, FloatingIndicator, Rating} from "@mantine/core";
-import { useRef, useState} from "react";
+import {Tabs, Flex, FloatingIndicator, Rating, Modal, Dialog} from "@mantine/core";
+import {useEffect, useRef, useState} from "react";
 import classes from "@/components/card.module.css";
 import {useAuth} from "@/context/AuthContext.jsx";
-import {getReviewByRoute, handleDeleteReview} from "@/api/routeApi.jsx";
+import {getRatingsByRoute, getReviewByRoute, handleDeleteRating, handleDeleteReview} from "@/api/routeApi.jsx";
 import { Trash, Pencil } from 'lucide-react';
 import ReviewUpdateForm from "@/components/routeDetails/reviewUpdateForm.jsx";
-import axiosClient from "@/api/axiosClient.jsx";
 
-export default function RouteTabs({reviews, ratings}) {
+
+export default function RouteTabs({reviews, ratings, onEditRating}) {
     const [value, setValue] = useState("1");
     const [rootRef, setRootRef] = useState(null);
     const controlsRefs = useRef({});
     const [editingReview, setEditingReview] = useState(null);
     const [isFormOpen, setIsFormOpen] = useState(false);
     const { user } = useAuth();
+    const [reviewList, setReviewList] = useState(reviews);
+    const [ratingList, setRatingList] = useState(ratings);
 
 
     const setControlRef = (val) => (node) => {
@@ -32,7 +34,20 @@ export default function RouteTabs({reviews, ratings}) {
 
     const onClickDeleteReview = (review) => {
         handleDeleteReview(review.id);
-        getReviewByRoute(review.routeId);
+        setReviewList(reviews);
+    }
+
+    useEffect(() => {
+        setReviewList(reviews);
+    }, [reviews]);
+
+    useEffect(() => {
+        setRatingList(ratings);
+    }, [ratings]);
+
+    const deleteRating = (rating) => {
+        handleDeleteRating(rating.id);
+        setRatingList(ratings);
     }
 
 
@@ -52,8 +67,8 @@ export default function RouteTabs({reviews, ratings}) {
 
             <Tabs.Panel value="1">
                 <div className="space-y-4 mt-4">
-                    {reviews.length > 0 ? (
-                        reviews.map((review, i) => (
+                    {reviewList.length > 0 ? (
+                        reviewList.map((review, i) => (
                             <div
                                 key={i}
                                 className="border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow"
@@ -135,7 +150,7 @@ export default function RouteTabs({reviews, ratings}) {
 
             <Tabs.Panel value="2">
                 <div className="space-y-4 mt-4">
-                    {ratings.length > 0 ? ratings.map((r, i) => (
+                    {ratingList.length > 0 ? ratingList.map((r, i) => (
                         <div key={i} className="border border-gray-200 rounded-xl p-4 shadow-sm">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center space-x-3">
@@ -146,22 +161,21 @@ export default function RouteTabs({reviews, ratings}) {
                                         <p className="font-semibold">{r.userId?.username || "Unknown"}</p>
                                         <p className="text-xs text-gray-500">{new Date(r.createdAt).toLocaleDateString()}</p>
                                     </div>
-                                    {/*{user && user.id === r.userId?.id && (*/}
-                                    {/*    <div className="flex gap-2 mt-2">*/}
-                                    {/*        <button*/}
-                                    {/*            onClick={() => handleEditRating(r)}*/}
-                                    {/*            className="text-sm text-blue-600 hover:underline"*/}
-                                    {/*        >*/}
-                                    {/*            Edit*/}
-                                    {/*        </button>*/}
-                                    {/*        <button*/}
-                                    {/*            onClick={() => handleDeleteRating(r.id)}*/}
-                                    {/*            className="text-sm text-red-600 hover:underline"*/}
-                                    {/*        >*/}
-                                    {/*            Delete*/}
-                                    {/*        </button>*/}
-                                    {/*    </div>*/}
-                                    {/*)}*/}
+                                    {user && user.id === r.userId?.id && (
+                                        <div className="flex gap-2 mt-2">
+                                            <button onClick={() => onEditRating(r)}
+                                                    className="text-sm text-black hover:underline">
+                                                <Pencil />
+                                            </button>
+
+                                            <button
+                                                onClick={() => deleteRating(r)}
+                                                className="text-sm text-black hover:underline"
+                                            >
+                                                <Trash />
+                                            </button>
+                                        </div>
+                                    )}
 
                                 </div>
                                 <Rating value={r.rating} readOnly fractions={2} size="sm"/>
@@ -169,6 +183,8 @@ export default function RouteTabs({reviews, ratings}) {
                         </div>
                     )) : <p className="text-center text-gray-500">No ratings yet.</p>}
                 </div>
+
+
             </Tabs.Panel>
         </Tabs>
     );

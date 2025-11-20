@@ -1,3 +1,5 @@
+package com.digicompass.backend.integration;
+
 import com.digicompass.backend.controller.mapper.ReviewMapperController;
 import com.digicompass.backend.repository.entity.RoleEntity;
 import com.digicompass.backend.repository.entity.RouteEntity;

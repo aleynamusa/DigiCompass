@@ -51,7 +51,7 @@ class AuthServiceImplTest {
         user.setUsername("testuser");
         user.setPassword("PlainPass12@");
         user.setEmail("test@gmail.com");
-        user.setRole_id(2L);
+        user.setRoleId(2L);
         user.setBirthDate(LocalDate.of(1997, 10, 3));
 
         userEntity = new UserEntity();

@@ -167,59 +167,47 @@ class RatingServiceImplTest {
 
     //ADD Rating
     @Test
-    void addRating_ReturnsTrue_WhenSaveSuccessful() {
+    void addRating_ReturnsRating_WhenSaveSuccessful() {
         Rating rating = new Rating();
         RatingEntity entity = new RatingEntity();
-        entity.setId(1L);  // success
+        entity.setId(1L);
+
+        Rating mappedRating = new Rating();
+        mappedRating.setId(1L);
 
         when(ratingMapper.toEntity(rating)).thenReturn(entity);
         when(ratingRepo.save(entity)).thenReturn(entity);
+        when(ratingMapper.toDomain(entity)).thenReturn(mappedRating);
 
-        boolean result = ratingService.addRating(rating);
+        Rating result = ratingService.addRating(rating);
 
-        assertTrue(result);
+        assertEquals(mappedRating, result);
         verify(ratingRepo).save(entity);
     }
 
+
     @Test
-    void addRating_ReturnsFalse_WhenSavedEntityHasNullId() {
+    void addRating_ReturnsNull_WhenSavedEntityHasNullId() {
         Rating rating = new Rating();
-        RatingEntity entity = new RatingEntity(); // ID null
+        RatingEntity entity = new RatingEntity();
+        Rating mappedRating = new Rating();
 
         when(ratingMapper.toEntity(rating)).thenReturn(entity);
         when(ratingRepo.save(entity)).thenReturn(entity);
+        when(ratingMapper.toDomain(entity)).thenReturn(mappedRating);
 
-        boolean result = ratingService.addRating(rating);
+        Rating result = ratingService.addRating(rating);
 
-        assertFalse(result);
+        assertNull(result);
     }
 
 
     @Test
-    void addRating_ReturnsFalse_WhenMapperThrowsIllegalArgumentException() {
+    void addRating_ThrowsNullPointerException_WhenMapperFails() {
         Rating rating = new Rating();
 
-        when(ratingMapper.toEntity(rating))
-                .thenThrow(new IllegalArgumentException("Invalid rating"));
-
-        boolean result = ratingService.addRating(rating);
-
-        assertFalse(result);
-        verify(ratingRepo, never()).save(any());
+        assertThrows(NullPointerException.class, () -> ratingService.addRating(rating));
     }
 
 
-    @Test
-    void addRating_ReturnsFalse_WhenRepoThrowsIllegalArgumentException() {
-        Rating rating = new Rating();
-        RatingEntity entity = new RatingEntity();
-
-        when(ratingMapper.toEntity(rating)).thenReturn(entity);
-        when(ratingRepo.save(entity))
-                .thenThrow(new IllegalArgumentException("Repo error"));
-
-        boolean result = ratingService.addRating(rating);
-
-        assertFalse(result);
-    }
 }

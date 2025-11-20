@@ -1,3 +1,5 @@
+package com.digicompass.backend.integration;
+
 import com.digicompass.backend.controller.dto.request.LogInRequest;
 import com.digicompass.backend.repository.entity.RoleEntity;
 import com.digicompass.backend.repository.repositories.RoleJpaRepository;

@@ -22,6 +22,8 @@ export default function SmartRoutePath({geojson}) {
     useEffect(() => {
         if (!geojson?.coordinates || geojson.coordinates.length < 2) return;
 
+        console.log(geojson);
+
         const coordsStr = geojson.coordinates.map(c => `${c[0]},${c[1]}`).join(";");
         const url = `https://router.project-osrm.org/route/v1/foot/${coordsStr}?overview=full&geometries=geojson`;
 

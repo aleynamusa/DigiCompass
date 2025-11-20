@@ -11,7 +11,6 @@ export default function ReviewUpdateForm({ selectedRoute, onOpenChange }) {
     useEffect(() => {
         if (selectedRoute) {
             setText(selectedRoute.review || "");
-            // Store full image objects or URLs
             setExistingImages(selectedRoute.images || []);
         }
     }, [selectedRoute]);

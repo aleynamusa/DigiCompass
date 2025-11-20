@@ -59,12 +59,6 @@ public class ReviewController {
         try {
             List<Review> reviews = reviewService.getReviewsByRoute(routeId);
 
-            if (reviews.isEmpty()) {
-                return ResponseEntity
-                        .status(HttpStatus.NO_CONTENT)
-                        .build();
-            }
-
             List<ReviewResponseDto> response = reviewMapper.toDtosResponse(reviews);
             return ResponseEntity.ok(response);
 

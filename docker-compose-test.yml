@@ -1,0 +1,62 @@
+services:
+  backend-test:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: e2e
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db_test:5432/digicompass_test
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: test123
+
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+
+      JWT_SECRET: YkXaexcUDueBfriBeEkEBhyGY7w5dWvaHzPn3FLrhUA=
+    depends_on:
+      - db_test
+      - redis-test
+    networks:
+      - test-network
+
+  db_test:
+    image: postgis/postgis:17-3.5
+    environment:
+      POSTGRES_DB: digicompass_test
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: test123
+    ports:
+      - "5433:5432"
+    networks:
+      - test-network
+    volumes:
+      - type: tmpfs
+        target: /var/lib/postgresql/data
+
+
+  redis-test:
+    image: redis:7
+    ports:
+      - "6379:6379"
+    networks:
+      - test-network
+
+  frontend-test:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend-test
+    networks:
+      - test-network
+
+networks:
+  test-network:
+    driver: bridge
+
+volumes:
+  postgres-data:

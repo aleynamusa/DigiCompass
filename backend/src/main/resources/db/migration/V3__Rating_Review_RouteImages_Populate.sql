@@ -27,12 +27,12 @@ VALUES
 
 INSERT INTO rating (rating, created_by_user_id, created_at, updated_at, route_id)
 VALUES
-    (4.8, 1, NOW(), NOW(), 1),
+    (5.0, 1, NOW(), NOW(), 1),
     (4.5, 1, NOW(), NOW(), 2),
     (4.0, 1, NOW(), NOW(), 3),
     (5.0, 1, NOW(), NOW(), 4),
-    (4.2, 1, NOW(), NOW(), 5),
-    (4.7, 1, NOW(), NOW(), 6),
-    (4.3, 1, NOW(), NOW(), 7);
+    (2.5, 1, NOW(), NOW(), 5),
+    (1.0, 1, NOW(), NOW(), 6),
+    (0.5, 1, NOW(), NOW(), 7);
 
 

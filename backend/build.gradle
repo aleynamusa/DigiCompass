@@ -5,6 +5,7 @@ plugins {
     id "org.sonarqube" version "4.4.1.3373"
 
     id "jacoco"
+    id "org.owasp.dependencycheck" version "12.1.9"
 //    id("org.openapi.generator") version "7.16.0"
 }
 sourceSets {
@@ -25,11 +26,7 @@ sourceSets {
 
 }
 
-jacocoTestReport {
-    reports {
-        xml.required = true
-    }
-}
+
 
 
 group = 'com.DigiCompass'
@@ -69,7 +66,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-web:3.5.7'
 
     compileOnly 'org.projectlombok:lombok:1.18.40'
     annotationProcessor 'org.projectlombok:lombok:1.18.40'
@@ -104,7 +101,7 @@ dependencies {
     implementation 'org.flywaydb:flyway-core:11.13.2'
     implementation 'org.flywaydb:flyway-database-postgresql:11.13.2'
     implementation 'org.springframework.boot:spring-boot-starter-mail'
-    implementation 'org.springframework.boot:spring-boot-starter-data-redis:3.5.6'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis:3.5.7'
 
     //aws s3 - image storage
     implementation 'software.amazon.awssdk:s3:2.35.11'
@@ -116,6 +113,9 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-jackson:0.13.0'
     implementation 'org.springframework.security:spring-security-oauth2-client'
     implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    //dependency check
+//    implementation 'org.owasp:dependency-check-maven:12.1.9'
 }
 
 
@@ -137,12 +137,39 @@ configurations {
     integrationTestRuntimeOnly.extendsFrom testRuntimeOnly
 }
 
+//tasks.register("integrationTest", Test) {
+//    description = "Runs integration tests."
+//    group = "verification"
+//    testClassesDirs = sourceSets.integrationTest.output.classesDirs
+//    classpath = sourceSets.integrationTest.runtimeClasspath
+//    useJUnitPlatform()
+//}
+
 tasks.register("integrationTest", Test) {
     description = "Runs integration tests."
     group = "verification"
+
     testClassesDirs = sourceSets.integrationTest.output.classesDirs
     classpath = sourceSets.integrationTest.runtimeClasspath
     useJUnitPlatform()
+    shouldRunAfter(tasks.test)
+}
+
+jacocoTestReport {
+    dependsOn(tasks.test, tasks.named("integrationTest"))
+
+    reports {
+        xml.required = true
+        html.required = true
+    }
+
+    executionData(fileTree(
+            dir: layout.buildDirectory.get().asFile,
+            includes: [
+                    "jacoco/test.exec",
+                    "jacoco/integrationTest.exec"
+            ]
+    ))
 }
 
 tasks.named("check") {

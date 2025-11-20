@@ -45,3 +45,5 @@ export const handleEditReview = async (id, formData) => {
         headers: { "Content-Type": "multipart/form-data" },
     });
 };
+
+export const handleDeleteRating = (id) => axiosClient.delete(`/rating/delete/${id}`);

@@ -62,16 +62,16 @@ public class ReviewServiceImpl implements ReviewService {
                 }
             }
 
-            log.info("[Service] Fetched {0} reviews for routeId {1}", new Object[]{reviews.size(), routeId});
+            log.info("[Service] Fetched {} reviews for routeId {}", reviews.size(), routeId);
             return reviews;
 
         } catch (IllegalArgumentException e) {
-            log.warn("[Service] Validation error fetching reviews: {0}", e.getMessage());
+            log.warn("[Service] Validation error fetching reviews: {}", e.getMessage());
             throw e;
 
         } catch (Exception e) {
-            log.error("Unexpected error while fetching reviews for routeId {0}: {1}",
-                    new Object[]{routeId, e.getMessage()});
+            log.error("Unexpected error while fetching reviews for routeId {}: {}",
+                    routeId, e.getMessage());
             throw new RuntimeException("Unexpected error while fetching reviews.", e);
         }
     }
@@ -101,8 +101,8 @@ public class ReviewServiceImpl implements ReviewService {
             return reviewMapper.toDomain(saved);
 
         }catch (NullPointerException e) {
-            log.warn("[Service] Validation error creating review: {0}", e.getMessage());
-            throw new IllegalArgumentException(e.getMessage());
+            log.warn("[Service] Validation error creating review: {}", e.getMessage());
+            throw new NullPointerException(e.getMessage());
         }
         catch (Exception e) {
             rollbackS3Uploads(imageKeys);
@@ -219,7 +219,6 @@ public class ReviewServiceImpl implements ReviewService {
                 return url;
             }
 
-
             String[] parts = url.split("amazonaws.com/");
             if (parts.length > 1) {
                 String keyWithParams = parts[1];
@@ -242,24 +241,29 @@ public class ReviewServiceImpl implements ReviewService {
         log.debug("[SERVICE] Attempting to delete review with id={}", reviewId);
 
         try {
-            var reviews = reviewRepo.getReviewsByRoute(null);
-            reviews.stream()
-                    .filter(r -> r.getId().equals(reviewId))
-                    .findFirst()
-                    .ifPresent(review -> {
-                        if (review.getImages() != null) {
-                            for (var img : review.getImages()) {
-                                try {
-                                    s3Service.deleteImage(img.getImageUrl());
-                                    log.info("[SERVICE] Deleted image from S3: {}", img.getImageUrl());
-                                } catch (Exception e) {
-                                    log.warn("[SERVICE] Failed to delete image {} from S3: {}", img.getImageUrl(), e.getMessage());
+            if(reviewRepo.existsById(reviewId)){
+                var reviews = reviewRepo.getReviewsByRoute(null);
+                reviews.stream()
+                        .filter(r -> r.getId().equals(reviewId))
+                        .findFirst()
+                        .ifPresent(review -> {
+                            if (review.getImages() != null) {
+                                for (var img : review.getImages()) {
+                                    try {
+                                        s3Service.deleteImage(img.getImageUrl());
+                                        log.info("[SERVICE] Deleted image from S3: {}", img.getImageUrl());
+                                    } catch (Exception e) {
+                                        log.warn("[SERVICE] Failed to delete image {} from S3: {}", img.getImageUrl(), e.getMessage());
+                                    }
                                 }
                             }
-                        }
-                    });
-            reviewRepo.deleteById(reviewId);
-            log.info("[SERVICE] Successfully deleted review with id={}", reviewId);
+                        });
+                reviewRepo.deleteById(reviewId);
+                log.info("[SERVICE] Successfully deleted review with id={}", reviewId);
+            }
+            else{
+                throw new RuntimeException("Review with id=" + reviewId + " does not exist");
+            }
 
 
         } catch (Exception e) {

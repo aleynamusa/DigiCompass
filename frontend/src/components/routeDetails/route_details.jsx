@@ -5,12 +5,36 @@ import {useAuth} from "@/context/AuthContext.jsx";
 import RouteMap from "@/components/routeDetails/routeMap.jsx";
 import RouteReviewForm from "@/components/routeDetails/routeReviewForm.jsx";
 import RouteTabs from "@/components/routeDetails/routeTabs.jsx";
+import axiosClient from "@/api/axiosClient.jsx";
+import RatingUpdateForm from "@/components/routeDetails/ratingUpdateForm.jsx";
 
 export function RouteDetails({selectedRoute, onOpenChange}) {
     const {user} = useAuth();
     const [reviews, setReviews] = useState([]);
     const [ratings, setRatings] = useState([]);
     const [errors, setErrors] = useState("");
+
+    const [editingRating, setEditingRating] = useState(null);
+    const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
+
+    const handleEditRating = (rating) => {
+        setEditingRating(rating);
+        setIsRatingModalOpen(true);
+    };
+
+    const handleSaveRating = async (rating) => {
+        try {
+            await axiosClient.put(`/rating/update/${rating.id}`, rating);
+
+            const ratingsRes = await getRatingsByRoute(selectedRoute.id);
+            setRatings(ratingsRes.data);
+
+            setIsRatingModalOpen(false);
+            setEditingRating(null);
+        } catch (error) {
+            console.error("Error updating rating:", error);
+        }
+    };
 
     useEffect(() => {
         if (!selectedRoute?.id) return;
@@ -84,6 +108,8 @@ export function RouteDetails({selectedRoute, onOpenChange}) {
         }
     };
 
+
+
     return (
         <Dialog open={!!selectedRoute} onOpenChange={onOpenChange}>
             <DialogContent className="max-w-3xl">
@@ -108,12 +134,28 @@ export function RouteDetails({selectedRoute, onOpenChange}) {
                                     {errors}
                                 </div>
                             )}
+
                             <RouteReviewForm onSubmit={handleSubmit}/>
-                            <RouteTabs reviews={reviews} ratings={ratings}/>
+                            <RouteTabs
+                                reviews={reviews}
+                                ratings={ratings}
+                                onEditRating={handleEditRating}
+                            />
+
                         </div>
                     </>
                 )}
             </DialogContent>
+            {isRatingModalOpen && (
+                <RatingUpdateForm
+                    opened={isRatingModalOpen}
+                    editingRating={editingRating}
+                    onClose={() => setIsRatingModalOpen(false)}
+                    onSave={handleSaveRating}
+                />
+            )}
         </Dialog>
     );
+
+
 }

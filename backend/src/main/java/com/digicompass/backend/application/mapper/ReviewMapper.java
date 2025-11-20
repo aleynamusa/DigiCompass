@@ -27,14 +27,14 @@ public interface ReviewMapper {
 
 
     default List<String> mapEntitiesToUrls(List<ReviewImageEntity> entities) {
-        if (entities == null) return null;
+        if (entities == null) return new ArrayList<>();
         return entities.stream()
                 .map(ReviewImageEntity::getImageUrl)
                 .toList();
     }
 
     default List<ReviewImageEntity> mapUrlsToEntities(List<String> urls) {
-        if (urls == null) return null;
+        if (urls == null) return new ArrayList<>();
 
         List<ReviewImageEntity> entities = new ArrayList<>();
         for (String url : urls) {

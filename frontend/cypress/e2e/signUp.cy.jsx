@@ -45,7 +45,7 @@ describe("Sign Up Flow", () => {
     it("should show if the username is already taken",()=>{
         cy.intercept("POST", `${backendUrl}/users/signUp`).as("signUpRequest");
 
-        cy.get('input[name="username"]').type("try_1test");
+        cy.get('input[name="username"]').type("hyttryest");
 
         cy.contains("Username already taken");
 
@@ -54,7 +54,7 @@ describe("Sign Up Flow", () => {
     it("should show if the email is already registered",()=>{
         cy.intercept("POST", `${backendUrl}/users/signUp`).as("signUpRequest");
 
-        cy.get('input[name="email"]').type("tryAgain@gmail.com");
+        cy.get('input[name="email"]').type("trying@gmail.com");
 
         cy.contains("Email is already registered in our system");
     })

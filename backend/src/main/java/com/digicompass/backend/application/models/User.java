@@ -16,7 +16,7 @@ public class User {
     private String email;
     private LocalDate birthDate;
     private String password;
-    private Long role_id;
+    private Long roleId;
 
     public int CalculateAge(){
         Period period = Period.between(birthDate, LocalDate.now());

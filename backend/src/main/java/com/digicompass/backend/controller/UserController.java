@@ -50,44 +50,44 @@ public class UserController {
         }
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<UserResponseDto> getUser(@PathVariable Long id) {
-        try{
-            User user = userService.getUserById(id)
-                    .orElseThrow(() -> new RuntimeException("User not found"));
-            return ResponseEntity.ok(new UserResponseDto(user.getId(), user.getUsername(), user.getEmail(), user.getBirthDate()));
-        }
-        catch (Exception e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        }
+//    @GetMapping("/{id}")
+//    public ResponseEntity<UserResponseDto> getUser(@PathVariable Long id) {
+//        try{
+//            User user = userService.getUserById(id)
+//                    .orElseThrow(() -> new RuntimeException("User not found"));
+//            return ResponseEntity.ok(new UserResponseDto(user.getId(), user.getUsername(), user.getEmail(), user.getBirthDate()));
+//        }
+//        catch (Exception e){
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+//        }
+//
+//    }
+//
+//    @GetMapping
+//    public ResponseEntity<List<UserResponseDto>> getAllUsers() {
+//
+//        try {
+//            return ResponseEntity.ok(userService.getAllUsers()
+//                    .stream()
+//                    .map(u -> new UserResponseDto(u.getId(), u.getUsername(), u.getEmail(), u.getBirthDate()))
+//                    .collect(Collectors.toList()));
+//        }
+//        catch (Exception e){
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+//        }
+//    }
 
-    }
-
-    @GetMapping
-    public ResponseEntity<List<UserResponseDto>> getAllUsers() {
-
-        try {
-            return ResponseEntity.ok(userService.getAllUsers()
-                    .stream()
-                    .map(u -> new UserResponseDto(u.getId(), u.getUsername(), u.getEmail(), u.getBirthDate()))
-                    .collect(Collectors.toList()));
-        }
-        catch (Exception e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        }
-    }
-
-    @DeleteMapping()
-    public ResponseEntity<String> deleteUser(@RequestBody UserRequestDto request){
-        try{
-            User user = new User(request.getId(), request.getUsername(), request.getEmail(), request.getBirthDate(), request.getPassword(), request.getRole());
-            userService.deleteUser(user);
-            return ResponseEntity.ok("User deleted successfully");
-        }
-        catch (Exception e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        }
-    }
+//    @DeleteMapping()
+//    public ResponseEntity<String> deleteUser(@RequestBody UserRequestDto request){
+//        try{
+//            User user = new User(request.getId(), request.getUsername(), request.getEmail(), request.getBirthDate(), request.getPassword(), request.getRole());
+//            userService.deleteUser(user);
+//            return ResponseEntity.ok("User deleted successfully");
+//        }
+//        catch (Exception e){
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+//        }
+//    }
 
     @PostMapping("/logIn")
     public ResponseEntity<?> logIn(@RequestBody LogInRequest request, HttpServletResponse response) {
@@ -145,7 +145,7 @@ public class UserController {
         //reissue cookie
         ResponseCookie cookie = ResponseCookie.from("refreshToken", newTokens.get("refreshToken"))
                 .httpOnly(true)
-                .sameSite("Lax")
+                .sameSite("Strict")
                 .secure(false)
                 .path("/")
                 .maxAge(7 * 24 * 60 * 60)
@@ -159,7 +159,7 @@ public class UserController {
     public ResponseEntity<Void> logout(HttpServletResponse response) {
         ResponseCookie cookie = ResponseCookie.from("refreshToken", "")
                 .httpOnly(true)
-                .sameSite("Lax")
+                .sameSite("Strict")
                 .secure(false)
                 .path("/")
                 .maxAge(0)
