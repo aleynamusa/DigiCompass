@@ -1,4 +1,4 @@
-import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card.jsx"
+import {Card, CardContent} from "@/components/ui/card.jsx"
 import {Button} from "@/components/ui/button.jsx"
 import {RouteCard} from "@/components/route_card.jsx"
 import {Input} from "@/components/ui/input.jsx"
@@ -124,7 +124,7 @@ const RouteDiscovery = () => {
 
         // Load all routes again
         await fetchRoutes();
-        setFilteredRoutes(res.data);
+        // setFilteredRoutes(res.data);
     };
 
     const isFiltering =
