@@ -1,4 +1,3 @@
-/* eslint-env cypress */
 describe("Login Flow", () => {
     const backendUrl = "http://localhost:8080";
     const frontendUrl = "http://localhost:5173";

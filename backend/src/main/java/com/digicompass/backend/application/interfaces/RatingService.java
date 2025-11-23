@@ -11,7 +11,7 @@ import java.util.List;
 
 @Service
 public interface RatingService {
-    Double getRouteRating(Long id);
+    String getRouteRating(Long id);
     List<Rating> getRatingsByRouteId(Long routeId);
     Rating addRating(Rating rating);
     void deleteRating(Long ratingId);

@@ -29,7 +29,7 @@ public class RatingServiceImpl implements RatingService {
     }
 
     @Override
-    public Double getRouteRating(Long id) {
+    public String getRouteRating(Long id) {
         try {
             if (id == null || !routeRepo.getAllIds().contains(id)) {
                 log.warn("[SERVICE] Invalid route id: {}", id);
@@ -38,9 +38,17 @@ public class RatingServiceImpl implements RatingService {
                 );
             }
 
-            Double rating = ratingRepo.getAvgRatingByRoute(id);
-            log.info("[SERVICE] The rating of route id {} has been recorded: {}", id, rating);
-            return rating != null ? rating : 0.0;
+            Double avg = ratingRepo.getAvgRatingByRoute(id);
+
+            if (avg == null) {
+                log.info("[SERVICE] No ratings found for route id {}. Returning 0.00", id);
+                return "0.00";
+            }
+
+            String rating = String.format("%.2f", avg);
+            log.info("[SERVICE] Rating for route id {}: {}", id, rating);
+
+            return rating;
 
         } catch (IllegalArgumentException e) {
             log.warn("[SERVICE] Validation error while fetching route rating: {}", e.getMessage());
@@ -52,6 +60,7 @@ public class RatingServiceImpl implements RatingService {
             throw new ArithmeticException("Unexpected error while calculating rating: " + e.getMessage());
         }
     }
+
 
     @Override
     public List<Rating> getRatingsByRouteId(Long routeId) {
@@ -100,7 +109,7 @@ public class RatingServiceImpl implements RatingService {
     public void deleteRating(Long ratingId) {
         log.info("[SERVICE] Deleting Rating {}", ratingId);
         try{
-                if(routeRepo.getAllIds().contains(ratingId)) {
+                if(ratingRepo.existsById(ratingId)) {
                 ratingRepo.deleteById(ratingId);
                 if(ratingRepo.existsById(ratingId)){
                     log.info("[SERVICE] Successfully deleted Rating {}", ratingId);

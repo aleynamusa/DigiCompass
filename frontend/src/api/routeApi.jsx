@@ -47,3 +47,6 @@ export const handleEditReview = async (id, formData) => {
 };
 
 export const handleDeleteRating = (id) => axiosClient.delete(`/rating/delete/${id}`);
+export const handleEditRating = async (id, data) => {
+    return axiosClient.put(`/rating/update/${id}`, data);
+};

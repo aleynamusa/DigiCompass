@@ -1,17 +1,9 @@
-package com.digicompass.backend.integration;
+package com.digicompass.backend.controller;
 
-import com.digicompass.backend.controller.mapper.ReviewMapperController;
-import com.digicompass.backend.repository.entity.RoleEntity;
-import com.digicompass.backend.repository.entity.RouteEntity;
-import com.digicompass.backend.repository.entity.UserEntity;
-import com.digicompass.backend.repository.repositories.ReviewJpaRepository;
-import com.digicompass.backend.repository.repositories.RouteJpaRepository;
-import com.digicompass.backend.repository.repositories.UserJpaRepository;
-import com.digicompass.backend.application.mapper.ReviewMapper;
-import com.digicompass.backend.application.models.Review;
-import com.digicompass.backend.application.models.User;
+import com.digicompass.backend.BackendApplication;
+import com.digicompass.backend.controller.dto.UserDto;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -26,20 +18,18 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
-import java.time.LocalDateTime;
-
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@Tag("integration")
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         classes = com.digicompass.backend.BackendApplication.class
 )
 @AutoConfigureMockMvc
 @Testcontainers
-class ReviewControllerIntegrationTest {
+public class ReviewControllerIntegrationTest {
+
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     private static final DockerImageName POSTGIS_IMAGE = DockerImageName
             .parse("postgis/postgis:17-3.5")
@@ -56,82 +46,152 @@ class ReviewControllerIntegrationTest {
         registry.add("spring.datasource.url", postgres::getJdbcUrl);
         registry.add("spring.datasource.username", postgres::getUsername);
         registry.add("spring.datasource.password", postgres::getPassword);
+
+        // Allow Hibernate to create schema
+        registry.add("spring.jpa.hibernate.ddl-auto", () -> "update");
+
+        // For debugging
+        registry.add("spring.jpa.show-sql", () -> "true");
     }
 
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private ReviewJpaRepository reviewRepository;
+    private Long routeId = 1L;
+    private Long userId = 1L;
 
-    @Autowired
-    private RouteJpaRepository routeRepository;
-
-    @Autowired
-    private UserJpaRepository userRepository;
-    @Autowired
-    private ReviewMapperController reviewMapperController;
-    @Autowired
-    private ReviewMapper reviewMapper;
+    private MockMultipartFile mockImage;
 
     @BeforeEach
-    void cleanDatabase() {
-        reviewRepository.deleteAll();
+    void setup() {
+        mockImage = new MockMultipartFile(
+                "images",
+                "test-image.jpg",
+                "image/jpeg",
+                "FAKE_IMAGE_DATA".getBytes()
+        );
     }
+
+    private MockMultipartFile multipartJson(String fieldName, Object value) throws Exception {
+        return new MockMultipartFile(
+                fieldName,
+                "",
+                "application/json",
+                objectMapper.writeValueAsBytes(value)
+        );
+    }
+
+    // ----------------------------------------------------------------------
+    // CREATE REVIEW
+    // ----------------------------------------------------------------------
 
     @Test
-    void createReview_savesToDatabase() throws Exception {
-        long countBefore = reviewRepository.count();
+    void shouldCreateReview() throws Exception {
 
-        mockMvc.perform(multipart("/review")
-                        .file(new MockMultipartFile("images", "img.jpg", "image/jpeg", "fake".getBytes()))
-                        .param("routeId", "1")
-                        .param("review", "Great route!")
-                        .param("userId.id", "1")
-                        .param("userId.username", "TestUser")
-                        .param("createdAt", "2025-11-12T20:00:00")
-                        .param("updatedAt", "2025-11-12T20:00:00")
-                        .contentType(MediaType.MULTIPART_FORM_DATA))
-                .andExpect(status().isCreated());
+        String response = mockMvc.perform(multipart("/review")
+                        .file(mockImage)
+                        .param("review", "Amazing trail!")
+                        .param("routeId", routeId.toString())
+                        .param("userId.id", userId.toString())
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
+                )
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.review").value("Amazing trail!"))
+                .andExpect(jsonPath("$.images").exists())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
 
-        assertThat(reviewRepository.count()).isEqualTo(countBefore + 1);
+        System.out.println("Create response: " + response);
     }
 
-//    @Test
-//    void getReviewsByRoute_returnsReviews() throws Exception {
-//
-//        UserEntity user = new UserEntity();
-//
-//        user.setUsername("lele");
-//        user.setEmail("lele@example.com");
-//        user.setPassword("dummy");
-//        user.setRole(new RoleEntity(1L, "user"));
-//        user = userRepository.save(user);
-//
-//        RouteEntity route = new RouteEntity();
-//        RouteEntity savedRoute = routeRepository.save(route);
-//        Long generatedId = savedRoute.getId();
-//        route.setName("Test Route");
-//        route.setDescription("Just a dummy route for testing");
-//        route.setCreatedAt(LocalDateTime.now());
-//        route.setUpdatedAt(LocalDateTime.now());
-//        route.setCreatedByUserId(user);
-//        route.setDistance(5.0F);
-//        route.setDuration("1.30");
-//        routeRepository.save(route);
-//
-//
-//        Review review = new Review();
-//        review.setReview("Nice route!");
-//        review.setRouteId(route.getId());
-//        review.setUserId(new User(user.getId(), user.getUsername()));
-//        review.setCreatedAt(LocalDateTime.now());
-//        review.setUpdatedAt(LocalDateTime.now());
-//        reviewRepository.save(reviewMapper.toEntity(review));
-//
-//        mockMvc.perform(get("/review/route/{routeId}", 10L))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$[0].review").value("Nice route!"));
-//    }
+    // ----------------------------------------------------------------------
+    // UPDATE REVIEW
+    // ----------------------------------------------------------------------
 
+    @Test
+    void shouldUpdateReview() throws Exception {
+        // 1. Create review
+        String createResponse = mockMvc.perform(multipart("/review")
+                        .file(mockImage)
+                        .param("review", "Nice route at first!")
+                        .param("routeId", routeId.toString())
+                        .param("userId.id", userId.toString())
+                )
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        Long reviewId = objectMapper.readTree(createResponse).get("id").asLong();
+
+        // 2. Update with new image + keep existing ones
+        MockMultipartFile newImage = new MockMultipartFile(
+                "images",
+                "new-image.jpg",
+                "image/jpeg",
+                "NEW_FAKE_IMAGE_DATA".getBytes()
+        );
+
+        String existingUrlsJson = "[\"https://old.image.com/img1.jpg\"]";
+
+        mockMvc.perform(multipart("/review/update/" + reviewId)
+                        .file(newImage)
+                        .param("review", "Updated review text")
+                        .param("routeId", routeId.toString())
+                        .param("userId.id", userId.toString())
+                        .param("existingImageUrls", existingUrlsJson)
+                        .with(request -> { request.setMethod("PUT"); return request; })
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.review").value("Updated review text"))
+                .andExpect(jsonPath("$.id").value(reviewId))
+                .andReturn();
+    }
+
+    // ----------------------------------------------------------------------
+    // GET REVIEWS BY ROUTE
+    // ----------------------------------------------------------------------
+
+    @Test
+    void shouldGetReviewsByRoute() throws Exception {
+
+        // Create one review
+        mockMvc.perform(multipart("/review")
+                        .file(mockImage)
+                        .param("review", "Great!")
+                        .param("routeId", routeId.toString())
+                        .param("userId.id", userId.toString())
+                )
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(get("/review/route/" + routeId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].routeId").value(routeId));
+    }
+
+    // ----------------------------------------------------------------------
+    // DELETE REVIEW
+    // ----------------------------------------------------------------------
+
+    @Test
+    void shouldDeleteReview() throws Exception {
+
+        // Create review
+        String createResponse = mockMvc.perform(multipart("/review")
+                        .file(mockImage)
+                        .param("review", "Delete me!")
+                        .param("routeId", routeId.toString())
+                        .param("userId.id", userId.toString())
+                )
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        Long reviewId = objectMapper.readTree(createResponse).get("id").asLong();
+
+        mockMvc.perform(delete("/review/delete/" + reviewId))
+                .andExpect(status().isNoContent());
+    }
 }

@@ -1,37 +1,43 @@
 import { Rating } from "@mantine/core";
 import { useState, useEffect } from "react";
+import { handleEditRating } from "@/api/routeApi.jsx";
 
-export default function RatingUpdateForm({ opened, onClose, editingRating, onSave }) {
+export default function RatingUpdateForm({ selectedRoute, onOpenChange }) {
     const [value, setValue] = useState(0);
 
     useEffect(() => {
-        if (editingRating) {
-            setValue(editingRating.rating);
+        if (selectedRoute) {
+            setValue(selectedRoute.rating || 0);
         }
-    }, [editingRating]);
+    }, [selectedRoute]);
 
-    const handleSave = () => {
-        if (!editingRating) return;
-
-        const updated = {
-            ...editingRating,
+    const handleSubmit = async () => {
+        const updatedRating = {
+            id: selectedRoute.id,
             rating: value,
-            updatedAt: new Date().toISOString(),
+            userId: {
+                id: selectedRoute.userId.id,
+                username: selectedRoute.userId.username,
+            },
+            routeId: selectedRoute.routeId,
+            createdAt: selectedRoute.createdAt,
+            updatedAt: new Date().toISOString().slice(0, 19),
         };
 
-        onSave(updated);
+        try {
+            await handleEditRating(selectedRoute.id, updatedRating);
+            onOpenChange(); // close modal
+        } catch (err) {
+            console.error("Rating update failed:", err.response?.data || err);
+        }
     };
 
-    if (!opened) return null;
-
     return (
-        <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/40">
-            <div className="bg-white p-6 rounded-xl shadow-xl max-w-md w-full space-y-4 relative z-[100000]">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40">
+            <div className="bg-white p-6 rounded-xl shadow-xl max-w-lg w-full space-y-4">
                 <h2 className="text-lg font-semibold">Edit Rating</h2>
 
-                <p className="text-gray-700 font-medium">
-                    Update your rating:
-                </p>
+                <p className="text-gray-700">Update your rating:</p>
 
                 <div className="flex justify-center py-4">
                     <Rating
@@ -44,13 +50,14 @@ export default function RatingUpdateForm({ opened, onClose, editingRating, onSav
 
                 <div className="flex justify-end gap-2 pt-2">
                     <button
-                        onClick={onClose}
+                        onClick={onOpenChange}
                         className="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300"
                     >
                         Cancel
                     </button>
+
                     <button
-                        onClick={handleSave}
+                        onClick={handleSubmit}
                         className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700"
                     >
                         Save Rating

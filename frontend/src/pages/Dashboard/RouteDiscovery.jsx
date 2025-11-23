@@ -1,6 +1,6 @@
 import {Card, CardContent} from "@/components/ui/card.jsx"
 import {Button} from "@/components/ui/button.jsx"
-import {RouteCard} from "@/components/route_card.jsx"
+import {RouteCard} from "@/components/routeDetails/route_card.jsx"
 import {Input} from "@/components/ui/input.jsx"
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select.jsx"
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs.jsx"

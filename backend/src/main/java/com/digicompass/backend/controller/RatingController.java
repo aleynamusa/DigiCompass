@@ -60,11 +60,10 @@ public class RatingController {
 
             log.debug("Fetched {} ratings of route with id: {}", ratings.size(), id);
             log.debug("Fetched {}", ratings);
-            if(ratings.isEmpty()){
+
+            if (ratings.isEmpty()) {
                 log.info("No ratings found for route with id: {}", id);
-                return ResponseEntity
-                        .status(HttpStatus.NOT_FOUND)
-                        .body(ratings);
+                return ResponseEntity.ok(ratings);
             }
             else{
                 log.info("Found {} ratings for route with id: {}", ratings.size(), id);
@@ -80,12 +79,13 @@ public class RatingController {
     public ResponseEntity<?> updateRating(@PathVariable Long id, @RequestBody RatingDto rating) {
         log.info("Updating rating {}", rating);
         try {
+            rating.setId(id);
             RatingDto updatedRating = ratingMapper.toDto(ratingService.updateRating(ratingMapper.toModel(rating)));
             log.debug("Updated rating {}", updatedRating);
 
             if(updatedRating.getId() != null) {
                 return ResponseEntity
-                        .status(HttpStatus.CREATED)
+                        .status(HttpStatus.OK)
                         .body(updatedRating);
             }
             else{

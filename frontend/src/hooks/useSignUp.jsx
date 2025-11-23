@@ -1,129 +1,88 @@
-import {signup, signUpCheck} from "@/api/authApi.jsx";
+import { signup, signUpCheck } from "@/api/authApi.jsx";
 import debounce from "lodash.debounce";
 import dayjs from "dayjs";
-import {useEffect, useState} from "react";
-import {SignUpModel} from "@/models/authModels.jsx"
+import { useState } from "react";
+import { SignUpModel } from "@/models/authModels.jsx";
+import { usePasswordValidation } from "@/hooks/usePasswordValidation";
 
+export function useSignUp() {
+    const {
+        password,
+        confirm,
+        passwordMatch,
+        passwordRules,
+        handlePasswordChange,
+        handleConfirmChange
+    } = usePasswordValidation();
 
-export function useSignUp(){
     const [formData, setFormData] = useState(SignUpModel);
-    const [availability, setAvailability] = useState({
-        username: null,
-        email: null,
-    });
-    const [passwordMatch, setPasswordMatch] = useState(null);
-
-    const isEmail = (email) => /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);
-
-    const checkPasswordRules = (password) => {
-        return {
-            length: password.length >= 8,
-            upper: /[A-Z]/.test(password),
-            lower: /[a-z]/.test(password),
-            number: /[0-9]/.test(password),
-            special: /[#?!@$%^&*-]/.test(password),
-        };
-    };
-
-    const [passwordRules, setPasswordRules] = useState({
-        length: false,
-        upper: false,
-        lower: false,
-        number: false,
-        special: false,
-    });
-
-    const handlePasswordChange = (e) => {
-        const { value } = e.target;
-        setFormData({ ...formData, password: value });
-        setPasswordRules(checkPasswordRules(value));
-    };
-
+    const [availability, setAvailability] = useState({ username: null, email: null });
     const [errors, setErrors] = useState({});
     const [success, setSuccess] = useState("");
+
+    const isEmail = (email) =>
+        /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);
+
+    const isOldEnough = (birthDate) => {
+        if (!birthDate) return false;
+        return dayjs().diff(dayjs(birthDate), "year") >= 14;
+    };
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
-
-    const isOldEnough = (birthDate) => {
-        if (!birthDate) return false;
-        const age = dayjs().diff(dayjs(birthDate), "year");
-        return age >= 14;
-    };
-
-
-    useEffect(() => {
-        if (!formData.password || !formData.confirmPassword) {
-            setPasswordMatch(null);
-        } else {
-            setPasswordMatch(formData.password === formData.confirmPassword);
-        }
-    }, [formData.password, formData.confirmPassword]);
-
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setErrors({});
         setSuccess("");
 
-        if (formData.password !== formData.confirmPassword) {
+        if (!passwordMatch) {
             setErrors({ confirmPassword: "Passwords do not match" });
             return;
         }
 
-        formData.role = 2;
-        console.log("Sending data:", JSON.stringify(formData, null, 2));
+        const payload = {
+            ...formData,
+            password: password,
+            confirmPassword: confirm,
+            role: 2
+        };
 
         try {
-            const { confirmPassword: _confirmPassword, ...payload } = formData;
-
             const response = await signup(payload);
             setSuccess(`User ${response.data.username} registered successfully!`);
 
-            setFormData({
-                username: "",
-                email: "",
-                birthDate: "",
-                password: "",
-                confirmPassword: "",
-
-            });
+            setFormData(SignUpModel);
             setAvailability({ username: null, email: null });
         } catch (err) {
-            if (err.response && err.response.data) {
-                setErrors(err.response.data);
-            } else {
-                setErrors({ general: "Something went wrong" });
-            }
+            setErrors(err.response?.data || { general: "Something went wrong" });
         }
     };
 
     const checkAvailability = debounce(async (field, value) => {
         if (!value) return;
-
         try {
-            const response = await signUpCheck(
-                 field, value
-            );
-
+            const response = await signUpCheck(field, value);
             setAvailability((prev) => ({
                 ...prev,
-                [field]: response.data.available ? "taken" : "available",
+                [field]: response.data.available ? "taken" : "available"
             }));
         } catch (error) {
             console.error("Availability check failed:", error);
         }
-    }, 500); // wait 0.5s after typing stops, so I dont call the function every time
+    }, 500);
+
     return {
         formData,
-        setFormData,
-        setErrors,
         handleChange,
         handleSubmit,
         handlePasswordChange,
-        passwordRules,
+        handleConfirmChange,
+        password,
+        confirm,
         passwordMatch,
+        passwordRules,
         availability,
         errors,
         success,
@@ -131,6 +90,4 @@ export function useSignUp(){
         isEmail,
         checkAvailability,
     };
-
 }
-

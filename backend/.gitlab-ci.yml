@@ -13,7 +13,6 @@ backend:build:
 
 unit-tests:
   stage: test
-  tags: ["tests"]
   image: gradle:8.3-jdk24
   script:
     - echo "Running tests with Mockito..."
@@ -28,7 +27,6 @@ unit-tests:
 
 integration-tests:
   stage: test
-  tags: ["tests"]
   image: gradle:8.3-jdk24
   script:
     - echo "Running Integration tests..."

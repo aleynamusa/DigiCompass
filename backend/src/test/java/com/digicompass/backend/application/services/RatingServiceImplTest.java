@@ -16,6 +16,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.List;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Set;
 
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -47,13 +48,15 @@ class RatingServiceImplTest {
         // Arrange
         Long id = 1L;
         when(routeRepo.getAllIds()).thenReturn(List.of(1L));
-        when(ratingRepo.getAvgRatingByRoute(1L)).thenReturn(4.5);
+        when(ratingRepo.getAvgRatingByRoute(1L)).thenReturn(4.50);
 
         // Act
-        Double rating = ratingService.getRouteRating(id);
+
+
+        String rating = ratingService.getRouteRating(id);
 
         // Assert
-        assertEquals(4.5, rating);
+        assertEquals("4.50", rating);
         verify(ratingRepo).getAvgRatingByRoute(1L);
     }
 
@@ -64,9 +67,9 @@ class RatingServiceImplTest {
         when(routeRepo.getAllIds()).thenReturn(List.of(1L, 2L));
         when(ratingRepo.getRatingsByRoute(routeId)).thenReturn(null);
 
-        Double result = ratingService.getRouteRating(routeId);
+        String result = ratingService.getRouteRating(routeId);
 
-        assertEquals(0.0, result);
+        assertEquals("0.00", result);
     }
 
     @Test
@@ -207,6 +210,82 @@ class RatingServiceImplTest {
         Rating rating = new Rating();
 
         assertThrows(NullPointerException.class, () -> ratingService.addRating(rating));
+    }
+
+
+    //DELETE rating test
+
+    @Test
+    void deleteRating_shouldDelete_whenIdExistsInRatingRepo() {
+        Long ratingId = 1L;
+
+        when(ratingRepo.existsById(ratingId)).thenReturn(true);
+
+        ratingService.deleteRating(ratingId);
+
+        verify(ratingRepo, times(1)).deleteById(ratingId);
+    }
+
+    @Test
+    void deleteRating_shouldNotDelete_whenIdNotInRatingRepo() {
+        Long ratingId = 1L;
+
+        when(ratingRepo.existsById(ratingId)).thenReturn(false);
+        ratingService.deleteRating(ratingId);
+
+        verify(ratingRepo, never()).deleteById(any());
+    }
+
+    @Test
+    void deleteRating_shouldThrow_whenRepoThrows() {
+        Long ratingId = 1L;
+
+        when(ratingRepo.existsById(ratingId)).thenReturn(true);
+        doThrow(new RuntimeException("DB error"))
+                .when(ratingRepo).deleteById(ratingId);
+
+        ArithmeticException ex = assertThrows(
+                ArithmeticException.class,
+                () -> ratingService.deleteRating(ratingId)
+        );
+
+        assertTrue(ex.getMessage().contains("Unexpected error deleting Rating"));
+    }
+
+    //UPDAte rating Test
+
+    @Test
+    void updateRating_shouldUpdateSuccessfully() {
+        Rating rating = new Rating();
+        rating.setId(1L);
+
+        RatingEntity entity = new RatingEntity();
+        RatingEntity savedEntity = new RatingEntity();
+        Rating mappedBack = new Rating();
+
+        when(ratingMapper.toEntity(rating)).thenReturn(entity);
+        when(ratingRepo.save(entity)).thenReturn(savedEntity);
+        when(ratingMapper.toDomain(savedEntity)).thenReturn(mappedBack);
+
+        Rating result = ratingService.updateRating(rating);
+
+        assertEquals(mappedBack, result);
+        verify(ratingRepo, times(1)).save(entity);
+    }
+
+    @Test
+    void updateRating_shouldThrow_whenRepoFails() {
+        Rating rating = new Rating();
+        rating.setId(1L);
+
+        when(ratingMapper.toEntity(rating)).thenThrow(new RuntimeException("DB Error"));
+
+        ArithmeticException ex = assertThrows(
+                ArithmeticException.class,
+                () -> ratingService.updateRating(rating)
+        );
+
+        assertTrue(ex.getMessage().contains("Unexpected error updating Rating"));
     }
 
 

@@ -9,4 +9,5 @@ export default defineConfig({
         video: true,
         screenshotOnRunFailure: true,
     },
+
 })

@@ -34,7 +34,18 @@ WHERE (LOWER(r.routeType) = LOWER(:type) OR :type IS NULL )
 
     List<RouteEntity> getRouteEntitiesByName(String name);
 
-
-
+//
+//    @Query(
+//            value = "SELECT ST_Length(route_geometry::geography) FROM routes WHERE id = :id",
+//            nativeQuery = true
+//    )
+//    double getRouteDistance(@Param("id") Long id);
+//
+//
+//    @Query(
+//            value = "SELECT ST_AsText(ST_StartPoint(route_geometry)) FROM routes WHERE id = :id",
+//            nativeQuery = true
+//    )
+//    String getStartLocation(@Param("id") Long id);
 
 }

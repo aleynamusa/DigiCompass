@@ -2,6 +2,7 @@ package com.digicompass.backend.controller.mapper;
 
 import com.digicompass.backend.application.models.User;
 import com.digicompass.backend.controller.dto.UserDto;
+import com.digicompass.backend.controller.dto.request.UserRequestDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 
@@ -9,4 +10,7 @@ import org.mapstruct.ReportingPolicy;
 public interface UserMapperController {
     UserDto toController(User model);
     User toModel(UserDto dto);
+
+    UserRequestDto toControllerRequest(User model);
+    User toModel(UserRequestDto dto);
 }
