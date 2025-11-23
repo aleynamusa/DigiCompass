@@ -84,6 +84,7 @@ export function useSignUp() {
         passwordMatch,
         passwordRules,
         availability,
+        setErrors,
         errors,
         success,
         isOldEnough,

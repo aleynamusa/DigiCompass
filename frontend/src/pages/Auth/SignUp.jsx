@@ -18,6 +18,7 @@ const SignUpForm = () => {
         success,
         checkAvailability,
         setErrors,
+        handleConfirmChange,
     } = useSignUp();
     return (
         <div className="bg-cyan-700 rounded-md shadow-2xl" style={{ maxWidth: "550px", margin: "auto", padding: "20px" }}>
@@ -106,8 +107,12 @@ const SignUpForm = () => {
 
                 <ShowPassword
                     name="password"
-                    value={formData.password}
-                    onChange={handlePasswordChange}
+                    value={formData.password}  // Keep using formData
+                    onChange={(e) => {
+                        const value = e.target.value;
+                        handlePasswordChange(value);  // Update hook state for validation
+                        handleChange(e);  // Update formData for form submission
+                    }}
                 />
 
                 <div className="text-left relative z-0 w-full  group">
@@ -115,8 +120,11 @@ const SignUpForm = () => {
                         name="confirmPassword"
                         label="Confirm Password"
                         value={formData.confirmPassword}
-                        onChange={handleChange}
-
+                        onChange={(e) => {
+                            const value = e.target.value;
+                            handleConfirmChange(value);  // Update hook state for validation
+                            handleChange(e);  // Update formData for form submission
+                        }}
                     />
                     {passwordMatch === false && (
                         <p style={{ color: "red" }}>Passwords do not match</p>
