@@ -3,6 +3,7 @@ package com.digicompass.backend.controller.mapper;
 import com.digicompass.backend.application.models.User;
 import com.digicompass.backend.controller.dto.UserDto;
 import com.digicompass.backend.controller.dto.request.UserRequestDto;
+import com.digicompass.backend.controller.dto.response.UserResponseDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 
@@ -13,4 +14,7 @@ public interface UserMapperController {
 
     UserRequestDto toControllerRequest(User model);
     User toModel(UserRequestDto dto);
+
+    User toModel(UserResponseDto dto);
+    UserResponseDto toControllerResponse(User model);
 }

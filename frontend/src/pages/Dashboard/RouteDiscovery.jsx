@@ -8,7 +8,6 @@ import {
     SearchIcon
 } from "lucide-react"
 import {CgAdd} from "react-icons/cg";
-import {Sidebar} from "@/components/sidebar.jsx";
 import {useCallback, useEffect, useState} from "react";
 import axios from "axios";
 import {RouteDetails} from "@/components/routeDetails/route_details.jsx";
@@ -162,34 +161,35 @@ const RouteDiscovery = () => {
     }
 
     return (
-        <div className="h-screen w-full relative">
-            <Sidebar />
-
-            <div
-                className=" overflow-y-auto p-3"
-                // style={{ marginLeft: "var(--sidebar-width)" }}
-            >
-                <div className=" flex items-center justify-between text-left">
-                    <div>
-                        <h1 style={{color: "#3C5862"}} className="text-2xl font-bold">Discover Routes</h1>
-
-                        <p className="pb-3 pt-3" style={{color: "#88928F"}}>Find your next adventure from thousands of
-                            curated routes</p>
+        <div className="w-full min-h-screen">
+            <div className="w-full p-3 md:p-6">
+                {/* Header Section */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                    <div className="flex-1">
+                        <h1 style={{color: "#3C5862"}} className="text-2xl md:text-3xl font-bold mb-2 text-left">
+                            Discover Routes
+                        </h1>
+                        <p className="text-sm md:text-base text-left" style={{color: "#88928F"}}>
+                            Find your next adventure from thousands of curated routes
+                        </p>
                     </div>
-                    <Button style={{backgroundColor: "#105174"}}
-                            className="bg-cyan-950 text-primary-foreground hover:bg-primary/90  gap-2">
+                    <Button 
+                        style={{backgroundColor: "#105174"}}
+                        className="bg-cyan-950 text-primary-foreground hover:bg-primary/90 gap-2 w-full sm:w-auto"
+                    >
                         <CgAdd className="h-4 w-4"/>
-                        Create Route
+                        <span className="hidden sm:inline">Create Route</span>
+                        <span className="sm:hidden">Create</span>
                     </Button>
                 </div>
 
                 <Card style={{backgroundColor: "#E3E0E0"}}>
-                    <CardContent className="p-5">
-                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-
-                            <div className="relative flex-1 min-w-[250px]">
+                    <CardContent className="p-4 md:p-5">
+                        <div className="flex flex-col gap-4">
+                            {/* Search Bar */}
+                            <div className="relative w-full">
                                 <SearchIcon
-                                    className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground"/>
+                                    className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground z-10"/>
                                 <Input
                                     placeholder="Search routes by name, location, or tags..."
                                     className="pl-10 w-full"
@@ -198,49 +198,52 @@ const RouteDiscovery = () => {
                                 />
                             </div>
 
-                            <div
-                                className="flex flex-nowrap gap-3 justify-end w-full">
+                            {/* Filters Row */}
+                            <div className="flex flex-col sm:flex-row gap-3 w-full">
+                                <div className="flex flex-wrap sm:flex-nowrap gap-3 flex-1">
+                                    <Select value={selectedType} onValueChange={setSelectedType} className="flex-1 min-w-[140px]">
+                                        <SelectTrigger className="w-full">
+                                            <SelectValue placeholder="Type"/>
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="all">All Types</SelectItem>
+                                            <SelectItem value="hiking">Hiking</SelectItem>
+                                            <SelectItem value="cycling">Cycling</SelectItem>
+                                            <SelectItem value="walking">Walking</SelectItem>
+                                            <SelectItem value="kayaking">Kayaking</SelectItem>
+                                        </SelectContent>
+                                    </Select>
 
-                                <Select value={selectedType} onValueChange={setSelectedType} className="size-32"
+                                    <Select value={selectedDifficulty} onValueChange={setSelectedDifficulty} className="flex-1 min-w-[140px]">
+                                        <SelectTrigger className="w-full">
+                                            <SelectValue placeholder="Difficulty"/>
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="all">All Levels</SelectItem>
+                                            <SelectItem value="EASY">Easy</SelectItem>
+                                            <SelectItem value="MEDIUM">Medium</SelectItem>
+                                            <SelectItem value="HARD">Hard</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+
+                                    <Select value={selectedDistanceRange} onValueChange={setSelectedDistanceRange} className="flex-1 min-w-[140px]">
+                                        <SelectTrigger className="w-full">
+                                            <SelectValue placeholder="Distance" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="all">All Distances</SelectItem>
+                                            <SelectItem value="short">0–5 km</SelectItem>
+                                            <SelectItem value="medium">5–15 km</SelectItem>
+                                            <SelectItem value="long">15+ km</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                <Button 
+                                    variant="outline" 
+                                    onClick={handleResetFilters}
+                                    className="w-full sm:w-auto sm:min-w-[100px]"
                                 >
-                                    <SelectTrigger className="min-w-[150px]">
-                                        <SelectValue placeholder="Type"/>
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="all">All Types</SelectItem>
-                                        <SelectItem value="hiking">Hiking</SelectItem>
-                                        <SelectItem value="cycling">Cycling</SelectItem>
-                                        <SelectItem value="walking">Walking</SelectItem>
-                                        <SelectItem value="kayaking">Kayaking</SelectItem>
-                                    </SelectContent>
-                                </Select>
-
-                                <Select className="size-52"
-                                        value={selectedDifficulty} onValueChange={setSelectedDifficulty}>
-                                    <SelectTrigger className="min-w-[150px]">
-                                        <SelectValue placeholder="Difficulty"/>
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="all">All Levels</SelectItem>
-                                        <SelectItem value="EASY">Easy</SelectItem>
-                                        <SelectItem value="MEDIUM">Medium</SelectItem>
-                                        <SelectItem value="HARD">Hard</SelectItem>
-                                    </SelectContent>
-                                </Select>
-
-                                <Select value={selectedDistanceRange} onValueChange={setSelectedDistanceRange}>
-                                    <SelectTrigger className="min-w-[150px]">
-                                        <SelectValue placeholder="Distance" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="all">All Distances</SelectItem>
-                                        <SelectItem value="short">0–5 km</SelectItem>
-                                        <SelectItem value="medium">5–15 km</SelectItem>
-                                        <SelectItem value="long">15+ km</SelectItem>
-                                    </SelectContent>
-                                </Select>
-
-                                <Button variant="outline" onClick={handleResetFilters}>
                                     Reset
                                 </Button>
                             </div>
@@ -248,34 +251,53 @@ const RouteDiscovery = () => {
                     </CardContent>
                 </Card>
 
-                <Tabs defaultValue="all" className="p-3">
-                    <TabsList className="flex w-full bg-zinc-400 gap-12 p-1">
-                        <TabsTrigger value="all" default>All Routes</TabsTrigger>
-                        <TabsTrigger value="popular">Popular</TabsTrigger>
-                        <TabsTrigger value="nearby">Nearby</TabsTrigger>
-                        <TabsTrigger value="saved">Saved</TabsTrigger>
-                    </TabsList>
+                <Tabs defaultValue="all" className="mt-4 md:mt-6">
+                    <div className="overflow-x-auto">
+                        <TabsList className="inline-flex w-full sm:w-auto bg-zinc-400 gap-2 sm:gap-4 md:gap-12 p-1 min-w-max sm:min-w-0">
+                            <TabsTrigger value="all" className="whitespace-nowrap">All Routes</TabsTrigger>
+                            <TabsTrigger value="popular" className="whitespace-nowrap">Popular</TabsTrigger>
+                            <TabsTrigger value="nearby" className="whitespace-nowrap">Nearby</TabsTrigger>
+                            <TabsTrigger value="saved" className="whitespace-nowrap">Saved</TabsTrigger>
+                        </TabsList>
+                    </div>
 
 
-                    <TabsContent value="all" className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-
+                    <TabsContent value="all" className="mt-4 md:mt-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
                             {displayRoutes.length === 0 ? (
-                                <div className="text-center text-gray-600 col-span-full py-10">
+                                <div className="text-center text-gray-600 col-span-full py-10 px-4">
                                     <p className="text-lg font-medium">No routes found</p>
-                                    <p className="text-sm text-gray-500">Try adjusting your filters or search keywords.</p>
+                                    <p className="text-sm text-gray-500 mt-2">Try adjusting your filters or search keywords.</p>
                                 </div>
                             ) : (
                                 displayRoutes.map((route) => (
                                     <RouteCard key={route.id} route={route} onViewDetails={handleViewDetails} />
-
-                                )))}
+                                ))
+                            )}
                         </div>
                     </TabsContent>
 
-                    <TabsContent value="popular">...</TabsContent>
-                    <TabsContent value="nearby">...</TabsContent>
-                    <TabsContent value="saved">...</TabsContent>
+                    <TabsContent value="popular" className="mt-4 md:mt-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                            <div className="text-center text-gray-600 col-span-full py-10 px-4">
+                                <p className="text-lg font-medium">Popular routes coming soon</p>
+                            </div>
+                        </div>
+                    </TabsContent>
+                    <TabsContent value="nearby" className="mt-4 md:mt-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                            <div className="text-center text-gray-600 col-span-full py-10 px-4">
+                                <p className="text-lg font-medium">Nearby routes coming soon</p>
+                            </div>
+                        </div>
+                    </TabsContent>
+                    <TabsContent value="saved" className="mt-4 md:mt-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                            <div className="text-center text-gray-600 col-span-full py-10 px-4">
+                                <p className="text-lg font-medium">Saved routes coming soon</p>
+                            </div>
+                        </div>
+                    </TabsContent>
                 </Tabs>
             </div>
 
@@ -283,8 +305,6 @@ const RouteDiscovery = () => {
                 selectedRoute={selectedRoute}
                 onOpenChange={() => setSelectedRoute(null)}
             />
-
-
         </div>
     );
 };

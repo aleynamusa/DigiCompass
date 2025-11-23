@@ -77,7 +77,6 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    @Transactional
     public Review createReview(Review review, List<MultipartFile> images) throws IOException {
         validateRouteId(review.getRouteId());
 

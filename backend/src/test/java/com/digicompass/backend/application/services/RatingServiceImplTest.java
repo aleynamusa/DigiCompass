@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
@@ -23,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @Tag("unit")
-@ExtendWith(SpringExtension.class)
+@ExtendWith(MockitoExtension.class)
 class RatingServiceImplTest {
 
     @Mock
@@ -51,8 +52,6 @@ class RatingServiceImplTest {
         when(ratingRepo.getAvgRatingByRoute(1L)).thenReturn(4.50);
 
         // Act
-
-
         String rating = ratingService.getRouteRating(id);
 
         // Assert
@@ -65,12 +64,13 @@ class RatingServiceImplTest {
         Long routeId = 1L;
 
         when(routeRepo.getAllIds()).thenReturn(List.of(1L, 2L));
-        when(ratingRepo.getRatingsByRoute(routeId)).thenReturn(null);
+        when(ratingRepo.getAvgRatingByRoute(routeId)).thenReturn(null);
 
         String result = ratingService.getRouteRating(routeId);
 
         assertEquals("0.00", result);
     }
+
 
     @Test
     void testGetRouteRating_InvalidId() {

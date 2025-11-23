@@ -9,7 +9,7 @@ import java.util.Optional;
 @Service
 public interface UserService {
     List<User> getAllUsers();
-    Optional<User> getUserById(Long id);
+    User getUserById(Long id);
     void deleteUser(User user);
     boolean checkUsernameAvailability(String username);
     boolean checkEmailAvailability( String email);

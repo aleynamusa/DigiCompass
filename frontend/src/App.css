@@ -23,8 +23,72 @@
 
 @media (max-width: 768px) {
     :root {
-        --sidebar-width: 0rem; /* Hide it on small screens if needed */
+        --sidebar-width: 20rem; /* Width when sidebar is open on mobile */
     }
+}
+
+/* Custom scrollbar for reviews and ratings sections */
+.reviews-ratings-scroll::-webkit-scrollbar {
+    width: 8px;
+}
+
+.reviews-ratings-scroll::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 4px;
+}
+
+.reviews-ratings-scroll::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+.reviews-ratings-scroll::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Override Mantine Tabs - targets Mantine's generated CSS Modules classes like ._tab_fdrar_51 */
+[class*="_tab_"][data-active] {
+    color: #105174 !important;
+    font-weight: 600 !important;
+    background-color: rgba(16, 81, 116, 0.12) !important;
+}
+
+/* Target the tabLabel span specifically - this is where the text actually is */
+.mantine-Tabs-tabLabel,
+[class*="mantine-Tabs-tabLabel"],
+[class*="_tab_"] .mantine-Tabs-tabLabel,
+[class*="_tab_"][data-active] .mantine-Tabs-tabLabel {
+    color: inherit !important;
+}
+
+/* Ensure ALL text inside active tabs is visible - target all possible child elements */
+[class*="_tab_"][data-active],
+[class*="_tab_"][data-active] *,
+[class*="_tab_"][data-active] > *,
+[class*="_tab_"][data-active] span,
+[class*="_tab_"][data-active] .mantine-Tabs-tabLabel,
+[class*="_tab_"][data-active] div {
+    color: #105174 !important;
+}
+
+/* Override inactive tab colors */
+[class*="_tab_"]:not([data-active]) {
+    color: #6b7280 !important;
+}
+
+[class*="_tab_"]:not([data-active]) .mantine-Tabs-tabLabel,
+[class*="_tab_"]:not([data-active]) span {
+    color: #6b7280 !important;
+}
+
+[class*="_tab_"]:not([data-active]):hover {
+    color: #111827 !important;
+    background-color: #f3f4f6 !important;
+}
+
+[class*="_tab_"]:not([data-active]):hover .mantine-Tabs-tabLabel,
+[class*="_tab_"]:not([data-active]):hover span {
+    color: #111827 !important;
 }
 
 .leaflet-container {

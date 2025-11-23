@@ -20,6 +20,8 @@ public interface RouteMapperController {
     List<RouteGeometryDto> toControllerGeometry(List<RouteGeometry> model);
     List<RouteDto> toControllerRoute(List<Route> model);
 
+
+
     default List<String> map(List<RouteImageEntity> entities) {
         if (entities == null) return new ArrayList<>();
         return entities.stream()

@@ -22,34 +22,30 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/users")
-public class UserController {
+public class
+UserController {
 
     private final UserService userService;
 
-    private final AuthService authService;
     private final UserMapperController userMapperController;
 
-    public UserController(UserService userService, AuthService authService, UserMapperController userMapperController) {
+    public UserController(UserService userService, UserMapperController userMapperController) {
         this.userService = userService;
-        this.authService = authService;
         this.userMapperController = userMapperController;
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<UserResponseDto> getUser(@PathVariable Long id) {
+        try{
+            UserResponseDto user = userMapperController.toControllerResponse(userService.getUserById(id));
+            return ResponseEntity.ok(user);
+        }
+        catch (Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
 
+    }
 
-//    @GetMapping("/{id}")
-//    public ResponseEntity<UserResponseDto> getUser(@PathVariable Long id) {
-//        try{
-//            User user = userService.getUserById(id)
-//                    .orElseThrow(() -> new RuntimeException("User not found"));
-//            return ResponseEntity.ok(new UserResponseDto(user.getId(), user.getUsername(), user.getEmail(), user.getBirthDate()));
-//        }
-//        catch (Exception e){
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-//        }
-//
-//    }
-//
 //    @GetMapping
 //    public ResponseEntity<List<UserResponseDto>> getAllUsers() {
 //

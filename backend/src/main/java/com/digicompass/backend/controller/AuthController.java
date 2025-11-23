@@ -25,13 +25,10 @@ import java.util.Optional;
 @RequestMapping("/auth")
 public class AuthController {
 
-    private final PasswordResetService passwordResetService;
-
     private final AuthService authService;
     private final UserMapperController userMapperController;
 
-    public AuthController(PasswordResetService passwordResetService, AuthService authService, UserMapperController userMapperController) {
-        this.passwordResetService = passwordResetService;
+    public AuthController(AuthService authService, UserMapperController userMapperController) {
         this.authService = authService;
         this.userMapperController = userMapperController;
     }

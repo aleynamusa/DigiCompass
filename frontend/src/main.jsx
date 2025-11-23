@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import LogIn from "./pages/Auth/LogIn.jsx";
 import Home from "./pages/Dashboard/Home.jsx";
 import RouteDiscovery from "./pages/Dashboard/RouteDiscovery.jsx";
+import Profile from "./pages/Dashboard/Profile.jsx";
 import ResetPassword from "./pages/Auth/ResetPassword.jsx";
 import ForgotPassword from "./pages/Auth/ForgotPassword.jsx";
 import SignUpForm from "@/pages/Auth/SignUp.jsx";
@@ -28,6 +29,8 @@ ReactDOM.createRoot(document.getElementById("root")).render(
                         <Route element={<Layout />}>
                             <Route path="/" element={<Home />} />
                             <Route path="/routeDiscovery" element={<RouteDiscovery />} />
+                            <Route path="/profile" element={<Profile />} />
+                            <Route path="/profile/:userId" element={<Profile />} />
                             {/* Add more pages here */}
                         </Route>
 

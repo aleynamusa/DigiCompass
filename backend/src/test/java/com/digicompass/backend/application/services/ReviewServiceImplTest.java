@@ -15,6 +15,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
 import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @Tag("unit")
-@ExtendWith(SpringExtension.class)
+@ExtendWith(MockitoExtension.class)
 class ReviewServiceImplTest {
 
     @Mock
@@ -445,6 +446,10 @@ class ReviewServiceImplTest {
     void deleteReview_ThrowsRuntimeException_WhenUnexpectedErrorOccurs() {
         Long reviewId = 1L;
 
+        // Ensure deleteReview() proceeds beyond the existence check
+        when(reviewRepoMock.existsById(reviewId)).thenReturn(true);
+
+        // Cause the unexpected error
         when(reviewRepoMock.getReviewsByRoute(null))
                 .thenThrow(new RuntimeException("DB error"));
 
@@ -454,6 +459,7 @@ class ReviewServiceImplTest {
 
         assertTrue(ex.getMessage().contains("Failed to delete review"));
     }
+
 
     //PROTECTED METHODS
     @Test

@@ -135,7 +135,6 @@ public class RatingControllerIntegrationTest {
 
     @Test
     void shouldGetRatingsByRoute() throws Exception {
-        // First create rating
         shouldCreateRating();
 
         mockMvc.perform(get("/rating/route/" + routeId))

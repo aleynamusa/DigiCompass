@@ -3,7 +3,9 @@ package com.digicompass.backend.controller.mapper;
 import com.digicompass.backend.application.models.Rating;
 import com.digicompass.backend.controller.dto.RatingDto;
 import com.digicompass.backend.controller.dto.UserDto;
+import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 
 import java.util.List;
@@ -11,22 +13,16 @@ import java.util.List;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface RatingMapperController {
 
+    @Mapping(target = "userId.id", source="userId.id")
     RatingDto toDto(Rating model);
 
+    @InheritInverseConfiguration
     Rating toModel(RatingDto dto);
 
+    @Mapping(target = "userId.id", source="userId.id")
     List<RatingDto> toDto(List<Rating> model);
+
+    @InheritInverseConfiguration
     List<Rating> toModel(List<RatingDto> dto);
 
-    default UserDto map(Long userId) {
-        if (userId == null) return null;
-        UserDto dto = new UserDto();
-        dto.setId(userId);
-        return dto;
-    }
-
-    default Long map(UserDto userDto) {
-        if (userDto == null) return null;
-        return userDto.getId();
-    }
 }
