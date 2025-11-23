@@ -2,20 +2,23 @@ import {MapContainer, TileLayer, Marker, Popup} from "react-leaflet";
 import L from "leaflet";
 import SmartRoutePath from "@/components/routeDetails/smartRoutePath.jsx";
 
-const smallIcon = L.divIcon({
-    className: "custom-marker",
-    html: '<div style="background-color:#007bff;width:10px;height:10px;border-radius:50%;border:1px solid white;"></div>',
-    iconSize: [10, 10],
-});
+// const smallIcon = L.divIcon({
+//     className: "custom-marker",
+//     html: '<div style="background-color:#007bff;width:10px;height:10px;border-radius:50%;border:1px solid white;"></div>',
+//     iconSize: [10, 10],
+// });
+//
+// const getRouteCoords = (geojson) => {
+//     // In RouteMap component, add this:
+//     console.log("Route Geometry:", geojson);
+//     if (!geojson) return [];
+//
+//     if (geojson.type === "LineString") return geojson.coordinates.map(c => [c[1], c[0]]);
+//     if (geojson.type === "MultiLineString") return geojson.coordinates.flat().map(c => [c[1], c[0]]);
+//     return [];
+// };
 
-const getRouteCoords = (geojson) => {
-    if (!geojson) return [];
-    if (geojson.type === "LineString") return geojson.coordinates.map(c => [c[1], c[0]]);
-    if (geojson.type === "MultiLineString") return geojson.coordinates.flat().map(c => [c[1], c[0]]);
-    return [];
-};
-
-export default function RouteMap({routeGeometry}) {
+export default function RouteMap({routeGeometry, category}) {
     return (
         <div className="h-80 w-full rounded-md overflow-hidden">
             <MapContainer
@@ -29,16 +32,16 @@ export default function RouteMap({routeGeometry}) {
                 />
 
                 {routeGeometry && (
-                    <>
-                        <SmartRoutePath geojson={routeGeometry} />
-
-                        {getRouteCoords(routeGeometry).map((point, index) => (
-                            <Marker key={index} position={point} icon={smallIcon}>
-                                <Popup>Point {index + 1}</Popup>
-                            </Marker>
-                        ))}
-                    </>
+                    <SmartRoutePath geojson={routeGeometry} category={category} />
                 )}
+
+                {/* REMOVE THIS - it was drawing straight lines between waypoints:
+                {getRouteCoords(routeGeometry).map((point, index) => (
+                    <Marker key={index} position={point} icon={smallIcon}>
+                        <Popup>Point {index + 1}</Popup>
+                    </Marker>
+                ))}
+                */}
             </MapContainer>
         </div>
     );

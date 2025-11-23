@@ -31,7 +31,7 @@ public class RouteController {
     public ResponseEntity<List<Route>> getRoutes() {
         try {
             List<Route> routes = routeService.getRoutes();
-            LOGGER.info("Fetched routes: " + routes.size());
+            LOGGER.info("[CONTROLLER] Fetched routes: " + routes.size());
             return ResponseEntity.ok(routes);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();

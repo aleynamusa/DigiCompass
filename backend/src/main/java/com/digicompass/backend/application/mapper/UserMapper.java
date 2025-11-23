@@ -13,18 +13,17 @@ public interface UserMapper {
 
 
 
-    @Mapping(target = "role.id", source = "role_id")
+    @Mapping(target = "role.id", source = "roleId")
     UserEntity toEntity(User user);
 
-    @Mapping(target = "role_id", source = "role.id")
+    @Mapping(target = "roleId", source = "role.id")
     User toDomain(UserEntity entity);
 
 
-    @Mapping(target = "role.id", source = "role_id")
+    @Mapping(target = "role.id", source = "roleId")
     List<User> toDomain(List<UserEntity> entities);
 
-    @Mapping(target = "role_id", source = "role.id")
-
+    @Mapping(target = "roleId", source = "role.id")
     List<UserEntity> toEntity(List<User> users);
 
 }

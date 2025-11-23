@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring", uses = {UserMapper.class, ReviewMapper.class})
 public abstract class RouteMapper {
@@ -67,14 +66,14 @@ public abstract class RouteMapper {
         return entities.stream()
                 .map(ReviewEntity::getReview)
                 .map(Object::toString)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     protected List<Double> mapRatings(List<RatingEntity> entities) {
         if (entities == null) return new ArrayList<>();
         return entities.stream()
                 .map(RatingEntity::getRating)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     protected List<RatingEntity> mapDoubles(List<Double> ratings) {
@@ -85,6 +84,6 @@ public abstract class RouteMapper {
                     entity.setRating(rating);
                     return entity;
                 })
-                .collect(Collectors.toList());
+               .toList();
     }
 }

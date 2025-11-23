@@ -29,7 +29,7 @@ public class RatingServiceImpl implements RatingService {
     }
 
     @Override
-    public Double getRouteRating(Long id) {
+    public String getRouteRating(Long id) {
         try {
             if (id == null || !routeRepo.getAllIds().contains(id)) {
                 log.warn("[SERVICE] Invalid route id: {}", id);
@@ -38,9 +38,17 @@ public class RatingServiceImpl implements RatingService {
                 );
             }
 
-            Double rating = ratingRepo.getAvgRatingByRoute(id);
-            log.info("[SERVICE] The rating of route id {} has been recorded: {}", id, rating);
-            return rating != null ? rating : 0.0;
+            Double avg = ratingRepo.getAvgRatingByRoute(id);
+
+            if (avg == null) {
+                log.info("[SERVICE] No ratings found for route id {}. Returning 0.00", id);
+                return "0.00";
+            }
+
+            String rating = String.format("%.2f", avg);
+            log.info("[SERVICE] Rating for route id {}: {}", id, rating);
+
+            return rating;
 
         } catch (IllegalArgumentException e) {
             log.warn("[SERVICE] Validation error while fetching route rating: {}", e.getMessage());
@@ -52,6 +60,7 @@ public class RatingServiceImpl implements RatingService {
             throw new ArithmeticException("Unexpected error while calculating rating: " + e.getMessage());
         }
     }
+
 
     @Override
     public List<Rating> getRatingsByRouteId(Long routeId) {
@@ -79,18 +88,58 @@ public class RatingServiceImpl implements RatingService {
     }
 
     @Override
-    public boolean addRating(Rating rating) {
+    public Rating addRating(Rating rating) {
         try {
-            RatingEntity response = ratingRepo.save(ratingMapper.toEntity(rating));
+            Rating response = ratingMapper.toDomain(ratingRepo.save(ratingMapper.toEntity(rating)));
             if (response.getId() != null) {
                 log.info("[SERVICE] Added Rating {}", rating.getId());
-                return true;
+                return response;
+            }else  {
+                log.info("[SERVICE] Failed to save Rating {}", rating.getId());
             }
 
-            return false;
-        }catch (IllegalArgumentException e) {
+        }catch (NullPointerException e) {
             log.warn("[SERVICE] Validation error adding rating: {}", e.getMessage());
+            throw new NullPointerException(e.getMessage());
         }
-        return false;
+        return null;
+    }
+
+    @Override
+    public void deleteRating(Long ratingId) {
+        log.info("[SERVICE] Deleting Rating {}", ratingId);
+        try{
+                if(ratingRepo.existsById(ratingId)) {
+                ratingRepo.deleteById(ratingId);
+                if(ratingRepo.existsById(ratingId)){
+                    log.info("[SERVICE] Successfully deleted Rating {}", ratingId);
+                }
+                else{
+                    log.info("[SERVICE] Failed to delete Rating {}", ratingId);
+                }
+                log.info("[SERVICE] Deleted Rating {}", ratingId);
+            }
+        }
+        catch (Exception e){
+            log.error("[SERVICE] Unexpected error deleting Rating {}: {}",
+                    ratingId, e.getMessage());
+            throw new ArithmeticException("Unexpected error deleting Rating: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public Rating updateRating(Rating rating) {
+        log.info("[SERVICE] Updating Rating {}", rating.getId());
+
+        try{
+            Rating newRating = ratingMapper.toDomain(ratingRepo.save(ratingMapper.toEntity(rating)));
+            log.info("[SERVICE] Successfully updated Rating {}", rating.getId());
+            return newRating;
+        }
+        catch (Exception e){
+            log.error("[SERVICE] Unexpected error updating Rating {}: {}",
+                    rating.getId(), e.getMessage());
+            throw new ArithmeticException("Unexpected error updating Rating: " + e.getMessage());
+        }
     }
 }

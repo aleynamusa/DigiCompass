@@ -5,12 +5,15 @@ import {useAuth} from "@/context/AuthContext.jsx";
 import RouteMap from "@/components/routeDetails/routeMap.jsx";
 import RouteReviewForm from "@/components/routeDetails/routeReviewForm.jsx";
 import RouteTabs from "@/components/routeDetails/routeTabs.jsx";
+import axiosClient from "@/api/axiosClient.jsx";
 
 export function RouteDetails({selectedRoute, onOpenChange}) {
     const {user} = useAuth();
     const [reviews, setReviews] = useState([]);
     const [ratings, setRatings] = useState([]);
     const [errors, setErrors] = useState("");
+
+
 
     useEffect(() => {
         if (!selectedRoute?.id) return;
@@ -84,6 +87,8 @@ export function RouteDetails({selectedRoute, onOpenChange}) {
         }
     };
 
+
+
     return (
         <Dialog open={!!selectedRoute} onOpenChange={onOpenChange}>
             <DialogContent className="max-w-3xl">
@@ -101,19 +106,27 @@ export function RouteDetails({selectedRoute, onOpenChange}) {
                                 <p><strong>Difficulty:</strong> {selectedRoute.difficulty}</p>
                             </div>
 
-                            <RouteMap routeGeometry={selectedRoute.routeGeometry}/>
+                            <RouteMap routeGeometry={selectedRoute.routeGeometry} category={selectedRoute.category} />
 
                             {errors && (
                                 <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
                                     {errors}
                                 </div>
                             )}
+
                             <RouteReviewForm onSubmit={handleSubmit}/>
-                            <RouteTabs reviews={reviews} ratings={ratings}/>
+                            <RouteTabs
+                                reviews={reviews}
+                                ratings={ratings}
+                                routeId={selectedRoute.id}
+                            />
+
                         </div>
                     </>
                 )}
             </DialogContent>
         </Dialog>
     );
+
+
 }

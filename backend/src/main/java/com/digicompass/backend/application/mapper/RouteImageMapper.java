@@ -5,22 +5,19 @@ import com.digicompass.backend.repository.entity.RouteEntity;
 import com.digicompass.backend.repository.entity.RouteImageEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.Mappings;
 import org.mapstruct.ReportingPolicy;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface RouteImageMapper {
 
-    @Mappings({
-            @Mapping(source = "presignedUrl", target = "imageUrl"),
-            @Mapping(source = "route", target = "route") // handled by helper below
-    })
+
+    @Mapping(source = "presignedUrl", target = "imageUrl")
+    @Mapping(source = "route", target = "route")
     RouteImageEntity toEntity(RouteImage model);
 
-    @Mappings({
-            @Mapping(source = "imageUrl", target = "presignedUrl"),
-            @Mapping(source = "route.id", target = "route")
-    })
+
+    @Mapping(source = "imageUrl", target = "presignedUrl")
+    @Mapping(source = "route.id", target = "route")
     RouteImage toModel(RouteImageEntity entity);
 
     default RouteEntity map(Long id) {

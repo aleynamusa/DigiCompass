@@ -16,8 +16,8 @@ const ForgotPassword = () => {
             <h1 className="pb-3">Forgot Password</h1>
             <p className="text-xs pb-3">Enter your email address, and we’ll send you a reset link.</p>
 
-            {message && <p style={{ color: "green" }}>{message}</p>}
-            {error && <p style={{ color: "red" }}>{error}</p>}
+            {message && <p style={{ color: "darkgreen" }}>{message}</p>}
+            {error && <p style={{ color: "darkred" }}>{error}</p>}
 
             <form onSubmit={handleSubmit}>
                 <div className="text-left relative z-0 w-full mb-5 group">

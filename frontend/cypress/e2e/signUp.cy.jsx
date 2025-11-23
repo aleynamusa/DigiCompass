@@ -16,10 +16,10 @@ describe("Sign Up Flow", () => {
     });
 
     it("should sign up successfully when given correct inputs", () => {
-        cy.intercept("POST", `${backendUrl}/users/signUp`).as("signUpRequest");
+        cy.intercept("POST", `${backendUrl}/auth/signUp`).as("signUpRequest");
 
-        cy.get('input[name="email"]').type("tryAgain11@gmail.com");
-        cy.get('input[name="username"]').type("try_111test");
+        cy.get('input[name="email"]').type("trying@gmail.com");
+        cy.get('input[name="username"]').type("hyttryest");
         cy.get('input[name="birthDate"]').click();
 
         //birthdate selection
@@ -43,24 +43,23 @@ describe("Sign Up Flow", () => {
     });
 
     it("should show if the username is already taken",()=>{
-        cy.intercept("POST", `${backendUrl}/users/signUp`).as("signUpRequest");
+        cy.intercept("POST", `${backendUrl}/auth/signUp`).as("signUpRequest");
 
-        cy.get('input[name="username"]').type("try_1test");
+        cy.get('input[name="username"]').type("hyttryest");
 
         cy.contains("Username already taken");
 
     });
 
     it("should show if the email is already registered",()=>{
-        cy.intercept("POST", `${backendUrl}/users/signUp`).as("signUpRequest");
 
-        cy.get('input[name="email"]').type("tryAgain@gmail.com");
+        cy.get('input[name="email"]').type("trying@gmail.com");
 
         cy.contains("Email is already registered in our system");
     })
 
     it("should show if the the age is eligible to register",()=>{
-        cy.intercept("POST", `${backendUrl}/users/signUp`).as("signUpRequest");
+        cy.intercept("POST", `${backendUrl}/auth/signUp`).as("signUpRequest");
 
         cy.get('input[name="birthDate"]').click();
         cy.get('.mantine-Calendar-calendarHeaderLevel').click();
@@ -74,7 +73,7 @@ describe("Sign Up Flow", () => {
     })
 
     it("should show if passwords do not match",()=>{
-        cy.intercept("POST", `${backendUrl}/users/signUp`).as("signUpRequest");
+        cy.intercept("POST", `${backendUrl}/auth/signUp`).as("signUpRequest");
 
         cy.get('input[name="password"]').type("helooo907T");
         cy.get('input[name="confirmPassword"]').type("heooo907T");

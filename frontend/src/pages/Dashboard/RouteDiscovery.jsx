@@ -1,6 +1,6 @@
-import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card.jsx"
+import {Card, CardContent} from "@/components/ui/card.jsx"
 import {Button} from "@/components/ui/button.jsx"
-import {RouteCard} from "@/components/route_card.jsx"
+import {RouteCard} from "@/components/routeDetails/route_card.jsx"
 import {Input} from "@/components/ui/input.jsx"
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select.jsx"
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs.jsx"
@@ -48,14 +48,11 @@ const RouteDiscovery = () => {
             const response = await axios.get(`${API_URL}/route/${route.id}/geometry`);
             const geojson = response.data.geojson;
 
-            console.log("Fetched GeoJSON:", geojson);
-
-            console.log("Review", response.data)
-
             setSelectedRoute({
-                ...response.data,
+                ...route,
                 routeGeometry: geojson,
             });
+
         } catch (err) {
             console.error(err);
             setError("There has been a problem and the data is unavailable at the moment.");
@@ -127,7 +124,7 @@ const RouteDiscovery = () => {
 
         // Load all routes again
         await fetchRoutes();
-        setFilteredRoutes(res.data);
+        // setFilteredRoutes(res.data);
     };
 
     const isFiltering =
@@ -169,7 +166,7 @@ const RouteDiscovery = () => {
             <Sidebar />
 
             <div
-                className="h-full overflow-y-auto p-3"
+                className=" overflow-y-auto p-3"
                 // style={{ marginLeft: "var(--sidebar-width)" }}
             >
                 <div className=" flex items-center justify-between text-left">
@@ -202,7 +199,8 @@ const RouteDiscovery = () => {
                             </div>
 
                             <div
-                                className="flex flex-wrap md:flex-nowrap gap-3 justify-between md:justify-end w-full md:w-auto">
+                                className="flex flex-nowrap gap-3 justify-end w-full">
+
                                 <Select value={selectedType} onValueChange={setSelectedType} className="size-32"
                                 >
                                     <SelectTrigger className="min-w-[150px]">

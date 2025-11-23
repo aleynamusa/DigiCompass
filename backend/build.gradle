@@ -5,6 +5,7 @@ plugins {
     id "org.sonarqube" version "4.4.1.3373"
 
     id "jacoco"
+    id "org.owasp.dependencycheck" version "12.1.9"
 //    id("org.openapi.generator") version "7.16.0"
 }
 sourceSets {
@@ -25,11 +26,7 @@ sourceSets {
 
 }
 
-jacocoTestReport {
-    reports {
-        xml.required = true
-    }
-}
+
 
 
 group = 'com.DigiCompass'
@@ -69,7 +66,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-web:3.5.7'
 
     compileOnly 'org.projectlombok:lombok:1.18.40'
     annotationProcessor 'org.projectlombok:lombok:1.18.40'
@@ -89,11 +86,13 @@ dependencies {
     implementation 'org.locationtech.jts:jts-core:1.20.0'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.hibernate.orm:hibernate-spatial:6.4.0.Final'
+    implementation 'org.hibernate.orm:hibernate-spatial:6.6.26.Final'
+
     implementation 'org.n52.jackson:jackson-datatype-jts:2.0.0'
     implementation 'org.locationtech.jts:jts-io:1.20.0'
     implementation 'org.locationtech.jts.io:jts-io-common:1.20.0'
     implementation 'org.hibernate.validator:hibernate-validator:8.0.1.Final'
+
 
 
     //mapper
@@ -104,7 +103,7 @@ dependencies {
     implementation 'org.flywaydb:flyway-core:11.13.2'
     implementation 'org.flywaydb:flyway-database-postgresql:11.13.2'
     implementation 'org.springframework.boot:spring-boot-starter-mail'
-    implementation 'org.springframework.boot:spring-boot-starter-data-redis:3.5.6'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis:3.5.7'
 
     //aws s3 - image storage
     implementation 'software.amazon.awssdk:s3:2.35.11'
@@ -116,33 +115,78 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-jackson:0.13.0'
     implementation 'org.springframework.security:spring-security-oauth2-client'
     implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    //dependency check
+//    implementation 'org.owasp:dependency-check-maven:12.1.9'
 }
 
 
 
-sonar{
-    properties{
+//sonar{
+//    properties{
+//        property "sonar.projectKey", "SonarDemoDigiCompass"
+//        property "sonar.host.url", "http://localhost:9000"
+//        property "sonar.token", "sqp_baace911f77ec2bb8eebca7ddeff86c1508c228c"
+//        property "sonar.coverage.jacoco.xmlReportPaths", "build/reports/jacoco/test/jacocoTestReport.xml"
+//
+//        property "sonar.tests", "src/test/java"
+//        property "sonar.java.binaries", "build/classes/java/main"
+//    }
+//}
+
+sonar {
+    properties {
         property "sonar.projectKey", "SonarDemoDigiCompass"
         property "sonar.host.url", "http://localhost:9000"
         property "sonar.token", "sqp_baace911f77ec2bb8eebca7ddeff86c1508c228c"
-        property "sonar.coverage.jacoco.xmlReportPaths", "build/reports/jacoco/test/jacocoTestReport.xml"
+
+        property "sonar.sources", "src/main/java"
 
         property "sonar.tests", "src/test/java"
         property "sonar.java.binaries", "build/classes/java/main"
+        property "sonar.coverage.jacoco.xmlReportPaths", "build/reports/jacoco/test/jacocoTestReport.xml"
     }
 }
+
 
 configurations {
     integrationTestImplementation.extendsFrom testImplementation
     integrationTestRuntimeOnly.extendsFrom testRuntimeOnly
 }
 
+//tasks.register("integrationTest", Test) {
+//    description = "Runs integration tests."
+//    group = "verification"
+//    testClassesDirs = sourceSets.integrationTest.output.classesDirs
+//    classpath = sourceSets.integrationTest.runtimeClasspath
+//    useJUnitPlatform()
+//}
+
 tasks.register("integrationTest", Test) {
     description = "Runs integration tests."
     group = "verification"
+
     testClassesDirs = sourceSets.integrationTest.output.classesDirs
     classpath = sourceSets.integrationTest.runtimeClasspath
     useJUnitPlatform()
+    shouldRunAfter(tasks.test)
+}
+
+jacocoTestReport {
+    dependsOn(tasks.test, tasks.named("integrationTest"))
+
+    reports {
+        xml.required = true
+        html.required = true
+    }
+
+    executionData(fileTree(
+            dir: layout.buildDirectory.get().asFile,
+            includes: [
+                    "jacoco/test.exec",
+                    "jacoco/integrationTest.exec"
+            ]
+    ))
 }
 
 tasks.named("check") {

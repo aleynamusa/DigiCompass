@@ -27,7 +27,7 @@ INSERT INTO roles(role)
 VALUES ('admin'), ('user');
 
 INSERT INTO users(username, email, birth_date, password, role_id)
-VALUES ('admin', 'musaaleyna1@gmail.com', '2005-11-10'::date, 'argon2i$v=19$m=4096,t=3,p=1$ZKl6TXpMTkt5OILCsAiKzw$LsaifSEyF2fgARM20gKN8P5jYDzEBoE7fgwmgKl8O3k', 1);
+VALUES ('admin', 'musaaleyna1@gmail.com', '2005-11-10'::date, '$argon2i$v=19$m=4096,t=3,p=1$IM7tVJQeNSBPS0yDEKQ1cg$w8pvItHoLaTbsrP2ROCf+GIfwJASBpiO3iX3VByazUM', 1);
 
 
 

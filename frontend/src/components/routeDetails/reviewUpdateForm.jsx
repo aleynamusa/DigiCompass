@@ -11,7 +11,6 @@ export default function ReviewUpdateForm({ selectedRoute, onOpenChange }) {
     useEffect(() => {
         if (selectedRoute) {
             setText(selectedRoute.review || "");
-            // Store full image objects or URLs
             setExistingImages(selectedRoute.images || []);
         }
     }, [selectedRoute]);
@@ -25,10 +24,10 @@ export default function ReviewUpdateForm({ selectedRoute, onOpenChange }) {
         formData.append("createdAt", selectedRoute.createdAt);
         formData.append("updatedAt", new Date().toISOString().slice(0, 19));
 
-        // Add new image files
+        //Add new image files
         files.forEach((file) => formData.append("images", file));
 
-        // Add existing images to keep (as JSON string array)
+        //keeping existing images
         formData.append("existingImageUrls", JSON.stringify(existingImages));
 
         try {

@@ -18,6 +18,7 @@ import org.mockito.Spy;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,6 +40,15 @@ class ReviewServiceImplTest {
 
     @Mock
     RouteJpaRepository routeRepoMock;
+
+    @Mock
+    private MultipartFile file1;
+
+    @Mock
+    private MultipartFile file2;
+
+    @Mock
+    private MultipartFile emptyFile;
 
     @Spy
     @InjectMocks
@@ -141,11 +151,23 @@ class ReviewServiceImplTest {
 
     //CREATE REVIEWS
     @Test
-    void createReview_ThrowsNullPointerException_WhenReviewDataIsNull()
-    {
+    void createReview_throwsNullPointer_whenMapperReturnsNull() throws Exception {
+        Review review = new Review();
+        review.setRouteId(1L);
+
+        List<MultipartFile> images = List.of();
+
+        when(routeRepoMock.existsById(1L)).thenReturn(true);
+
+        when(reviewMapperMock.toEntity(review)).thenReturn(null);
+
         assertThrows(NullPointerException.class,
-                () -> reviewServiceMock.createReview(null, null));
+                () -> reviewServiceMock.createReview(review, images));
+
+        verify(reviewMapperMock).toEntity(review);
     }
+
+
 
     @Test
     void createReview_ThrowsRuntimeExceptionAndRollsBack_WhenUnexpectedErrorOccurs() throws Exception {
@@ -349,14 +371,19 @@ class ReviewServiceImplTest {
         review.setId(reviewId);
         review.setImages(List.of(img1, img2));
 
+        when(reviewRepoMock.existsById(reviewId)).thenReturn(true);
         when(reviewRepoMock.getReviewsByRoute(null)).thenReturn(List.of(review));
 
         reviewServiceMock.deleteReview(reviewId);
 
+        // Verify S3 deletions
         verify(s3ServiceMock).deleteImage("key1");
         verify(s3ServiceMock).deleteImage("key2");
+
+        // Verify review removal
         verify(reviewRepoMock).deleteById(reviewId);
     }
+
 
 
     @Test
@@ -367,6 +394,7 @@ class ReviewServiceImplTest {
         review.setId(reviewId);
         review.setImages(null);
 
+        when(reviewRepoMock.existsById(reviewId)).thenReturn(true);
         when(reviewRepoMock.getReviewsByRoute(null)).thenReturn(List.of(review));
 
         reviewServiceMock.deleteReview(reviewId);
@@ -386,6 +414,7 @@ class ReviewServiceImplTest {
         review.setId(reviewId);
         review.setImages(List.of(img1));
 
+        when(reviewRepoMock.existsById(reviewId)).thenReturn(true);
         when(reviewRepoMock.getReviewsByRoute(null)).thenReturn(List.of(review));
 
         doThrow(new RuntimeException("S3 failure"))
@@ -401,6 +430,7 @@ class ReviewServiceImplTest {
     void deleteReview_DeletesEvenIfReviewNotFound() {
         Long reviewId = 1L;
 
+        when(reviewRepoMock.existsById(reviewId)).thenReturn(true);
         when(reviewRepoMock.getReviewsByRoute(null)).thenReturn(List.of());
 
         reviewServiceMock.deleteReview(reviewId);
@@ -424,5 +454,164 @@ class ReviewServiceImplTest {
 
         assertTrue(ex.getMessage().contains("Failed to delete review"));
     }
+
+    //PROTECTED METHODS
+    @Test
+    void extractS3Key_ShouldReturnKeyFromFullPresignedUrl() {
+        String url =
+                "https://mybucket.s3.amazonaws.com/reviews/10/image1.png?AWSAccessKeyId=ABC&Expires=123";
+
+        String result = reviewServiceMock.extractS3Key(url);
+
+        assertEquals("reviews/10/image1.png", result);
+    }
+
+    @Test
+    void extractS3Key_ShouldReturnKey_WhenNoQueryParameters() {
+        String url = "https://mybucket.s3.amazonaws.com/reviews/10/photo.jpg";
+
+        String result = reviewServiceMock.extractS3Key(url);
+
+        assertEquals("reviews/10/photo.jpg", result);
+    }
+
+    @Test
+    void extractS3Key_ShouldReturnOriginal_WhenNotAUrl() {
+        String url = "reviews/10/plain-key.jpg";
+
+        String result = reviewServiceMock.extractS3Key(url);
+
+        assertEquals("reviews/10/plain-key.jpg", result);
+    }
+
+    @Test
+    void extractS3Key_ShouldReturnOriginal_WhenAmazonawsNotPresent() {
+        String url = "https://example.com/something/else.jpg";
+
+        String result = reviewServiceMock.extractS3Key(url);
+
+        assertEquals(url, result);
+    }
+
+    @Test
+    void extractS3Key_ShouldHandleMalformedUrlGracefully() {
+        String url = "https://amazonaws.com"; // no path after domain
+
+        String result = reviewServiceMock.extractS3Key(url);
+
+        assertEquals("https://amazonaws.com", result);
+    }
+
+    @Test
+    void rollbackS3Uploads_ShouldDeleteAllKeys() {
+        List<String> keys = List.of("img1.png", "img2.jpg");
+
+        reviewServiceMock.rollbackS3Uploads(keys);
+
+        verify(s3ServiceMock).deleteImage("img1.png");
+        verify(s3ServiceMock).deleteImage("img2.jpg");
+
+        verifyNoMoreInteractions(s3ServiceMock);
+    }
+
+    @Test
+    void rollbackS3Uploads_ShouldCatchExceptions_AndContinue() {
+        List<String> keys = List.of("img1.png", "img2.jpg");
+
+        doThrow(new RuntimeException("S3 delete failed"))
+                .when(s3ServiceMock)
+                .deleteImage("img1.png");
+
+        doNothing().when(s3ServiceMock).deleteImage("img2.jpg");
+
+        reviewServiceMock.rollbackS3Uploads(keys);
+
+        verify(s3ServiceMock).deleteImage("img1.png");
+        verify(s3ServiceMock).deleteImage("img2.jpg");
+    }
+
+
+    @Test
+    void uploadImages_ShouldReturnEmptyList_WhenImagesIsNull() throws IOException {
+        List<String> result = reviewServiceMock.uploadImages(10L, null);
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+        verifyNoInteractions(s3ServiceMock);
+    }
+
+    @Test
+    void uploadImages_ShouldUploadOnlyNonEmptyFiles() throws IOException {
+        when(file1.isEmpty()).thenReturn(false);
+        when(file2.isEmpty()).thenReturn(false);
+        when(emptyFile.isEmpty()).thenReturn(true);
+
+        when(s3ServiceMock.uploadImage(eq("reviews/10"), eq(file1))).thenReturn("key1");
+        when(s3ServiceMock.uploadImage(eq("reviews/10"), eq(file2))).thenReturn("key2");
+
+        List<String> result = reviewServiceMock.uploadImages(10L, List.of(file1, emptyFile, file2));
+
+        assertEquals(List.of("key1", "key2"), result);
+
+        verify(s3ServiceMock).uploadImage("reviews/10", file1);
+        verify(s3ServiceMock).uploadImage("reviews/10", file2);
+        verify(s3ServiceMock, never()).uploadImage(anyString(), eq(emptyFile));
+    }
+
+    @Test
+    void validateRouteId_success_whenRouteExists() {
+        Long routeId = 5L;
+
+        when(routeRepoMock.existsById(routeId)).thenReturn(true);
+
+        assertDoesNotThrow(() -> reviewServiceMock.validateRouteId(routeId));
+    }
+
+    @Test
+    void extractS3Key_returnsOriginalUrl_whenUrlIsNullAndExceptionThrown() {
+        String result = reviewServiceMock.extractS3Key(null);
+
+        assertNull(result);
+    }
+
+    @Test
+    void validateRouteId_throwsException_whenIdIsNull() {
+        IllegalArgumentException ex = assertThrows(
+                IllegalArgumentException.class,
+                () -> reviewServiceMock.validateRouteId(null)
+        );
+
+        assertTrue(ex.getMessage().contains("Invalid route ID"));
+    }
+
+    @Test
+    void validateRouteId_throwsException_whenIdIsZeroOrNegative() {
+        IllegalArgumentException ex = assertThrows(
+                IllegalArgumentException.class,
+                () -> reviewServiceMock.validateRouteId(0L)
+        );
+
+        assertTrue(ex.getMessage().contains("Invalid route ID"));
+    }
+
+    @Test
+    void validateRouteId_throwsException_whenRouteDoesNotExist() {
+        when(routeRepoMock.existsById(5L)).thenReturn(false);
+
+        IllegalArgumentException ex = assertThrows(
+                IllegalArgumentException.class,
+                () -> reviewServiceMock.validateRouteId(5L)
+        );
+
+        assertTrue(ex.getMessage().contains("Route not found"));
+    }
+
+    @Test
+    void validateRouteId_passes_whenRouteExists() {
+        when(routeRepoMock.existsById(1L)).thenReturn(true);
+
+        assertDoesNotThrow(() -> reviewServiceMock.validateRouteId(1L));
+    }
+
 
 }

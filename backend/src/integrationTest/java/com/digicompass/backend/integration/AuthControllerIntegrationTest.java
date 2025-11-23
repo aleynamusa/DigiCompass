@@ -1,3 +1,5 @@
+package com.digicompass.backend.integration;
+
 import com.digicompass.backend.controller.dto.request.LogInRequest;
 import com.digicompass.backend.repository.entity.RoleEntity;
 import com.digicompass.backend.repository.repositories.RoleJpaRepository;
@@ -24,7 +26,6 @@ import java.time.LocalDate;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@Tag("integration")
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         classes = com.digicompass.backend.BackendApplication.class
@@ -95,7 +96,7 @@ class AuthControllerIntegrationTest {
                 "Abcdef123!"
         );
 
-        mockMvc.perform(post("/users/signUp")
+        mockMvc.perform(post("/auth/signUp")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -114,7 +115,7 @@ class AuthControllerIntegrationTest {
                 "ValidPass123!"
         );
 
-        mockMvc.perform(post("/users/signUp")
+        mockMvc.perform(post("/auth/signUp")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
@@ -125,7 +126,7 @@ class AuthControllerIntegrationTest {
                 true
         );
 
-        mockMvc.perform(post("/users/logIn")
+        mockMvc.perform(post("/auth/logIn")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isOk())
@@ -146,7 +147,7 @@ class AuthControllerIntegrationTest {
                 "CorrectPass12!"
         );
 
-        mockMvc.perform(post("/users/signUp")
+        mockMvc.perform(post("/auth/signUp")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
@@ -157,7 +158,7 @@ class AuthControllerIntegrationTest {
                 false
         );
 
-        mockMvc.perform(post("/users/logIn")
+        mockMvc.perform(post("/auth/logIn")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isUnauthorized())
@@ -174,7 +175,7 @@ class AuthControllerIntegrationTest {
                 "ValidPass123!"
         );
 
-        mockMvc.perform(post("/users/signUp")
+        mockMvc.perform(post("/auth/signUp")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
@@ -190,7 +191,7 @@ class AuthControllerIntegrationTest {
                 "abc"
         );
 
-        mockMvc.perform(post("/users/signUp")
+        mockMvc.perform(post("/auth/signUp")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
@@ -206,7 +207,7 @@ class AuthControllerIntegrationTest {
                 "ValidPass123!"
         );
 
-        mockMvc.perform(post("/users/signUp")
+        mockMvc.perform(post("/auth/signUp")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
@@ -223,12 +224,12 @@ class AuthControllerIntegrationTest {
                 "ValidPass123!"
         );
 
-        mockMvc.perform(post("/users/signUp")
+        mockMvc.perform(post("/auth/signUp")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(post("/users/signUp")
+        mockMvc.perform(post("/auth/signUp")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());

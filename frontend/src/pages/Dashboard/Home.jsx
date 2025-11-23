@@ -1,5 +1,5 @@
 import React from "react";
-import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
+import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 

@@ -17,9 +17,9 @@ public class Rating {
 
     private  User userId;
 
-    private LocalDateTime createdAt =  LocalDateTime.now();
+    private LocalDateTime createdAt;
 
-    private LocalDateTime updatedAt =  LocalDateTime.now();
+    private LocalDateTime updatedAt;
 
     private Long routeId;
 }

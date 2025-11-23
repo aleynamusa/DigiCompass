@@ -1,4 +1,3 @@
-/* eslint-env cypress */
 describe("Login Flow", () => {
     const backendUrl = "http://localhost:8080";
     const frontendUrl = "http://localhost:5173";
@@ -14,7 +13,7 @@ describe("Login Flow", () => {
     });
 
     it("should log in successfully with valid credentials", () => {
-        cy.intercept("POST", `${backendUrl}/users/logIn`).as("loginRequest");
+        cy.intercept("POST", `${backendUrl}/auth/logIn`).as("loginRequest");
 
         cy.get('input[name="username"]').type("admin");
         cy.get('input[name="password"]').type("Tetradka1011@");

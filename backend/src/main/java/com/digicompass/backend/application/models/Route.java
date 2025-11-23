@@ -32,7 +32,7 @@ public class Route {
     private List<String> reviews = new ArrayList<>();
     private List<Double> ratings = new ArrayList<>();
 
-    private Double averageRating;
+    private String averageRating;
 }
 
 
