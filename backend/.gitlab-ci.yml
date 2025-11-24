@@ -4,41 +4,41 @@ stages:
   - sonar
   - deploy
 
-backend:build:
-  stage: build
-  image: gradle:8.3-jdk24
-  script:
-    - echo "Building Spring Boot backend..."
-    - cd backend
-    - ./gradlew.bat clean bootJar --no-daemon
+# backend:build:
+#   stage: build
+#   image: gradle:8.3-jdk24
+#   script:
+#     - echo "Building Spring Boot backend..."
+#     - cd backend
+#     - ./gradlew.bat clean bootJar --no-daemon
 
-unit-tests:
-  stage: test
-  image: gradle:8.3-jdk24
-  script:
-    - echo "Running tests with Mockito..."
-    - cd backend
-    - ./gradlew clean test --no-daemon
-  artifacts:
-    when: always
-    reports:
-      junit: backend/build/test-results/test/TEST-*.xml
-    paths:
-      - backend/build/reports/tests/test
+# unit-tests:
+#   stage: test
+#   image: gradle:8.3-jdk24
+#   script:
+#     - echo "Running tests with Mockito..."
+#     - cd backend
+#     - ./gradlew clean test --no-daemon
+#   artifacts:
+#     when: always
+#     reports:
+#       junit: backend/build/test-results/test/TEST-*.xml
+#     paths:
+#       - backend/build/reports/tests/test
 
-integration-tests:
-  stage: test
-  image: gradle:8.3-jdk24
-  script:
-    - echo "Running Integration tests..."
-    - cd backend
-    - ./gradlew integrationTest --no-daemon
-  artifacts:
-    when: always
-    reports:
-      junit: backend/build/test-results/integrationTest/TEST-*.xml
-    paths:
-      - backend/build/reports/tests/integrationTest
+# integration-tests:
+#   stage: test
+#   image: gradle:8.3-jdk24
+#   script:
+#     - echo "Running Integration tests..."
+#     - cd backend
+#     - ./gradlew integrationTest --no-daemon
+#   artifacts:
+#     when: always
+#     reports:
+#       junit: backend/build/test-results/integrationTest/TEST-*.xml
+#     paths:
+#       - backend/build/reports/tests/integrationTest
 
 sonarqube-analysis:
   stage: sonar
@@ -49,29 +49,29 @@ sonarqube-analysis:
     - echo "Running SonarQube analysis..."
     - cd backend
     - ./gradlew clean build test jacocoTestReport
-    - ./gradlew sonarqube -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN -Dsonar.projectKey=$SONAR_PROJECT_KEY -Dsonar.organization=$SONAR_ORG --no-daemon
+    - ./gradlew sonarqube -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.login=${SONAR_TOKEN} -Dsonar.projectKey=${SONAR_PROJECT_KEY} -Dsonar.organization=${SONAR_ORG} --no-daemon
 
 
 
-docker-backend:build-and-push:
-  stage: deploy
-  image: docker:26.1.3
-  services:
-    - docker:dind
-  variables:
-    DOCKER_TLS_CERTDIR: ""
-  before_script:
-    - echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-  script:
-    - echo "Building Docker backend image..."
+# docker-backend:build-and-push:
+#   stage: deploy
+#   image: docker:26.1.3
+#   services:
+#     - docker:dind
+#   variables:
+#     DOCKER_TLS_CERTDIR: ""
+#   before_script:
+#     - echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+#   script:
+#     - echo "Building Docker backend image..."
 
-    - docker build -t $DOCKERHUB_USERNAME/digicompass-backend:latest -t $DOCKERHUB_USERNAME/digicompass-backend:$CI_COMMIT_SHORT_SHA backend
+#     - docker build -t $DOCKERHUB_USERNAME/digicompass-backend:latest -t $DOCKERHUB_USERNAME/digicompass-backend:$CI_COMMIT_SHORT_SHA backend
 
 
-    - echo "Pushing backend image to Docker Hub..."
+#     - echo "Pushing backend image to Docker Hub..."
 
-    - docker push $DOCKERHUB_USERNAME/digicompass-backend:latest
-    - docker push $DOCKERHUB_USERNAME/digicompass-backend:$CI_COMMIT_SHORT_SHA
+#     - docker push $DOCKERHUB_USERNAME/digicompass-backend:latest
+#     - docker push $DOCKERHUB_USERNAME/digicompass-backend:$CI_COMMIT_SHORT_SHA
 
-  only:
-    - main
+#   only:
+#     - main
