@@ -27,7 +27,7 @@ public class RatingController {
 
 
     @PostMapping
-    public ResponseEntity<?> createRating(@RequestBody RatingDto rating) {
+    public ResponseEntity<RatingDto> createRating(@RequestBody RatingDto rating) {
         try {
             log.info("Creating rating {}", rating);
             RatingDto response = ratingMapper.toDto(ratingService.addRating(ratingMapper.toModel(rating)));
@@ -41,19 +41,19 @@ public class RatingController {
                 log.warn("Failed to create rating");
                 return ResponseEntity
                         .status(HttpStatus.BAD_REQUEST)
-                        .body("Failed to create rating");
+                        .body(null);
 
             }
 
         }
         catch (Exception ex) {
             log.error(ex.getMessage(), ex);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to create rating");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
     @GetMapping("/route/{id}")
-    public ResponseEntity<?> getRatingsByRoute(@PathVariable Long id) {
+    public ResponseEntity<List<RatingDto>> getRatingsByRoute(@PathVariable Long id) {
         log.info("Getting ratings by routeId {}", id);
         try{
             List<RatingDto> ratings = ratingMapper.toDto(ratingService.getRatingsByRouteId(id));
@@ -71,12 +71,12 @@ public class RatingController {
             }
         }
         catch (Exception ex) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to fetch ratings for route with id: " + id);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateRating(@PathVariable Long id, @RequestBody RatingDto rating) {
+    public ResponseEntity<RatingDto> updateRating(@PathVariable Long id, @RequestBody RatingDto rating) {
         log.info("Updating rating {}", rating);
         try {
             rating.setId(id);
@@ -90,7 +90,7 @@ public class RatingController {
             }
             else{
                 log.warn("Failed to fetch rating with id: {}", id);
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to fetch rating with id: " + id);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
             }
 
         }catch (Exception ex){
@@ -100,7 +100,7 @@ public class RatingController {
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> deleteRating(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteRating(@PathVariable Long id) {
         log.info("Deleting rating {}", id);
         try{
             ratingService.deleteRating(id);
@@ -112,20 +112,19 @@ public class RatingController {
         } catch (IllegalArgumentException ex) {
             log.warn("[CONTROLLER] Review not found: {}", id);
             return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body("Review not found with ID: " + id);
+                    .status(HttpStatus.NOT_FOUND).body(null);
 
         } catch (AccessDeniedException ex) {
             log.warn("[CONTROLLER] Access denied deleting review {}", id);
             return ResponseEntity
                     .status(HttpStatus.FORBIDDEN)
-                    .body("You are not allowed to delete this review");
+                    .body(null);
 
         } catch (Exception ex) {
             log.error("[CONTROLLER] Error deleting review {}", id, ex);
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Failed to delete review");
+                    .body(null);
         }
     }
 }
