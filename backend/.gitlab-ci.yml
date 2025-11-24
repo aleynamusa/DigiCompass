@@ -18,7 +18,7 @@ unit-tests:
   script:
     - echo "Running tests with Mockito..."
     - cd backend
-    - ./gradlew clean test --no-daemon
+    - ./gradlew test --no-daemon
   artifacts:
     when: always
     reports:
@@ -45,6 +45,7 @@ sonarqube-analysis:
   image: gradle:8.3-jdk24
   needs:
     - unit-tests
+    - integration-tests
   script:
     - echo "Running SonarQube analysis..."
     - cd backend
