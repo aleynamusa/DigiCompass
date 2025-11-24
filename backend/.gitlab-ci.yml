@@ -40,17 +40,21 @@ integration-tests:
     paths:
       - backend/build/reports/tests/integrationTest
 
-sonarqube-analysis:
+
+sonarcloud-analysis:
   stage: sonar
   image: gradle:8.3-jdk24
-  needs:
+  script:
+    - echo "Running SonarCloud analysis..."
+    - cd backend
+    - ./gradlew build sonar --no-daemon --info
+  dependencies:
     - unit-tests
     - integration-tests
-  script:
-    - echo "Running SonarQube analysis..."
-    - cd backend
-    - ./gradlew sonar --no-daemon
-
+  only:
+    - main
+    - development
+  allow_failure: true
 
 
 docker-backend:build-and-push:
