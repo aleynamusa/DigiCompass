@@ -230,7 +230,6 @@ class ReviewServiceImplTest {
         verifyNoInteractions(reviewMapperMock, s3ServiceMock);
     }
 
-
 //    @Test
 //    void updateReview_KeepsSpecifiedExistingImages() throws Exception {
 //        Review review = new Review();
