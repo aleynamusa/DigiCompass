@@ -2,15 +2,15 @@ stages:
   - build
   - test
   - sonar
-  - deploy
+  # - deploy
 
-# backend:build:
-#   stage: build
-#   image: gradle:8.3-jdk24
-#   script:
-#     - echo "Building Spring Boot backend..."
-#     - cd backend
-#     - ./gradlew.bat clean bootJar --no-daemon
+backend:build:
+  stage: build
+  image: gradle:8.3-jdk24
+  script:
+    - echo "Building Spring Boot backend..."
+    - cd backend
+    - ./gradlew.bat clean bootJar --no-daemon
 
 unit-tests:
   stage: test
