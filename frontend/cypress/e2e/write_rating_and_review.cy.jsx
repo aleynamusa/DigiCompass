@@ -9,7 +9,7 @@ describe("Rating and Review Flow", () => {
         cy.get('input[name="password"]').type("Tetradka1011@");
         cy.get('button[type="submit"]').click();
 
-        cy.contains('Route Discovery').click();
+        cy.visit(`${frontendUrl}/routeDiscovery`);
     });
 
     it("should write review", () => {
