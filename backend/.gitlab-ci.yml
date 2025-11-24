@@ -12,43 +12,43 @@ stages:
 #     - cd backend
 #     - ./gradlew.bat clean bootJar --no-daemon
 
-# unit-tests:
-#   stage: test
-#   image: gradle:8.3-jdk24
-#   script:
-#     - echo "Running tests with Mockito..."
-#     - cd backend
-#     - ./gradlew clean test --no-daemon
-#   artifacts:
-#     when: always
-#     reports:
-#       junit: backend/build/test-results/test/TEST-*.xml
-#     paths:
-#       - backend/build/reports/tests/test
+unit-tests:
+  stage: test
+  image: gradle:8.3-jdk24
+  script:
+    - echo "Running tests with Mockito..."
+    - cd backend
+    - ./gradlew clean test --no-daemon
+  artifacts:
+    when: always
+    reports:
+      junit: backend/build/test-results/test/TEST-*.xml
+    paths:
+      - backend/build/reports/tests/test
 
-# integration-tests:
-#   stage: test
-#   image: gradle:8.3-jdk24
-#   script:
-#     - echo "Running Integration tests..."
-#     - cd backend
-#     - ./gradlew integrationTest --no-daemon
-#   artifacts:
-#     when: always
-#     reports:
-#       junit: backend/build/test-results/integrationTest/TEST-*.xml
-#     paths:
-#       - backend/build/reports/tests/integrationTest
+integration-tests:
+  stage: test
+  image: gradle:8.3-jdk24
+  script:
+    - echo "Running Integration tests..."
+    - cd backend
+    - ./gradlew integrationTest --no-daemon
+  artifacts:
+    when: always
+    reports:
+      junit: backend/build/test-results/integrationTest/TEST-*.xml
+    paths:
+      - backend/build/reports/tests/integrationTest
 
 sonarqube-analysis:
   stage: sonar
   image: gradle:8.3-jdk24
   needs:
     - unit-tests
+    - integration-test
   script:
     - echo "Running SonarQube analysis..."
     - cd backend
-    - ./gradlew clean build test jacocoTestReport
     - ./gradlew sonarqube -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.login=${SONAR_TOKEN} -Dsonar.projectKey=${SONAR_PROJECT_KEY} -Dsonar.organization=${SONAR_ORG} --no-daemon
 
 
