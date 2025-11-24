@@ -52,6 +52,20 @@ sonarqube-analysis:
     - ./gradlew sonar --no-daemon
 
 
+sonarcloud-analysis:
+  stage: sonar
+  image: gradle:8.3-jdk24
+  script:
+    - echo "Running SonarCloud analysis..."
+    - cd backend
+    - ./gradlew build sonar --no-daemon --info
+  dependencies:
+    - unit-tests
+    - integration-tests
+  only:
+    - main
+    - development
+  allow_failure: true
 
 docker-backend:build-and-push:
   stage: deploy
