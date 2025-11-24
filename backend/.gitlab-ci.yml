@@ -2,7 +2,7 @@ stages:
   - build
   - test
   - sonar
-  # - deploy
+  - deploy
 
 backend:build:
   stage: build
@@ -53,25 +53,25 @@ sonarqube-analysis:
 
 
 
-# docker-backend:build-and-push:
-#   stage: deploy
-#   image: docker:26.1.3
-#   services:
-#     - docker:dind
-#   variables:
-#     DOCKER_TLS_CERTDIR: ""
-#   before_script:
-#     - echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-#   script:
-#     - echo "Building Docker backend image..."
+docker-backend:build-and-push:
+  stage: deploy
+  image: docker:26.1.3
+  services:
+    - docker:dind
+  variables:
+    DOCKER_TLS_CERTDIR: ""
+  before_script:
+    - echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+  script:
+    - echo "Building Docker backend image..."
 
-#     - docker build -t $DOCKERHUB_USERNAME/digicompass-backend:latest -t $DOCKERHUB_USERNAME/digicompass-backend:$CI_COMMIT_SHORT_SHA backend
+    - docker build -t $DOCKERHUB_USERNAME/digicompass-backend:latest -t $DOCKERHUB_USERNAME/digicompass-backend:$CI_COMMIT_SHORT_SHA backend
 
 
-#     - echo "Pushing backend image to Docker Hub..."
+    - echo "Pushing backend image to Docker Hub..."
 
-#     - docker push $DOCKERHUB_USERNAME/digicompass-backend:latest
-#     - docker push $DOCKERHUB_USERNAME/digicompass-backend:$CI_COMMIT_SHORT_SHA
+    - docker push $DOCKERHUB_USERNAME/digicompass-backend:latest
+    - docker push $DOCKERHUB_USERNAME/digicompass-backend:$CI_COMMIT_SHORT_SHA
 
-#   only:
-#     - main
+  only:
+    - main
