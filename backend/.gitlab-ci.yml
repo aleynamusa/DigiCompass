@@ -48,7 +48,6 @@ sonarqube-analysis:
   script:
     - echo "Running SonarQube analysis..."
     - cd backend
-    - ./gradlew clean build test jacocoTestReport
     - ./gradlew sonarqube -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN -Dsonar.projectKey=$SONAR_PROJECT_KEY -Dsonar.organization=$SONAR_ORG --no-daemon
 
 
