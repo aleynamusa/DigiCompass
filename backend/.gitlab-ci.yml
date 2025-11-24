@@ -45,11 +45,10 @@ sonarqube-analysis:
   image: gradle:8.3-jdk24
   needs:
     - unit-tests
-    - integration-test
   script:
     - echo "Running SonarQube analysis..."
     - cd backend
-    - ./gradlew sonarqube -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.login=${SONAR_TOKEN} -Dsonar.projectKey=${SONAR_PROJECT_KEY} -Dsonar.organization=${SONAR_ORG} --no-daemon
+    - ./gradlew sonarqube -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN -Dsonar.projectKey=$SONAR_PROJECT_KEY -Dsonar.organization=$SONAR_ORG --no-daemon
 
 
 
