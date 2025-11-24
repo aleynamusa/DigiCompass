@@ -69,13 +69,12 @@ public class RouteController {
     }
 
     @GetMapping("/filter")
-    public ResponseEntity<List<RouteDto>> getAllRoutes(@RequestParam(required = false) String type,
+    public ResponseEntity<List<Route>> getAllRoutes(@RequestParam(required = false) String type,
                                                        @RequestParam(required = false) String difficulty,
                                                        @RequestParam(required = false) Float distance) {
         try {
-            List<RouteDto> routes = routeMapper.toControllerRoute(
-                    routeService.getFilteredRoutes(type, difficulty, distance)
-            );
+            List<Route> routes =
+                    routeService.getFilteredRoutes(type, difficulty, distance);
             log.info("Filtered routes: {}", routes.size());
             return ResponseEntity.ok(routes);
         } catch (Exception e) {

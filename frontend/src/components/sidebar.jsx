@@ -26,6 +26,8 @@ import { useNavigate } from "react-router-dom";
 import {useAuth} from "@/context/AuthContext.jsx";
 
 export function Sidebar({ activeTab, setActiveTab, isMobileMenuOpen = false, closeMobileMenu }) {
+
+
     const navItems = [
         { id: "dashboard", label: "Dashboard", icon: HomeIcon, path: "/" },
         { id: "routes", label: "Route Discovery", icon: MapIcon, path: "/routeDiscovery" },
@@ -41,7 +43,10 @@ export function Sidebar({ activeTab, setActiveTab, isMobileMenuOpen = false, clo
     const navigateLogIn = () => {
         navigate("/LogIn");
     };
-
+    console.log("🔍 Sidebar Debug:");
+    console.log("  isAuthenticated:", isAuthenticated);
+    console.log("  user:", user);
+    console.log("  typeof isAuthenticated:", typeof isAuthenticated);
 
     const handleNavClick = (item) => {
         setActiveTab(item.id);
@@ -70,7 +75,6 @@ export function Sidebar({ activeTab, setActiveTab, isMobileMenuOpen = false, clo
                         DigiCompass
                     </h1>
                 </div>
-                {/* Close button for mobile */}
                 {closeMobileMenu && (
                     <Button
                         variant="ghost"
@@ -112,18 +116,28 @@ export function Sidebar({ activeTab, setActiveTab, isMobileMenuOpen = false, clo
                 {isAuthenticated ? (
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="w-full justify-start gap-3 p-2">
+                            <Button
+                                variant="ghost"
+                                className="w-full justify-start gap-3 p-2 hover:bg-sidebar-accent"
+                            >
                                 <Avatar className="h-8 w-8">
                                     <AvatarFallback className="bg-primary text-primary-foreground">
                                         {user?.username?.charAt(0)?.toUpperCase() || "?"}
                                     </AvatarFallback>
                                 </Avatar>
                                 <div className="flex-1 text-left">
-                                    <p className="text-sm font-medium text-sidebar-foreground">{user.username}</p>
+                                    <p className="text-sm font-medium text-sidebar-foreground">
+                                        {user?.username}
+                                    </p>
                                 </div>
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-56">
+                        <DropdownMenuContent
+                            align="end"
+                            className="w-56 z-[100]"
+                            side="right"
+                            sideOffset={5}
+                        >
                             <DropdownMenuItem onClick={() => {
                                 navigate("/profile");
                                 if (closeMobileMenu) closeMobileMenu();

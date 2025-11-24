@@ -51,7 +51,6 @@ class ReviewServiceImplTest {
     @Mock
     private MultipartFile emptyFile;
 
-    @Spy
     @InjectMocks
     ReviewServiceImpl reviewServiceMock;
 
