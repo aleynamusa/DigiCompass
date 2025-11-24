@@ -1,6 +1,7 @@
 stages:
   - build
   - test
+  - sonar
   - deploy
 
 backend:build:
@@ -17,7 +18,7 @@ unit-tests:
   script:
     - echo "Running tests with Mockito..."
     - cd backend
-    - ./gradlew clean test --no-daemon
+    - ./gradlew test --no-daemon
   artifacts:
     when: always
     reports:
@@ -39,6 +40,21 @@ integration-tests:
     paths:
       - backend/build/reports/tests/integrationTest
 
+
+sonarcloud-analysis:
+  stage: sonar
+  image: gradle:8.3-jdk24
+  script:
+    - echo "Running SonarCloud analysis..."
+    - cd backend
+    - ./gradlew build sonar --no-daemon --info
+  dependencies:
+    - unit-tests
+    - integration-tests
+  only:
+    - main
+    - development
+  allow_failure: true
 
 
 docker-backend:build-and-push:
