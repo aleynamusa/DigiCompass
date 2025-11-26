@@ -44,11 +44,12 @@ sonarcloud-analysis:
   stage: sonar
   image: gradle:8.3-jdk24
   variables:
-    GIT_STRATEGY: fetch
-    GIT_CHECKOUT: "true"
-    GIT_SUBMODULE_STRATEGY: recursive
-    GIT_DEPTH: 0
+    GIT_STRATEGY: none
   script:
+    - echo "Manually cloning Git repository..."
+    - git clone $CI_REPOSITORY_URL --branch $CI_COMMIT_REF_NAME --single-branch .
+    - git fetch --unshallow || true
+
     - echo "Running SonarCloud analysis..."
     - cd backend
     - ./gradlew test integrationTest jacocoTestReport
