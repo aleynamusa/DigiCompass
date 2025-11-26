@@ -40,7 +40,6 @@ integration-tests:
     paths:
       - backend/build/reports/tests/integrationTest
 
-
 sonarcloud-analysis:
   stage: sonar
   image: gradle:8.3-jdk24
