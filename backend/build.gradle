@@ -133,17 +133,19 @@ dependencies {
 //        property "sonar.java.binaries", "build/classes/java/main"
 //    }
 //}
-
 sonar {
     properties {
-        property "sonar.projectKey", "SonarDemoDigiCompass"
-        property "sonar.host.url", "http://localhost:9000"
-        property "sonar.token", "sqp_baace911f77ec2bb8eebca7ddeff86c1508c228c"
+        property "sonar.projectKey", "aleynamusa_digicompass"
+        property "sonar.organization", "aleynamusa"
+        property "sonar.host.url", "https://sonarcloud.io"
 
         property "sonar.sources", "src/main/java"
-
         property "sonar.tests", "src/test/java"
         property "sonar.java.binaries", "build/classes/java/main"
+
+        property "sonar.branch.name", System.getenv("CI_COMMIT_BRANCH")
+        property "sonar.branch.target", "main"
+
         property "sonar.coverage.jacoco.xmlReportPaths", "build/reports/jacoco/test/jacocoTestReport.xml"
     }
 }
