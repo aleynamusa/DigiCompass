@@ -44,17 +44,34 @@ integration-tests:
 sonarcloud-analysis:
   stage: sonar
   image: gradle:8.3-jdk24
+  variables:
+    GIT_STRATEGY: clone   # restore default behavior
+    GIT_DEPTH: 0          # full clone
   script:
+    - echo "Fixing Git metadata for SonarCloud..."
+
+    # If .git exists, remove it (PowerShell syntax)
+    - if (Test-Path ".git") { Remove-Item -Recurse -Force ".git" }
+
+    # Manual clone into a temp folder
+    - git clone $CI_REPOSITORY_URL --branch $CI_COMMIT_REF_NAME --single-branch temp_repo
+
+    # Move .git folder from the temp clone into the working directory
+    - Move-Item -Force -Path "temp_repo/.git" -Destination ".git"
+
+    # Cleanup temp folder
+    - Remove-Item -Recurse -Force "temp_repo"
+
     - echo "Running SonarCloud analysis..."
     - cd backend
-    - ./gradlew build sonar --no-daemon --info
-  dependencies:
-    - unit-tests
-    - integration-tests
+    - ./gradlew test integrationTest jacocoTestReport
+    - ./gradlew sonar
+
   only:
     - main
     - development
   allow_failure: true
+
 
 docker-backend:build-and-push:
   stage: deploy
