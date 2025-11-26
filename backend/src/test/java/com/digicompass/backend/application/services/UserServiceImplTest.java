@@ -45,7 +45,7 @@ class UserServiceImplTest {
                 "test@mail.com",
                 LocalDate.of(2000, 1, 1),
                 "passWord56@",
-                1L
+                1L, null
         );
 
         userEntity = new UserEntity(
@@ -54,7 +54,7 @@ class UserServiceImplTest {
                 "test@mail.com",
                 LocalDate.of(2000, 1, 1),
                 "passWord56@",
-                new RoleEntity(1L, "ADMIN")
+                new RoleEntity(1L, "ADMIN"), null
         );
     }
 

@@ -1,12 +1,19 @@
 package com.digicompass.backend.application.services;
 
+import com.digicompass.backend.application.interfaces.S3Service;
 import com.digicompass.backend.application.mapper.UserMapper;
+import com.digicompass.backend.application.models.Review;
 import com.digicompass.backend.application.models.User;
 import com.digicompass.backend.application.interfaces.UserService;
+import com.digicompass.backend.repository.entity.ReviewEntity;
+import com.digicompass.backend.repository.entity.ReviewImageEntity;
 import com.digicompass.backend.repository.repositories.UserJpaRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,9 +25,12 @@ public class UserServiceImpl implements UserService {
 
     private final UserMapper userMapper;
 
-    public UserServiceImpl(UserJpaRepository userRepository, UserMapper userMapper) {
+    private final S3Service s3Service;
+
+    public UserServiceImpl(UserJpaRepository userRepository, UserMapper userMapper, S3Service s3Service) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
+        this.s3Service = s3Service;
     }
 
 
@@ -94,6 +104,47 @@ public class UserServiceImpl implements UserService {
             log.warn("[SERVICE] Unexpected error: {}", e.getMessage());
             throw e;
         }
+    }
+
+    @Override
+    public void uploadProfilePicture(User user, MultipartFile image) throws IOException {
+        String fileName = uploadImages(user.getId(), image);
+
+        try {
+
+
+            userMapper.toEntity(user).setImageUrl(fileName);
+
+            User saved = userMapper.toDomain(userRepository.save(userMapper.toEntity(user)));
+
+        }catch (NullPointerException e) {
+            log.warn("[Service] Validation error uploading profile photo: {}", e.getMessage());
+            throw new NullPointerException(e.getMessage());
+        }
+        catch (Exception e) {
+            rollbackS3Uploads(fileName);
+            throw new RuntimeException("Failed to create review", e);
+        }
+    }
+
+    protected String uploadImages(Long userId, MultipartFile image) throws IOException {
+        String key = "";
+
+                if (image != null && !image.isEmpty()) {
+                    key = s3Service.uploadImage("users/" + userId, image);
+                }
+
+        return key;
+    }
+
+    protected void rollbackS3Uploads(String key) {
+
+            try {
+                s3Service.deleteImage(key);
+            } catch (Exception ex) {
+                log.warn("Failed to delete S3 image during rollback: {}", key, ex);
+            }
+
     }
 
 }
