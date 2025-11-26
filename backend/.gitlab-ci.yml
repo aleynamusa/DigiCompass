@@ -47,7 +47,7 @@ sonarcloud-analysis:
     - echo "Running SonarCloud analysis..."
     - cd backend
     - ./gradlew test integrationTest jacocoTestReport
-    - ./gradlew sonar --no-daemon
+    - ./gradlew sonar
   only:
     - main
     - development
