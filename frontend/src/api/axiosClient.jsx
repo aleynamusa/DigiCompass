@@ -6,7 +6,6 @@ const axiosClient = axios.create({
     headers: { "Content-Type": "application/json" },
 });
 
-// Add request interceptor to include JWT token
 axiosClient.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem("accessToken") || sessionStorage.getItem("accessToken");
@@ -16,8 +15,9 @@ axiosClient.interceptors.request.use(
         return config;
     },
     (error) => {
-        return Promise.reject(error);
+        return Promise.reject(error);//placeholder for future data pending, fulfilled, rejected: helps avoid callback
     }
 );
+
 
 export default axiosClient;

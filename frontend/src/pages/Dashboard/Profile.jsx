@@ -15,7 +15,7 @@ import {
     Button,
     Tabs,
 } from "@mantine/core";
-import { User, Mail, Calendar, AlertCircle, ArrowLeft, Settings, Heart, Share2, MapPin } from "lucide-react";
+import { AlertCircle, ArrowLeft, Settings, Heart, Share2, MapPin } from "lucide-react";
 import dayjs from "dayjs";
 
 const Profile = () => {
@@ -26,7 +26,6 @@ const Profile = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // Determine which user's profile to show
     const targetUserId = userId ? parseInt(userId) : user?.id;
     const isOwnProfile = user?.id === targetUserId;
 
@@ -42,23 +41,28 @@ const Profile = () => {
                 const response = await getUserProfile(targetUserId);
                 setProfileData(response.data);
                 setError(null);
-            } catch (err) {
-                // If endpoint doesn't exist or fails, use available data
-                console.warn("Could not fetch full profile:", err);
-                setError("Full profile data unavailable");
-                
-                // If viewing own profile, use JWT data
-                if (isOwnProfile && user) {
-                    setProfileData({
-                        id: user.id,
-                        username: user.username,
-                        email: null,
-                        birthDate: null,
-                    });
-                } else {
-                    // For other users, we can't get data from JWT
+
+                console.log(response);
+                // } catch (err) {
+                //     console.warn("Could not fetch full profile:", err);
+                //     setError("Full profile data unavailable");
+                //
+                //     if (isOwnProfile && user) {
+                //         setProfileData({
+                //             id: user.id,
+                //             username: user.username,
+                //             email: profileData.email,
+                //             birthDate: profileData.birthDate,
+                //         });
+                //     } else {
+                //         setProfileData(null);
+                //     }
+            }catch (err) {
+                    console.warn("Could not fetch full profile:", err);
+                    setError("Could not load profile");
                     setProfileData(null);
-                }
+
+
             } finally {
                 setLoading(false);
             }
@@ -95,16 +99,12 @@ const Profile = () => {
         );
     }
 
-    const displayData = profileData || (isOwnProfile && user ? {
-        id: user.id,
-        username: user.username,
-        email: null,
-        birthDate: null,
-    } : null);
+    const displayData = profileData;
 
     if (!loading && !displayData) {
         return (
-            <div className="w-full p-6">
+            <div className="min-h-screen p-6 w-[calc(100vw-var(--sidebar-width))] text-left"
+            >
                 <Stack gap="md">
                     <Button
                         variant="subtle"
@@ -133,8 +133,9 @@ const Profile = () => {
     };
 
     return (
-        <div className="w-full min-h-screen p-6">
-            {error && (
+        <div className="min-h-screen p-6 w-[calc(100vw-var(--sidebar-width))] text-left">
+
+        {error && (
                 <Alert
                     icon={<AlertCircle size="1rem" />}
                     title="Limited Profile Data"
@@ -145,19 +146,10 @@ const Profile = () => {
                 </Alert>
             )}
 
-            <Stack gap="xl">
-                {/* Header Section */}
+            <Stack>
+
                 <div className="flex items-start justify-between">
-                    <Group gap="lg">
-                        {!isOwnProfile && (
-                            <Button
-                                variant="subtle"
-                                leftSection={<ArrowLeft size={16} />}
-                                onClick={() => navigate(-1)}
-                            >
-                                Back
-                            </Button>
-                        )}
+                    <Group>
                         <Avatar
                             size={120}
                             radius="xl"
@@ -189,7 +181,7 @@ const Profile = () => {
                             variant="light"
                             leftSection={<Settings size={16} />}
                             onClick={() => {
-                                // TODO: Navigate to profile settings/edit page
+                                // TODO: Navigate to profile settings page
                                 console.log("Edit profile");
                             }}
                         >
@@ -200,24 +192,19 @@ const Profile = () => {
 
                 <Divider />
 
-                {/* Profile Information Section */}
                 <div>
-                    <Title style={{ color: "#3C5862" }} order={2} mb="md">
+                    <Title style={{ color: "#3C5862" }} className="text-center" order={2} mb="md">
                         Profile Information
                     </Title>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div>
-                            <Text size="sm" c="dimmed" mb={4}>
-                                Username
-                            </Text>
-                            <Text c="dimmed" size="md" fw={500}>
-                                {displayData.username || "Not available"}
-                            </Text>
-                        </div>
 
-                        {/* Only show email for own profile */}
+                    <div
+                        className={`
+            grid gap-6 place-items-center
+            ${isOwnProfile ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1"}
+        `}
+                    >
                         {isOwnProfile && (
-                            <div>
+                            <div className="text-center">
                                 <Text size="sm" c="dimmed" mb={4}>
                                     Email
                                 </Text>
@@ -227,8 +214,9 @@ const Profile = () => {
                             </div>
                         )}
 
-                        <div>
-                            <Text c="dimmed" size="sm" c="dimmed" mb={4}>
+
+                        <div className="text-center">
+                            <Text  size="sm" c="dimmed" mb={4}>
                                 Birth Date
                             </Text>
                             <Text c="dimmed" size="md" fw={500}>
@@ -240,7 +228,6 @@ const Profile = () => {
 
                 <Divider />
 
-                {/* Routes Sections */}
                 <div>
                     <Tabs defaultValue="shared" variant="pills">
                         <Tabs.List>

@@ -163,7 +163,6 @@ const RouteDiscovery = () => {
     return (
         <div className="w-full min-h-screen">
             <div className="w-full p-3 md:p-6">
-                {/* Header Section */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                     <div className="flex-1">
                         <h1 style={{color: "#3C5862"}} className="text-2xl md:text-3xl font-bold mb-2 text-left">

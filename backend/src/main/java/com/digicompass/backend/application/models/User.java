@@ -18,7 +18,6 @@ public class User {
     private String password;
     private Long roleId;
 
-    private String imageUrl;
 
     public int CalculateAge(){
         Period period = Period.between(birthDate, LocalDate.now());
