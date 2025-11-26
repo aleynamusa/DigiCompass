@@ -50,6 +50,7 @@ sonarcloud-analysis:
     GIT_DEPTH: 0          # full clone
   script:
     - echo "Fixing Git metadata for SonarCloud..."
+    - echo "Has token? ${#SONAR_TOKEN}"
 
     # If .git exists, remove it (PowerShell syntax)
     - if (Test-Path ".git") { Remove-Item -Recurse -Force ".git" }
