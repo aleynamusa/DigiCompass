@@ -1,6 +1,6 @@
 package com.digicompass.backend.controller;
 
-import com.digicompass.backend.BackendApplication;
+
 import com.digicompass.backend.controller.dto.RatingDto;
 import com.digicompass.backend.controller.dto.UserDto;
 import com.digicompass.backend.repository.entity.RouteEntity;
@@ -10,7 +10,6 @@ import com.digicompass.backend.repository.repositories.UserJpaRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -36,6 +35,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 )
 @AutoConfigureMockMvc
 @Testcontainers
+@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 public class RatingControllerIntegrationTest {
 
     private static final DockerImageName POSTGIS_IMAGE = DockerImageName

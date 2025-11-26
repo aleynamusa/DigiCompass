@@ -1,7 +1,6 @@
-package com.digicompass.backend.controller;
+package com.digicompass.backend.integration;
 
-import com.digicompass.backend.BackendApplication;
-import com.digicompass.backend.controller.dto.UserDto;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

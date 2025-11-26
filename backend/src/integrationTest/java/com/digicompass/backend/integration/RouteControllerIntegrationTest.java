@@ -1,10 +1,6 @@
 package com.digicompass.backend.integration;
 
 import com.digicompass.backend.application.interfaces.RouteService;
-import com.digicompass.backend.application.mapper.RouteMapper;
-import com.digicompass.backend.application.models.Route;
-import com.digicompass.backend.controller.dto.RouteDto;
-import com.digicompass.backend.controller.mapper.RouteMapperController;
 import com.digicompass.backend.repository.entity.RouteEntity;
 import com.digicompass.backend.repository.entity.UserEntity;
 import com.digicompass.backend.repository.repositories.RouteJpaRepository;
@@ -14,14 +10,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -29,10 +21,8 @@ import org.testcontainers.utility.DockerImageName;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -69,9 +59,6 @@ public class RouteControllerIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
-
-    @Autowired
-    private RouteService routeService; // real bean
 
 
     @Autowired

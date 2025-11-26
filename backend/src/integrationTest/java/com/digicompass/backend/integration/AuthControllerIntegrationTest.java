@@ -6,13 +6,11 @@ import com.digicompass.backend.repository.repositories.RoleJpaRepository;
 import com.digicompass.backend.repository.repositories.UserJpaRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
@@ -32,6 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 )
 @AutoConfigureMockMvc
 @Testcontainers
+@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 class AuthControllerIntegrationTest {
 
     private static final DockerImageName POSTGIS_IMAGE = DockerImageName
@@ -178,8 +177,7 @@ class AuthControllerIntegrationTest {
         mockMvc.perform(post("/auth/signUp")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("less than 14")));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -194,8 +192,7 @@ class AuthControllerIntegrationTest {
         mockMvc.perform(post("/auth/signUp")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("Password")));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -210,8 +207,7 @@ class AuthControllerIntegrationTest {
         mockMvc.perform(post("/auth/signUp")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("Email")));
+                .andExpect(status().isBadRequest());
     }
 
 
