@@ -54,8 +54,6 @@ public class RatingControllerIntegrationTest {
         registry.add("spring.datasource.username", postgres::getUsername);
         registry.add("spring.datasource.password", postgres::getPassword);
 
-        // Allow Hibernate to create schema
-        registry.add("spring.jpa.hibernate.ddl-auto", () -> "update");
 
         // For debugging
         registry.add("spring.jpa.show-sql", () -> "true");

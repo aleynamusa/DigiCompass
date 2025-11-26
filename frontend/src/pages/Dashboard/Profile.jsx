@@ -182,6 +182,7 @@ const Profile = () => {
                             leftSection={<Settings size={16} />}
                             onClick={() => {
                                 // TODO: Navigate to profile settings page
+                                navigate("/editProfile")
                                 console.log("Edit profile");
                             }}
                         >

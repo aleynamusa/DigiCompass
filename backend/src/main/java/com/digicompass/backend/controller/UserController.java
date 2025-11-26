@@ -43,8 +43,9 @@ UserController {
         catch (Exception e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
-
     }
+
+    @PostMapping("/photo")
 
 //    @GetMapping
 //    public ResponseEntity<List<UserResponseDto>> getAllUsers() {
