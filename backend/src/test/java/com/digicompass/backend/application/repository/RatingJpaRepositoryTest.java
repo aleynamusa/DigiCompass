@@ -1,6 +1,7 @@
 //package com.digicompass.backend.application.repository;
 //
 //import com.digicompass.backend.repository.entity.RatingEntity;
+//import com.digicompass.backend.repository.entity.RoleEntity;
 //import com.digicompass.backend.repository.entity.RouteEntity;
 //import com.digicompass.backend.repository.entity.UserEntity;
 //import com.digicompass.backend.repository.repositories.RatingJpaRepository;
@@ -13,6 +14,7 @@
 //import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 //import org.springframework.test.context.junit.jupiter.SpringExtension;
 //
+//import java.time.LocalDate;
 //import java.time.LocalDateTime;
 //
 //@ExtendWith(SpringExtension.class)
@@ -50,10 +52,37 @@
 //
 //    }
 //
+//    public class UserEntity {
+//        @Id
+//        @GeneratedValue(strategy = GenerationType.IDENTITY)
+//        private Long id;
+//
+//        @Column(nullable=false, unique=true)
+//        private String username;
+//
+//        @Column(nullable=false, unique=true)
+//        private String email;
+//
+//        @Column(nullable=false)
+//        private LocalDate birthDate;
+//
+//        @Column(nullable=false)
+//        private String password;
+//
+//        @ManyToOne(fetch = FetchType.LAZY)
+//        @JoinColumn(name = "role_id")
+//        private RoleEntity role;
+//
+//        @Column()
+//        private String imageUrl;
+//    }
+//
 //    @Test
 //    void save_shouldSaveRatingWithAllFields() {
-//        CountryEntity brazil = saveCountry("Brazil", "BR");
-//        RatingEntity student = new RatingEntity()
+//
+//        RoleEntity role = saveRole("User");
+//        UserEntity user = saveUser("test", "test@gmail.com", LocalDate.of(2005, 5, 5), "testPass123@", role, "image1");
+//        RatingEntity student = new RatingEntity(0.5d)
 //        StudentEntity savedStudent = studentRepository.save(student);
 //        assertNotNull(savedStudent.getId());
 //        savedStudent = entityManager.find(StudentEntity.class,
