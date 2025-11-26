@@ -43,6 +43,8 @@ stages:
 sonarcloud-analysis:
   stage: sonar
   image: gradle:8.3-jdk24
+  variables:
+    GIT_DEPTH: 0
   script:
     - echo "Running SonarCloud analysis..."
     - cd backend
