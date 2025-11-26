@@ -43,16 +43,14 @@ integration-tests:
 sonarcloud-analysis:
   stage: sonar
   image: gradle:8.3-jdk24
-  needs:
-    - unit-tests
-    - integration-tests
-
+#  needs:
+#    - unit-tests
+#    - integration-tests
   script:
     - echo "Running SonarCloud analysis..."
     - cd backend
+    - ./gradlew test integrationTest jacocoTestReport
     - ./gradlew sonar --no-daemon
-
-    - ./gradlew build sonar --no-daemon --info
 #  dependencies:
 #    - unit-tests
 #    - integration-tests
