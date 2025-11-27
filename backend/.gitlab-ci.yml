@@ -41,16 +41,15 @@ stages:
 #      - backend/build/reports/tests/integrationTest
 
 sonarcloud-analysis:
-  stage: sonar
-  image: gradle:8.3-jdk24
+  # ... other configuration ...
   variables:
-    SONAR_USER_HOME: "master/.sonar"
+    # Use a short, absolute path on the C: drive for stability on Windows Shell Executor
+    SONAR_USER_HOME: "C:/sonar_cache"
     GIT_DEPTH: "0"
   script:
     - echo "Running SonarCloud analysis..."
     - cd backend
     - ./gradlew test integrationTest jacocoTestReport --no-daemon
-#    - ./gradlew sonar -Psonar.token=$SONAR_TOKEN --no-daemon
     - ./gradlew sonar "-Psonar.token=$env:SONAR_TOKEN" --no-daemon
   only:
     - main
