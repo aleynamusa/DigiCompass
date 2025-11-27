@@ -22,10 +22,7 @@ sourceSets {
         compileClasspath += sourceSets.main.output + configurations.testRuntimeClasspath
         runtimeClasspath += output + compileClasspath
     }
-
-
 }
-
 
 
 
@@ -82,8 +79,6 @@ dependencies {
     testImplementation 'org.testcontainers:postgresql:1.20.3'
     testImplementation 'com.h2database:h2'
 
-
-
     //database
     implementation 'org.postgresql:postgresql:42.7.8'
     implementation 'org.locationtech.jts:jts-core:1.20.0'
@@ -96,12 +91,9 @@ dependencies {
     implementation 'org.locationtech.jts.io:jts-io-common:1.20.0'
     implementation 'org.hibernate.validator:hibernate-validator:8.0.1.Final'
 
-
-
     //mapper
     implementation 'org.mapstruct:mapstruct:1.5.5.Final'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
-
 
     implementation 'org.flywaydb:flyway-core:11.13.2'
     implementation 'org.flywaydb:flyway-database-postgresql:11.13.2'
@@ -123,19 +115,6 @@ dependencies {
 //    implementation 'org.owasp:dependency-check-maven:12.1.9'
 }
 
-
-
-//sonar{
-//    properties{
-//        property "sonar.projectKey", "SonarDemoDigiCompass"
-//        property "sonar.host.url", "http://localhost:9000"
-//        property "sonar.token", "sqp_baace911f77ec2bb8eebca7ddeff86c1508c228c"
-//        property "sonar.coverage.jacoco.xmlReportPaths", "build/reports/jacoco/test/jacocoTestReport.xml"
-//
-//        property "sonar.tests", "src/test/java"
-//        property "sonar.java.binaries", "build/classes/java/main"
-//    }
-//}
 
 sonar {
     properties {
@@ -165,6 +144,7 @@ configurations {
 //    useJUnitPlatform()
 //}
 
+
 tasks.register("integrationTest", Test) {
     description = "Runs integration tests."
     group = "verification"
@@ -174,6 +154,7 @@ tasks.register("integrationTest", Test) {
     useJUnitPlatform()
     shouldRunAfter(tasks.test)
 }
+
 
 jacocoTestReport {
     dependsOn(tasks.test, tasks.named("integrationTest"))
