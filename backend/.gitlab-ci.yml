@@ -44,7 +44,7 @@ sonarcloud-analysis:
   stage: sonar
   image: gradle:8.3-jdk24
   variables:
-    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"
+    SONAR_USER_HOME: "master/.sonar"
     GIT_DEPTH: "0"
   script:
     - echo "Running SonarCloud analysis..."
