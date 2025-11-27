@@ -115,22 +115,32 @@ class UserServiceImplTest {
 
     @Test
     void testCheckUsernameAvailability_Exists() {
-        when(userRepository.findAllUsernames()).thenReturn(List.of("john", "testUser"));
+        when(userRepository.existsByUsername("testUser")).thenReturn(true);
 
         boolean result = userService.checkUsernameAvailability("testUser");
 
-        assertTrue(result);
-        verify(userRepository).findAllUsernames();
+        assertFalse(result);
+        verify(userRepository).existsByUsername("testUser");
     }
 
     @Test
     void testCheckUsernameAvailability_NotExists() {
-        when(userRepository.findAllUsernames()).thenReturn(List.of("john"));
+        when(userRepository.existsByUsername("missing")).thenReturn(false);
 
         boolean result = userService.checkUsernameAvailability("missing");
 
-        assertFalse(result);
-        verify(userRepository).findAllUsernames();
+        assertTrue(result);
+        verify(userRepository).existsByUsername("missing");
+    }
+
+    @Test
+    void testCheckUsernameAvailability_ThrowsException() {
+        Mockito.when(userRepository.existsByUsername("john"))
+                .thenThrow(new RuntimeException("DB error"));
+
+        assertThrows(RuntimeException.class, () ->
+                userService.checkUsernameAvailability("john")
+        );
     }
 
     @Test
@@ -142,22 +152,22 @@ class UserServiceImplTest {
 
     @Test
     void testCheckEmailAvailability_Exists() {
-        when(userRepository.findAllEmails()).thenReturn(List.of("test@mail.com"));
+        when(userRepository.existsByEmail("test@mail.com")).thenReturn(true);
 
         boolean result = userService.checkEmailAvailability("test@mail.com");
 
-        assertTrue(result);
-        verify(userRepository).findAllEmails();
+        assertFalse(result);
+        verify(userRepository).existsByEmail("test@mail.com");
     }
 
     @Test
     void testCheckEmailAvailability_NotExists() {
-        when(userRepository.findAllEmails()).thenReturn(List.of("no@mail.com"));
+        when(userRepository.existsByEmail("test@mail.com")).thenReturn(false);
 
-        boolean result = userService.checkEmailAvailability("missing@mail.com");
+        boolean result = userService.checkEmailAvailability("test@mail.com");
 
-        assertFalse(result);
-        verify(userRepository).findAllEmails();
+        assertTrue(result);
+        verify(userRepository).existsByEmail("test@mail.com");
     }
 
     @Test
@@ -165,6 +175,16 @@ class UserServiceImplTest {
         assertThrows(IllegalArgumentException.class,
                 () -> userService.checkEmailAvailability(null));
         verify(userRepository, never()).findAllEmails();
+    }
+
+    @Test
+    void testCheckEmailAvailability_ThrowsException() {
+        Mockito.when(userRepository.existsByEmail("test@gmail.com"))
+                .thenThrow(new RuntimeException("DB error"));
+
+        assertThrows(RuntimeException.class, () ->
+                userService.checkEmailAvailability("test@gmail.com")
+        );
     }
 
 }

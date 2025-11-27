@@ -157,8 +157,6 @@ public class ReviewControllerIntegrationTest {
 
     @Test
     void shouldDeleteReview() throws Exception {
-
-        // Create review
         String createResponse = mockMvc.perform(multipart("/review")
                         .file(mockImage)
                         .param("review", "Delete me!")

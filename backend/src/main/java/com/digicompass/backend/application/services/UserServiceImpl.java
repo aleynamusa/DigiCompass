@@ -80,12 +80,13 @@ public class UserServiceImpl implements UserService {
         try{
 
             log.info("[SERVICE] Checking username availability: {}", username);
-            return userRepository.findAllUsernames().contains(username);
+            return !userRepository.existsByUsername(username);
         }
         catch (Exception ex){
             log.warn("[SERVICE] Username not found: {}", username);
             throw ex;
         }
+
 
     }
 
@@ -99,7 +100,7 @@ public class UserServiceImpl implements UserService {
 
         try {
             log.info("[SERVICE] Checking email availability: {}", email);
-            return userRepository.findAllEmails().contains(email);
+            return !userRepository.existsByEmail(email);
         } catch (Exception e){
             log.warn("[SERVICE] Unexpected error: {}", e.getMessage());
             throw e;

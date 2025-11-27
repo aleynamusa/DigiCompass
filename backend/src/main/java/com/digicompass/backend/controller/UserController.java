@@ -45,7 +45,7 @@ UserController {
         }
     }
 
-    @PostMapping("/photo")
+//    @PostMapping("/photo")
 
 //    @GetMapping
 //    public ResponseEntity<List<UserResponseDto>> getAllUsers() {

@@ -142,7 +142,6 @@ public class RatingControllerIntegrationTest {
 
     @Test
     void shouldDeleteRating() throws Exception {
-        // Create rating
         String response = mockMvc.perform(post("/rating")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
@@ -164,7 +163,6 @@ public class RatingControllerIntegrationTest {
 
     @Test
     void shouldUpdateRating() throws Exception {
-        // 1. Create a rating
         RatingDto createDto = new RatingDto();
         createDto.setRating(3.0);
         createDto.setUserId(new UserDto(userId, "testuser"));
@@ -180,7 +178,6 @@ public class RatingControllerIntegrationTest {
 
         Long ratingId = objectMapper.readTree(createResponse).get("id").asLong();
 
-        // 2. Update the rating
         RatingDto updateDto = new RatingDto();
         updateDto.setRating(4.5); // new value
         updateDto.setUserId(new UserDto(userId, "testuser"));

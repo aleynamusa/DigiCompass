@@ -16,4 +16,7 @@ public interface UserJpaRepository extends JpaRepository<UserEntity, Long> {
     List<String> findAllUsernames();
     @Query("SELECT u.email FROM UserEntity u")
     List<String>  findAllEmails();
+
+    boolean existsByEmail(String email);
+    boolean existsByUsername(String username);
 }

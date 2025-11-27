@@ -53,8 +53,6 @@ class AuthControllerIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private UserJpaRepository userRepository;
 
     @Autowired
     private RoleJpaRepository roleRepository;
