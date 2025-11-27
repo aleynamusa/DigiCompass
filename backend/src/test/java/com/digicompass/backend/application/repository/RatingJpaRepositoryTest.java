@@ -30,12 +30,10 @@ public class RatingJpaRepositoryTest {
 
     @Test
     void shouldSaveRatingCorrectly() {
-        // 1. Create Role
         RoleEntity role = new RoleEntity();
         role.setRole("USER");
         entityManager.persist(role);
 
-        // 2. Create User
         UserEntity user = new UserEntity();
         user.setUsername("testuser");
         user.setEmail("email@test.com");
@@ -44,7 +42,6 @@ public class RatingJpaRepositoryTest {
         user.setRole(role);
         entityManager.persist(user);
 
-        // 3. Create Route
         RouteEntity route = new RouteEntity();
         route.setName("Test Route");
         route.setDescription("desc");
@@ -55,7 +52,6 @@ public class RatingJpaRepositoryTest {
         route.setCreatedByUserId(user);
         entityManager.persist(route);
 
-        // 4. Create Rating
         RatingEntity rating = new RatingEntity();
         rating.setRating(4.5);
         rating.setUserId(user);
