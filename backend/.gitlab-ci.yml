@@ -4,41 +4,41 @@ stages:
   - sonar
   - deploy
 
-backend:build:
-  stage: build
-  image: gradle:8.3-jdk24
-  script:
-    - echo "Building Spring Boot backend..."
-    - cd backend
-    - ./gradlew clean bootJar --no-daemon
-
-unit-tests:
-  stage: test
-  image: gradle:8.3-jdk24
-  script:
-    - echo "Running tests with Mockito..."
-    - cd backend
-    - ./gradlew test --no-daemon
-  artifacts:
-    when: always
-    reports:
-      junit: backend/build/test-results/test/TEST-*.xml
-    paths:
-      - backend/build/reports/tests/test
-
-integration-tests:
-  stage: test
-  image: gradle:8.3-jdk24
-  script:
-    - echo "Running Integration tests..."
-    - cd backend
-    - ./gradlew integrationTest --no-daemon
-  artifacts:
-    when: always
-    reports:
-      junit: backend/build/test-results/integrationTest/TEST-*.xml
-    paths:
-      - backend/build/reports/tests/integrationTest
+#backend:build:
+#  stage: build
+#  image: gradle:8.3-jdk24
+#  script:
+#    - echo "Building Spring Boot backend..."
+#    - cd backend
+#    - ./gradlew clean bootJar --no-daemon
+#
+#unit-tests:
+#  stage: test
+#  image: gradle:8.3-jdk24
+#  script:
+#    - echo "Running tests with Mockito..."
+#    - cd backend
+#    - ./gradlew test --no-daemon
+#  artifacts:
+#    when: always
+#    reports:
+#      junit: backend/build/test-results/test/TEST-*.xml
+#    paths:
+#      - backend/build/reports/tests/test
+#
+#integration-tests:
+#  stage: test
+#  image: gradle:8.3-jdk24
+#  script:
+#    - echo "Running Integration tests..."
+#    - cd backend
+#    - ./gradlew integrationTest --no-daemon
+#  artifacts:
+#    when: always
+#    reports:
+#      junit: backend/build/test-results/integrationTest/TEST-*.xml
+#    paths:
+#      - backend/build/reports/tests/integrationTest
 
 sonarcloud-analysis:
   stage: sonar
@@ -55,7 +55,7 @@ sonarcloud-analysis:
     - cd backend
     - ./gradlew test integrationTest jacocoTestReport --no-daemon
 #    - ./gradlew sonar "-Dsonar.token=${SONAR_TOKEN}" --no-daemon
-    - ./gradlew sonarqube -Dsonar.token=${SONAR_TOKEN} --no-daemon
+    - ./gradlew sonarqube "-Dsonar.token"=${SONAR_TOKEN} --no-daemon
   only:
     - main
     - development
