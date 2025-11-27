@@ -50,8 +50,7 @@ sonarcloud-analysis:
     - echo "Running SonarCloud analysis..."
     - cd backend
     - ./gradlew test integrationTest jacocoTestReport --no-daemon
-    # In your .gitlab-ci.yml script:
-    - ./gradlew sonar "-Psonar.token=$env:SONAR_TOKEN -Dsonar.branch.name=aleyna/backend/master" --no-daemon
+    - ./gradlew sonar "-Psonar.token=$env:SONAR_TOKEN" --no-daemon
   only:
     - main
     - development

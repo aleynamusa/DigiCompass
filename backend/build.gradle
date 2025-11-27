@@ -121,6 +121,7 @@ sonar {
         property "sonar.projectKey", "aleynamusa_digicompass"
         property "sonar.organization", "aleynamusa"
         property "sonar.host.url", "https://sonarcloud.io"
+        property "sonar.branch.name", "master"
 
         property "sonar.sources", "src/main/java"
         property "sonar.tests", "src/test/java"
