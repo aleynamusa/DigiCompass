@@ -47,6 +47,7 @@ integration-tests:
       - backend/build/reports/tests/integrationTest
 
 sonarcloud-analysis:
+  stage: sonar
   variables:
     SONAR_USER_HOME: "C:/sonar_cache"
     GIT_DEPTH: "0"
