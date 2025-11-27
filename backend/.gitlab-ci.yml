@@ -54,7 +54,12 @@ sonarcloud-analysis:
     - echo "Running SonarCloud analysis..."
     - cd backend
     - ./gradlew test integrationTest jacocoTestReport --no-daemon
-    - ./gradlew sonar "-Dsonar.token=$SONAR_TOKEN" --no-daemon
+    - ./gradlew sonar '-Dsonar.token=$SONAR_TOKEN' --no-daemon
+#  script:
+#    - echo "Running SonarCloud analysis..."
+#    - cd backend
+#    - ./gradlew test integrationTest jacocoTestReport --no-daemon
+#    - ./gradlew sonar "-Dsonar.token=$SONAR_TOKEN" --no-daemon
 
 
   only:
