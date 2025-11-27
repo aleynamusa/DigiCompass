@@ -32,7 +32,6 @@ public class ResetPasswordControllerCatchIntegrationTest {
     @MockitoBean
     private PasswordResetService passwordResetService;
 
-
     @Test
     void resetPasswordShouldReturnErrorWhenServiceThrows() throws Exception {
         Mockito.doThrow(new RuntimeException("Invalid token"))
