@@ -44,7 +44,7 @@ sonarcloud-analysis:
   stage: sonar
   image: gradle:8.3-jdk24
   variables:
-    SONAR_USER_HOME: master/.sonar"
+    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"
     GIT_DEPTH: "0"
   cache:
     key: "${CI_JOB_NAME}"
@@ -54,7 +54,7 @@ sonarcloud-analysis:
     - echo "Running SonarCloud analysis..."
     - cd backend
     - ./gradlew test integrationTest jacocoTestReport --no-daemon
-    - ./gradlew sonar --no-daemon
+    - ./gradlew sonar -Dsonar.branch.name=master --no-daemon
   only:
     - main
     - development
