@@ -74,7 +74,6 @@ docker-backend:build-and-push:
     - docker build -t $DOCKERHUB_USERNAME/digicompass-backend:latest -t $DOCKERHUB_USERNAME/digicompass-backend:$CI_COMMIT_SHORT_SHA backend
     - echo "Pushing backend image to Docker Hub..."
     - docker push $DOCKERHUB_USERNAME/digicompass-backend:latest
-
     - docker push $DOCKERHUB_USERNAME/digicompass-backend:$CI_COMMIT_SHORT_SHA
   only:
     - main
