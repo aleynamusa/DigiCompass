@@ -5,6 +5,7 @@ import com.digicompass.backend.application.models.Route;
 import com.digicompass.backend.controller.dto.RouteDto;
 import com.digicompass.backend.controller.dto.RouteGeometryDto;
 import com.digicompass.backend.controller.mapper.RouteMapperController;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,11 +15,11 @@ import java.util.logging.Logger;
 
 @RestController
 @RequestMapping("/route")
+@Slf4j
 public class RouteController {
 
     private final RouteService routeService;
     private final RouteMapperController routeMapper;
-    private static final Logger LOGGER = Logger.getLogger( RouteController.class.getName() );
 
 
     public RouteController(RouteService routeService, RouteMapperController userMapper) {
@@ -31,7 +32,7 @@ public class RouteController {
     public ResponseEntity<List<Route>> getRoutes() {
         try {
             List<Route> routes = routeService.getRoutes();
-            LOGGER.info("[CONTROLLER] Fetched routes: " + routes.size());
+            log.info("[CONTROLLER] Fetched routes: {}", routes.size());
             return ResponseEntity.ok(routes);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
@@ -58,27 +59,26 @@ public class RouteController {
             List<RouteDto> routes = routeMapper.toControllerRoute(
                     routeService.searchRoutes(keyword)
             );
-            LOGGER.info("Searched routes: " + routes.size());
+            log.info("Searched routes: {}", routes.size());
             return ResponseEntity.ok(routes);
         }
         catch (Exception e){
-            LOGGER.severe(e.getMessage());
+            log.error(e.getMessage());
             return ResponseEntity.badRequest().build();
         }
     }
 
     @GetMapping("/filter")
-    public ResponseEntity<List<RouteDto>> getAllRoutes(@RequestParam(required = false) String type,
+    public ResponseEntity<List<Route>> getAllRoutes(@RequestParam(required = false) String type,
                                                        @RequestParam(required = false) String difficulty,
                                                        @RequestParam(required = false) Float distance) {
         try {
-            List<RouteDto> routes = routeMapper.toControllerRoute(
-                    routeService.getFilteredRoutes(type, difficulty, distance)
-            );
-            LOGGER.info("Filtered routes: " + routes.size());
+            List<Route> routes =
+                    routeService.getFilteredRoutes(type, difficulty, distance);
+            log.info("Filtered routes: {}", routes.size());
             return ResponseEntity.ok(routes);
         } catch (Exception e) {
-            LOGGER.severe(e.getMessage());
+            log.error(e.getMessage());
             return ResponseEntity.badRequest().build();
         }
     }

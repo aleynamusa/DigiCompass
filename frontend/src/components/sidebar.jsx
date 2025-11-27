@@ -18,14 +18,16 @@ import {
     LogOutIcon,
     HomeIcon,
     CompassIcon,
+    X,
 } from "lucide-react"
 import '/src/index.css';
 import '/src/App.css'
 import { useNavigate } from "react-router-dom";
 import {useAuth} from "@/context/AuthContext.jsx";
 
+export function Sidebar({ activeTab, setActiveTab, isMobileMenuOpen = false, closeMobileMenu }) {
 
-export function Sidebar({ activeTab, setActiveTab}) {
+
     const navItems = [
         { id: "dashboard", label: "Dashboard", icon: HomeIcon, path: "/" },
         { id: "routes", label: "Route Discovery", icon: MapIcon, path: "/routeDiscovery" },
@@ -41,24 +43,48 @@ export function Sidebar({ activeTab, setActiveTab}) {
     const navigateLogIn = () => {
         navigate("/LogIn");
     };
+    console.log("🔍 Sidebar Debug:");
+    console.log("  isAuthenticated:", isAuthenticated);
+    console.log("  user:", user);
+    console.log("  typeof isAuthenticated:", typeof isAuthenticated);
 
+    const handleNavClick = (item) => {
+        setActiveTab(item.id);
+        navigate(item.path);
+        if (closeMobileMenu) {
+            closeMobileMenu();
+        }
+    };
 
     return (
         <div
-            className="fixed left-0 top-0 h-full bg-sidebar border-r border-sidebar-border p-4 flex flex-col"
+            className={`fixed left-0 top-0 h-full bg-sidebar border-r border-sidebar-border p-4 flex flex-col transition-transform duration-300 ease-in-out z-[60]
+                ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+            `}
             style={{
                 width: "var(--sidebar-width)",
-                zIndex: 50,
             }}
         >
-            <div className="flex items-center gap-2 mb-8 relative z-10">
-                <CompassIcon style={{ width: "60px", height: "60px",strokeWidth:"1px", color:"#3C5862", size:"50px"}} className=" text-primary relative z-10" />
-                <h1
-                    style={{ fontFamily: "Urbanist", fontWeight: "lighter", color:"#465E67"}}
-                    className="font-bold text-sidebar-foreground drop-shadow-md"
-                >
-                    DigiCompass
-                </h1>
+            <div className="flex items-center justify-between gap-2 mb-8 relative z-10">
+                <div className="flex items-center gap-2">
+                    <CompassIcon style={{ width: "60px", height: "60px",strokeWidth:"1px", color:"#3C5862", size:"50px"}} className=" text-primary relative z-10" />
+                    <h1
+                        style={{ fontFamily: "Urbanist", fontWeight: "lighter", color:"#465E67"}}
+                        className="font-bold text-sidebar-foreground drop-shadow-md"
+                    >
+                        DigiCompass
+                    </h1>
+                </div>
+                {closeMobileMenu && (
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="lg:hidden"
+                        onClick={closeMobileMenu}
+                    >
+                        <X size={20} />
+                    </Button>
+                )}
             </div>
 
 
@@ -76,10 +102,7 @@ export function Sidebar({ activeTab, setActiveTab}) {
                                     ? "bg-primary text-primary-foreground hover:bg-primary/90"
                                     : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                             }`}
-                            onClick={() => {
-                                setActiveTab(item.id);
-                                navigate(item.path);
-                            }}
+                            onClick={() => handleNavClick(item)}
 
                         >
                             <Icon className="h-5 w-5" />
@@ -93,24 +116,40 @@ export function Sidebar({ activeTab, setActiveTab}) {
                 {isAuthenticated ? (
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="w-full justify-start gap-3 p-2">
+                            <Button
+                                variant="ghost"
+                                className="w-full justify-start gap-3 p-2 hover:bg-sidebar-accent"
+                            >
                                 <Avatar className="h-8 w-8">
                                     <AvatarFallback className="bg-primary text-primary-foreground">
                                         {user?.username?.charAt(0)?.toUpperCase() || "?"}
                                     </AvatarFallback>
                                 </Avatar>
                                 <div className="flex-1 text-left">
-                                    <p className="text-sm font-medium text-sidebar-foreground">{user.username}</p>
+                                    <p className="text-sm font-medium text-sidebar-foreground">
+                                        {user?.username}
+                                    </p>
                                 </div>
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-56">
-                            <DropdownMenuItem>
+                        <DropdownMenuContent
+                            align="end"
+                            className="w-56 z-[100]"
+                            side="right"
+                            sideOffset={5}
+                        >
+                            <DropdownMenuItem onClick={() => {
+                                navigate("/profile");
+                                if (closeMobileMenu) closeMobileMenu();
+                            }}>
                                 <UserIcon className="h-4 w-4 mr-2" />
                                 Profile Settings
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={logout}>
+                            <DropdownMenuItem onClick={() => {
+                                logout();
+                                if (closeMobileMenu) closeMobileMenu();
+                            }}>
                                 <LogOutIcon className="h-4 w-4 mr-2" />
                                 Sign Out
                             </DropdownMenuItem>
@@ -121,7 +160,10 @@ export function Sidebar({ activeTab, setActiveTab}) {
                         variant="ghost"
                         size="sm"
                         className="w-full justify-start gap-3 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                        onClick={() => navigate("/login")}
+                        onClick={() => {
+                            navigate("/login");
+                            if (closeMobileMenu) closeMobileMenu();
+                        }}
                     >
                         <LogInIcon className="h-4 w-4" />
                         Sign In

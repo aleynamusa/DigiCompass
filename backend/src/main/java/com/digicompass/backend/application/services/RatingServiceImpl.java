@@ -3,7 +3,6 @@ package com.digicompass.backend.application.services;
 import com.digicompass.backend.application.interfaces.RatingService;
 import com.digicompass.backend.application.mapper.RatingMapper;
 import com.digicompass.backend.application.models.Rating;
-import com.digicompass.backend.repository.entity.RatingEntity;
 import com.digicompass.backend.repository.repositories.RatingJpaRepository;
 import com.digicompass.backend.repository.repositories.RouteJpaRepository;
 import lombok.extern.slf4j.Slf4j;

@@ -10,9 +10,12 @@ import {
 import {Button} from "@/components/ui/button.jsx";
 import {Badge} from "@/components/ui/badge.jsx";
 import {Carousel} from "@mantine/carousel";
+import { useNavigate } from "react-router-dom";
 import classes from '@/components/card.module.css';
 
 export function RouteCard({ route, onViewDetails }) {
+    const navigate = useNavigate();
+    
     return (
         <div>
         <Card className="overflow-hidden hover:shadow-lg transition-shadow">
@@ -61,7 +64,17 @@ export function RouteCard({ route, onViewDetails }) {
                     </div>
                     <div className="flex items-center gap-1">
                         <UsersIcon className="h-4 w-4 text-muted-foreground" />
-                        <span>{route.createdByUserId?.username || "Unknown"}</span>
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                if (route.createdByUserId?.id) {
+                                    navigate(`/profile/${route.createdByUserId.id}`);
+                                }
+                            }}
+                            className="hover:text-blue-600 hover:underline transition-colors"
+                        >
+                            {route.createdByUserId?.username || "Unknown"}
+                        </button>
                     </div>
                 </div>
 

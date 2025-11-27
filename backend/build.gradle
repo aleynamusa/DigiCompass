@@ -2,7 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.5.5'
     id 'io.spring.dependency-management' version '1.1.7'
-    id "org.sonarqube" version "4.4.1.3373"
+    id "org.sonarqube" version "7.1.0.6387"
 
     id "jacoco"
     id "org.owasp.dependencycheck" version "12.1.9"
@@ -80,6 +80,9 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.testcontainers:junit-jupiter:1.20.3'
     testImplementation 'org.testcontainers:postgresql:1.20.3'
+    testImplementation 'com.h2database:h2'
+
+
 
     //database
     implementation 'org.postgresql:postgresql:42.7.8'
@@ -121,6 +124,18 @@ dependencies {
 }
 
 
+
+//sonar{
+//    properties{
+//        property "sonar.projectKey", "SonarDemoDigiCompass"
+//        property "sonar.host.url", "http://localhost:9000"
+//        property "sonar.token", "sqp_baace911f77ec2bb8eebca7ddeff86c1508c228c"
+//        property "sonar.coverage.jacoco.xmlReportPaths", "build/reports/jacoco/test/jacocoTestReport.xml"
+//
+//        property "sonar.tests", "src/test/java"
+//        property "sonar.java.binaries", "build/classes/java/main"
+//    }
+//}
 
 sonar {
     properties {

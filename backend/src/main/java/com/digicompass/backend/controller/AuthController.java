@@ -25,30 +25,27 @@ import java.util.Optional;
 @RequestMapping("/auth")
 public class AuthController {
 
-    private final PasswordResetService passwordResetService;
-
     private final AuthService authService;
     private final UserMapperController userMapperController;
 
-    public AuthController(PasswordResetService passwordResetService, AuthService authService, UserMapperController userMapperController) {
-        this.passwordResetService = passwordResetService;
+    public AuthController(AuthService authService, UserMapperController userMapperController) {
         this.authService = authService;
         this.userMapperController = userMapperController;
     }
 
 
     @PostMapping("/signUp")
-    public ResponseEntity<?> signUp(@RequestBody UserRequestDto request) {
+    public ResponseEntity<UserRequestDto> signUp(@RequestBody UserRequestDto request) {
         try {
             UserRequestDto saved = userMapperController.toControllerRequest(authService.signUp(userMapperController.toModel(request)));
             return ResponseEntity.ok(saved);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }
 
     @PostMapping("/logIn")
-    public ResponseEntity<?> logIn(@RequestBody LogInRequest request, HttpServletResponse response) {
+    public ResponseEntity<Map<String, String>> logIn(@RequestBody LogInRequest request, HttpServletResponse response) {
         try {
             Map<String, String> tokens = authService.logIn(request.getUsername(), request.getPassword());
             boolean rememberMe = request.isRememberMe();

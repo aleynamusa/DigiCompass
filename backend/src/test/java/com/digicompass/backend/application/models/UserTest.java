@@ -10,9 +10,9 @@ import static org.junit.jupiter.api.Assertions.*;
 class UserTest {
 
     @Test
-    public void testCalculateAge() {
+    void testCalculateAge() {
         LocalDate birthDate = LocalDate.of(2000, 1, 1);
-        User user = new User(1L, "test", "test@example.com", birthDate, "password123", 2L);
+        User user = new User(1L, "test", "test@example.com", birthDate, "password123", 2L, null);
 
         int age = user.CalculateAge();
 

@@ -27,14 +27,11 @@ public class ReviewController {
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> createReview(@ModelAttribute ReviewRequestDto reviewRequestDto) {
+    public ResponseEntity<ReviewResponseDto> createReview(@ModelAttribute ReviewRequestDto reviewRequestDto) {
         try {
-            Review createdReview = reviewService.createReview(
+            ReviewResponseDto response = reviewMapper.toDtoResponse(reviewService.createReview(
                     reviewMapper.toModel(reviewRequestDto),
-                    reviewRequestDto.getImages()
-            );
-
-            ReviewResponseDto response = reviewMapper.toDtoResponse(createdReview);
+                    reviewRequestDto.getImages()));
 
             return ResponseEntity
                     .status(HttpStatus.CREATED)
@@ -44,74 +41,72 @@ public class ReviewController {
             log.warn("[CONTROLLER] Validation error creating review: {}", ex.getMessage());
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
-                    .body(ex.getMessage());
+                    .body(null);
 
         } catch (Exception ex) {
             log.error("[CONTROLLER] Error creating review", ex);
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Failed to create review");
+                    .body(null);
         }
     }
 
     @GetMapping("/route/{routeId}")
-    public ResponseEntity<?> getReviewsByRoute(@PathVariable Long routeId) {
+    public ResponseEntity<List<ReviewResponseDto>> getReviewsByRoute(@PathVariable Long routeId) {
         try {
-            List<Review> reviews = reviewService.getReviewsByRoute(routeId);
-
-            List<ReviewResponseDto> response = reviewMapper.toDtosResponse(reviews);
+            List<ReviewResponseDto> response = reviewMapper.toDtosResponse(reviewService.getReviewsByRoute(routeId));
             return ResponseEntity.ok(response);
 
         } catch (IllegalArgumentException ex) {
             log.warn("[CONTROLLER] Invalid route ID: {}", routeId);
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
-                    .body(ex.getMessage());
+                    .body(null);
 
         } catch (Exception ex) {
             log.error("[CONTROLLER] Error fetching reviews for route {}", routeId, ex);
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Failed to fetch reviews");
+                    .body(null);
         }
     }
 
     @PutMapping(value = "/update/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> updateReview(
+    public ResponseEntity<ReviewResponseDto> updateReview(
             @PathVariable Long id,
             @ModelAttribute ReviewRequestDto reviewRequestDto
     ) {
         try {
-            Review reviewModel = reviewMapper.toModel(reviewRequestDto);
-            reviewModel.setId(id);
+//            Review reviewModel = ;
+//            reviewModel.setId(id);
 
             List<String> existingImageUrls = reviewRequestDto.getExistingImageUrlsList();
 
-            Review updatedReview = reviewService.updateReview(
-                    reviewModel,
-                    reviewRequestDto.getImages(),
-                    existingImageUrls
-            );
+//            Review updatedReview =
+//            );
 
-            ReviewResponseDto response = reviewMapper.toDtoResponse(updatedReview);
+            ReviewResponseDto response = reviewMapper.toDtoResponse(reviewService.updateReview(
+                    reviewMapper.toModel(reviewRequestDto),
+                    reviewRequestDto.getImages(),
+                    existingImageUrls));
             return ResponseEntity.ok(response);
 
         } catch (IllegalArgumentException ex) {
             log.warn("[CONTROLLER] Validation error updating review {}: {}", id, ex.getMessage());
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
-                    .body(ex.getMessage());
+                    .body(null);
 
         } catch (Exception ex) {
             log.error("[CONTROLLER] Error updating review {}", id, ex);
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Failed to update review");
+                    .body(null);
         }
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> deleteReview(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteReview(@PathVariable Long id) {
         try {
             reviewService.deleteReview(id);
 
@@ -123,19 +118,19 @@ public class ReviewController {
             log.warn("[CONTROLLER] Review not found: {}", id);
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
-                    .body("Review not found with ID: " + id);
+                    .body(null);
 
         } catch (AccessDeniedException ex) {
             log.warn("[CONTROLLER] Access denied deleting review {}", id);
             return ResponseEntity
                     .status(HttpStatus.FORBIDDEN)
-                    .body("You are not allowed to delete this review");
+                    .body(null);
 
         } catch (Exception ex) {
             log.error("[CONTROLLER] Error deleting review {}", id, ex);
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Failed to delete review");
+                    .body(null);
         }
     }
 }

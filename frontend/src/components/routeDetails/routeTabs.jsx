@@ -1,5 +1,6 @@
 import {Tabs, Flex, FloatingIndicator, Rating, Modal, Dialog} from "@mantine/core";
 import {useEffect, useRef, useState} from "react";
+import { useNavigate } from "react-router-dom";
 import classes from "@/components/card.module.css";
 import {useAuth} from "@/context/AuthContext.jsx";
 import {getRatingsByRoute, getReviewByRoute, handleDeleteRating, handleDeleteReview} from "@/api/routeApi.jsx";
@@ -17,6 +18,7 @@ export default function RouteTabs({reviews, ratings, routeId}) {
     const [isFormOpenReview, setIsFormOpenReview] = useState(false);
     const [isFormOpenRating, setIsFormOpenRating] = useState(false);
     const { user } = useAuth();
+    const navigate = useNavigate();
     const [reviewList, setReviewList] = useState(reviews);
     const [ratingList, setRatingList] = useState(ratings);
     const [successMessage, setSuccessMessage] = useState("");
@@ -122,21 +124,38 @@ export default function RouteTabs({reviews, ratings, routeId}) {
                 </div>
             )}
 
-            <Tabs variant="none" value={value} onChange={setValue}>
-                <Tabs.List ref={setRootRef} className={classes.list}>
-                    <Flex gap="md" justify="center" align="flex-start" wrap="wrap">
-                        <Tabs.Tab value="1" ref={setControlRef("1")} className={classes.tab}>Reviews</Tabs.Tab>
-                        <Tabs.Tab value="2" ref={setControlRef("2")} className={classes.tab}>Ratings</Tabs.Tab>
-                    </Flex>
-                    <FloatingIndicator
-                        target={value ? controlsRefs.current[value] : null}
-                        parent={rootRef}
-                        className={classes.indicator}
-                    />
-                </Tabs.List>
+            <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                <Tabs variant="none" value={value} onChange={setValue} style={{ width: '100%' }}>
+                    <Tabs.List ref={setRootRef} className={classes.list} style={{ justifyContent: 'center', width: '100%' }}>
+                        <Flex gap="sm" justify="center" align="center" wrap="nowrap" style={{ width: '100%', justifyContent: 'center' }}>
+                            <Tabs.Tab 
+                                value="1" 
+                                ref={setControlRef("1")} 
+                                className={classes.tab}
+                            >
+                                <span>
+                                    Reviews
+                                </span>
+                            </Tabs.Tab>
+                            <Tabs.Tab 
+                                value="2" 
+                                ref={setControlRef("2")} 
+                                className={classes.tab}
+                            >
+                                <span>
+                                    Ratings
+                                </span>
+                            </Tabs.Tab>
+                        </Flex>
+                        <FloatingIndicator
+                            target={value ? controlsRefs.current[value] : null}
+                            parent={rootRef}
+                            className={classes.indicator}
+                        />
+                    </Tabs.List>
 
                 <Tabs.Panel value="1">
-                    <div className="space-y-4 mt-4">
+                    <div className="space-y-4 mt-4 max-h-[400px] md:max-h-[500px] overflow-y-auto pr-2 reviews-ratings-scroll">
                         {reviewList.length > 0 ? (
                             reviewList.map((review, i) => (
                                 <div
@@ -163,7 +182,12 @@ export default function RouteTabs({reviews, ratings, routeId}) {
                                         </div>
 
                                         <div>
-                                            <p className="font-semibold">{review.userId?.username || "Unknown"}</p>
+                                            <button
+                                                onClick={() => review.userId?.id && navigate(`/profile/${review.userId.id}`)}
+                                                className="font-semibold hover:text-blue-600 hover:underline transition-colors text-left"
+                                            >
+                                                {review.userId?.username || "Unknown"}
+                                            </button>
                                             <p className="text-xs text-gray-500">
                                                 {new Date(review.createdAt).toLocaleDateString()}
                                             </p>
@@ -219,7 +243,7 @@ export default function RouteTabs({reviews, ratings, routeId}) {
 
 
                 <Tabs.Panel value="2">
-                    <div className="space-y-4 mt-4">
+                    <div className="space-y-4 mt-4 max-h-[400px] md:max-h-[500px] overflow-y-auto pr-2 reviews-ratings-scroll">
                         {ratingList.length > 0 ? ratingList.map((r, i) => (
                             <div key={i} className="border border-gray-200 rounded-xl p-4 shadow-sm">
                                 <div className="flex items-center justify-between">
@@ -228,7 +252,12 @@ export default function RouteTabs({reviews, ratings, routeId}) {
                                             {r.userId?.username?.[0]?.toUpperCase() || "U"}
                                         </div>
                                         <div>
-                                            <p className="font-semibold">{r.userId?.username || "Unknown"}</p>
+                                            <button
+                                                onClick={() => r.userId?.id && navigate(`/profile/${r.userId.id}`)}
+                                                className="font-semibold hover:text-blue-600 hover:underline transition-colors text-left"
+                                            >
+                                                {r.userId?.username || "Unknown"}
+                                            </button>
                                             <p className="text-xs text-gray-500">{new Date(r.createdAt).toLocaleDateString()}</p>
                                         </div>
                                         {user && user.id === r.userId?.id && (
@@ -263,7 +292,8 @@ export default function RouteTabs({reviews, ratings, routeId}) {
 
 
                 </Tabs.Panel>
-            </Tabs>
+                </Tabs>
+            </div>
 
         </>
 

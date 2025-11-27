@@ -1,7 +1,6 @@
-package com.digicompass.backend.controller;
+package com.digicompass.backend.integration;
 
-import com.digicompass.backend.BackendApplication;
-import com.digicompass.backend.controller.dto.UserDto;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,6 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 )
 @AutoConfigureMockMvc
 @Testcontainers
+@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 public class ReviewControllerIntegrationTest {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
@@ -47,10 +47,8 @@ public class ReviewControllerIntegrationTest {
         registry.add("spring.datasource.username", postgres::getUsername);
         registry.add("spring.datasource.password", postgres::getPassword);
 
-        // Allow Hibernate to create schema
         registry.add("spring.jpa.hibernate.ddl-auto", () -> "update");
 
-        // For debugging
         registry.add("spring.jpa.show-sql", () -> "true");
     }
 
@@ -81,10 +79,6 @@ public class ReviewControllerIntegrationTest {
         );
     }
 
-    // ----------------------------------------------------------------------
-    // CREATE REVIEW
-    // ----------------------------------------------------------------------
-
     @Test
     void shouldCreateReview() throws Exception {
 
@@ -105,13 +99,9 @@ public class ReviewControllerIntegrationTest {
         System.out.println("Create response: " + response);
     }
 
-    // ----------------------------------------------------------------------
-    // UPDATE REVIEW
-    // ----------------------------------------------------------------------
 
     @Test
     void shouldUpdateReview() throws Exception {
-        // 1. Create review
         String createResponse = mockMvc.perform(multipart("/review")
                         .file(mockImage)
                         .param("review", "Nice route at first!")
@@ -125,7 +115,6 @@ public class ReviewControllerIntegrationTest {
 
         Long reviewId = objectMapper.readTree(createResponse).get("id").asLong();
 
-        // 2. Update with new image + keep existing ones
         MockMultipartFile newImage = new MockMultipartFile(
                 "images",
                 "new-image.jpg",
@@ -149,14 +138,10 @@ public class ReviewControllerIntegrationTest {
                 .andReturn();
     }
 
-    // ----------------------------------------------------------------------
-    // GET REVIEWS BY ROUTE
-    // ----------------------------------------------------------------------
 
     @Test
     void shouldGetReviewsByRoute() throws Exception {
 
-        // Create one review
         mockMvc.perform(multipart("/review")
                         .file(mockImage)
                         .param("review", "Great!")
@@ -170,14 +155,8 @@ public class ReviewControllerIntegrationTest {
                 .andExpect(jsonPath("$[0].routeId").value(routeId));
     }
 
-    // ----------------------------------------------------------------------
-    // DELETE REVIEW
-    // ----------------------------------------------------------------------
-
     @Test
     void shouldDeleteReview() throws Exception {
-
-        // Create review
         String createResponse = mockMvc.perform(multipart("/review")
                         .file(mockImage)
                         .param("review", "Delete me!")

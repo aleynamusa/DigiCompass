@@ -75,8 +75,6 @@ public class RouteEntity {
     @JsonManagedReference
     private List<RatingEntity> ratings = new ArrayList<>();
 
-
-
 }
 
 

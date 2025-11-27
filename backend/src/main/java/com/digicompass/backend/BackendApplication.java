@@ -1,7 +1,5 @@
 package com.digicompass.backend;
 
-
-import com.digicompass.backend.application.services.helpers.PasswordHasher;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 

@@ -6,14 +6,13 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = {ReviewMapper.class})
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface ReviewImageMapper {
 
-    @Mapping(source = "reviewId", target = "review.id")
-    ReviewImageEntity toEntity(ReviewImage model);
+    ReviewImageEntity toEntity(String image);
 
-    @Mapping(source = "review.id", target = "reviewId")
-    ReviewImage toModel(ReviewImageEntity entity);
+
+    String toModel(ReviewImageEntity entity);
 
 
 }

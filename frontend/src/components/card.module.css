@@ -1,46 +1,65 @@
-.indicator {
-    width: 12px;
-    height: 4px;
-    transition: width 250ms ease;
-
-    &[data-active] {
-        width: 40px;
-    }
-}
-
-
 .list {
     position: relative;
     margin-bottom: var(--mantine-spacing-md);
+    border-bottom: 2px solid var(--mantine-color-gray-3);
+    padding-bottom: var(--mantine-spacing-xs);
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .indicator {
-    background-color: var(--mantine-color-white);
     border-radius: var(--mantine-radius-md);
-    border: 1px solid var(--mantine-color-gray-2);
-    box-shadow: var(--mantine-shadow-sm);
+    height: 3px;
+    transition: all 250ms ease;
+    box-shadow: 0 2px 4px rgba(16, 81, 116, 0.3);
+    z-index: 0; /* Behind the tab text */
+    position: absolute;
+    bottom: 0;
+}
 
-    [data-mantine-color-scheme='dark'] & {
-        background-color: var(--mantine-color-dark-6);
-        border-color: var(--mantine-color-dark-4);
-    }
+[data-mantine-color-scheme='dark'] .indicator {
+    background-color: #3C5862;
 }
 
 .tab {
-    z-index: 1;
+    z-index: 3 !important;
     font-weight: 500;
-    transition: color 100ms ease;
-    color: var(--mantine-color-gray-7);
+    transition: all 200ms ease;
+    color: #6b7280 !important;
+    padding: var(--mantine-spacing-xs) var(--mantine-spacing-md);
+    border-radius: var(--mantine-radius-sm);
+    position: relative;
+    background-color: transparent !important;
+}
 
-    &[data-active] {
-        color: var(--mantine-color-black);
-    }
+.tab:hover {
+    color: #111827 !important;
+    background-color: #f3f4f6 !important;
+}
 
-    [data-mantine-color-scheme='dark'] & {
-        color: var(--mantine-color-dark-1);
+.tab[data-active] {
+    color: #105174 !important;
+    font-weight: 600 !important;
+    background-color: rgba(16, 81, 116, 0.15) !important;
+}
 
-        &[data-active] {
-            color: var(--mantine-color-white);
-        }
-    }
+/* Ensure text inside tab is visible */
+.tab * {
+    color: inherit !important;
+}
+
+[data-mantine-color-scheme='dark'] .tab {
+    color: var(--mantine-color-dark-2);
+    background-color: transparent;
+}
+
+[data-mantine-color-scheme='dark'] .tab:hover {
+    color: var(--mantine-color-dark-0);
+    background-color: var(--mantine-color-dark-7);
+}
+
+[data-mantine-color-scheme='dark'] .tab[data-active] {
+    color: #3C5862 !important;
+    background-color: rgba(60, 88, 98, 0.2) !important;
 }

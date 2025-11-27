@@ -1,6 +1,8 @@
 package com.digicompass.backend.controller.dto;
 
 
+import com.digicompass.backend.application.models.User;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,13 +19,14 @@ public class RouteDto {
     private Long id;
     private String name;
     private String description;
-    private String routeType;   //HIKING, CYCLING, RUNNING, WALKING
-    private String difficulty;  //BEGINNER, EASY, MODERATE, HARD, EXPERT, EXTREME
+    private String routeType;
+    private String difficulty;
     private float distance;
     private String duration;
+    private String averageRating;
     private UserDto createdByUserId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private Geometry routeGeometry;
-    private List<String> images = new ArrayList<>();
+    private List<String> images;
+
 }

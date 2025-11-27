@@ -38,6 +38,4 @@ public class RatingEntity {
     @ManyToOne()
     @JoinColumn(name = "route_id", nullable = false)
     private RouteEntity routeId;
-
-
 }

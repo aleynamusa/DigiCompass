@@ -10,9 +10,6 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
-
-
-
     @Mapping(target = "role.id", source = "roleId")
     UserEntity toEntity(User user);
 

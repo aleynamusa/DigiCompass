@@ -1,12 +1,19 @@
 package com.digicompass.backend.application.services;
 
+import com.digicompass.backend.application.interfaces.S3Service;
 import com.digicompass.backend.application.mapper.UserMapper;
+import com.digicompass.backend.application.models.Review;
 import com.digicompass.backend.application.models.User;
 import com.digicompass.backend.application.interfaces.UserService;
+import com.digicompass.backend.repository.entity.ReviewEntity;
+import com.digicompass.backend.repository.entity.ReviewImageEntity;
 import com.digicompass.backend.repository.repositories.UserJpaRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,9 +25,12 @@ public class UserServiceImpl implements UserService {
 
     private final UserMapper userMapper;
 
-    public UserServiceImpl(UserJpaRepository userRepository, UserMapper userMapper) {
+    private final S3Service s3Service;
+
+    public UserServiceImpl(UserJpaRepository userRepository, UserMapper userMapper, S3Service s3Service) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
+        this.s3Service = s3Service;
     }
 
 
@@ -34,20 +44,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<User> getUserById(Long id) {
+    public User getUserById(Long id) {
         log.info("[SERVICE] Fetching user with id: {}", id);
 
-        Optional<User> user = userRepository.findById(id)
-                .map(userMapper::toDomain);
-
-        if (user.isPresent()) {
-            log.info("[SERVICE] User found with id: {}", id);
-        } else {
-            log.warn("[SERVICE] No user found with id: {}", id);
-        }
-
-        return user;
+        return userRepository.findById(id)
+                .map(userMapper::toDomain)
+                .orElseThrow(() -> {
+                    log.warn("[SERVICE] No user found with id: {}", id);
+                    return new RuntimeException("User not found with id: " + id);
+                });
     }
+
 
     @Override
     public void deleteUser(User user) {
@@ -63,35 +70,81 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean checkUsernameAvailability(String username) {
+
+
+        if (username == null) {
+            log.warn("[SERVICE] Attempted to check username is null.");
+            throw new IllegalArgumentException("Username cannot be null");
+        }
+
         try{
-            if (username == null) {
-                log.warn("[SERVICE] Attempted to check username is null.");
-                throw new IllegalArgumentException("Username cannot be null");
-            }
+
             log.info("[SERVICE] Checking username availability: {}", username);
-            return userRepository.findAllUsernames().contains(username);
+            return !userRepository.existsByUsername(username);
         }
         catch (Exception ex){
             log.warn("[SERVICE] Username not found: {}", username);
-            return false;
+            throw ex;
         }
+
 
     }
 
     @Override
     public boolean checkEmailAvailability(String email) {
-        try{
-            if (email == null) {
-                log.warn("[SERVICE] Attempted to check email is null.");
-                throw new IllegalArgumentException("Email cannot be null");
-            }
+
+        if (email == null) {
+            log.warn("[SERVICE] Attempted to check email is null.");
+            throw new IllegalArgumentException("Email cannot be null");
+        }
+
+        try {
             log.info("[SERVICE] Checking email availability: {}", email);
-            return userRepository.findAllEmails().contains(email);
+            return !userRepository.existsByEmail(email);
+        } catch (Exception e){
+            log.warn("[SERVICE] Unexpected error: {}", e.getMessage());
+            throw e;
         }
-        catch (Exception e){
-            log.warn("[SERVICE] Exception occurred while checking email availability: {}", e.getMessage());
-            return false;
+    }
+
+    @Override
+    public void uploadProfilePicture(User user, MultipartFile image) throws IOException {
+        String fileName = uploadImages(user.getId(), image);
+
+        try {
+
+
+            userMapper.toEntity(user).setImageUrl(fileName);
+
+            User saved = userMapper.toDomain(userRepository.save(userMapper.toEntity(user)));
+
+        }catch (NullPointerException e) {
+            log.warn("[Service] Validation error uploading profile photo: {}", e.getMessage());
+            throw new NullPointerException(e.getMessage());
         }
+        catch (Exception e) {
+            rollbackS3Uploads(fileName);
+            throw new RuntimeException("Failed to create review", e);
+        }
+    }
+
+    protected String uploadImages(Long userId, MultipartFile image) throws IOException {
+        String key = "";
+
+                if (image != null && !image.isEmpty()) {
+                    key = s3Service.uploadImage("users/" + userId, image);
+                }
+
+        return key;
+    }
+
+    protected void rollbackS3Uploads(String key) {
+
+            try {
+                s3Service.deleteImage(key);
+            } catch (Exception ex) {
+                log.warn("Failed to delete S3 image during rollback: {}", key, ex);
+            }
 
     }
 

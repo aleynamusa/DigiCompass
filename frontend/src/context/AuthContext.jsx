@@ -7,7 +7,7 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [accessToken, setAccessToken] = useState(() =>
-        localStorage.getItem("accessToken") || sessionStorage.getItem("accessToken")
+        localStorage.getItem("accessToken") || null
     );
     const [loading, setLoading] = useState(true);
 
@@ -73,8 +73,9 @@ export const AuthProvider = ({ children }) => {
         setAccessToken(token);
         setUserFromToken(token);
 
-        if (rememberMe) localStorage.setItem("accessToken", token);
-        else sessionStorage.setItem("accessToken", token);
+
+        localStorage.setItem("accessToken", token);
+
 
         return token;
     };
@@ -86,7 +87,6 @@ export const AuthProvider = ({ children }) => {
             console.error("Logout failed (ignored):", err);
         }
         localStorage.removeItem("accessToken");
-        sessionStorage.removeItem("accessToken");
         setAccessToken(null);
         setUser(null);
         window.location.href = "/login";

@@ -34,4 +34,7 @@ public class UserEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id")
     private RoleEntity role;
+
+    @Column()
+    private String imageUrl;
 }
