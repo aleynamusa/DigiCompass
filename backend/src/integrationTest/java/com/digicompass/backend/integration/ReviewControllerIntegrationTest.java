@@ -9,13 +9,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
+
 import org.springframework.test.web.servlet.MockMvc;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.DockerImageName;
+
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -25,32 +21,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         classes = com.digicompass.backend.BackendApplication.class
 )
 @AutoConfigureMockMvc
-@Testcontainers
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
-public class ReviewControllerIntegrationTest {
+public class ReviewControllerIntegrationTest extends BaseIntegrationTest {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
-
-    private static final DockerImageName POSTGIS_IMAGE = DockerImageName
-            .parse("postgis/postgis:17-3.5")
-            .asCompatibleSubstituteFor("postgres");
-
-    @Container
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(POSTGIS_IMAGE)
-            .withDatabaseName("test_db")
-            .withUsername("test")
-            .withPassword("test");
-
-    @DynamicPropertySource
-    static void registerPgProps(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", postgres::getJdbcUrl);
-        registry.add("spring.datasource.username", postgres::getUsername);
-        registry.add("spring.datasource.password", postgres::getPassword);
-
-        registry.add("spring.jpa.hibernate.ddl-auto", () -> "update");
-
-        registry.add("spring.jpa.show-sql", () -> "true");
-    }
 
     @Autowired
     private MockMvc mockMvc;
@@ -82,7 +56,7 @@ public class ReviewControllerIntegrationTest {
     @Test
     void shouldCreateReview() throws Exception {
 
-        String response = mockMvc.perform(multipart("/review")
+        mockMvc.perform(multipart("/review")
                         .file(mockImage)
                         .param("review", "Amazing trail!")
                         .param("routeId", routeId.toString())
@@ -95,8 +69,6 @@ public class ReviewControllerIntegrationTest {
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
-
-        System.out.println("Create response: " + response);
     }
 
 

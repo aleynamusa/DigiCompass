@@ -1,6 +1,5 @@
 package com.digicompass.backend.integration;
 
-import com.digicompass.backend.BackendApplication;
 
 import com.digicompass.backend.repository.entity.RoleEntity;
 import com.digicompass.backend.repository.entity.UserEntity;
@@ -11,22 +10,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-
 import java.time.LocalDate;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 import com.digicompass.backend.application.interfaces.EmailService;
 import org.springframework.http.MediaType;
-import org.testcontainers.utility.DockerImageName;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -35,44 +27,10 @@ import static org.mockito.Mockito.times;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(
-        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        classes = BackendApplication.class
-)
+
 @AutoConfigureMockMvc
-@Testcontainers
-public class ResetPasswordControllerIntegrationTest {
-
-    private static final DockerImageName POSTGIS_IMAGE = DockerImageName
-            .parse("postgis/postgis:17-3.5")
-            .asCompatibleSubstituteFor("postgres");
-
-
-    @Container
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(POSTGIS_IMAGE)
-            .withDatabaseName("test_db")
-            .withUsername("test")
-            .withPassword("test");
-
-    // Redis Testcontainer
-    @Container
-    static GenericContainer<?> redis =
-            new GenericContainer<>("redis:7-alpine")
-                    .withExposedPorts(6379);
-
-    @Container
-    static PostgreSQLContainer<?> pg = postgres;
-
-    @DynamicPropertySource
-    static void registerProps(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", pg::getJdbcUrl);
-        registry.add("spring.datasource.username", pg::getUsername);
-        registry.add("spring.datasource.password", pg::getPassword);
-        registry.add("spring.jpa.hibernate.ddl-auto", () -> "update");
-
-        registry.add("spring.data.redis.host", () -> redis.getHost());
-        registry.add("spring.data.redis.port", () -> redis.getMappedPort(6379));
-    }
+@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+public class ResetPasswordControllerIntegrationTest extends BaseIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;

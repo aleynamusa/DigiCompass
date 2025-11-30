@@ -107,11 +107,11 @@ const SignUpForm = () => {
 
                 <ShowPassword
                     name="password"
-                    value={formData.password}  // Keep using formData
+                    value={formData.password}
                     onChange={(e) => {
                         const value = e.target.value;
-                        handlePasswordChange(value);  // Update hook state for validation
-                        handleChange(e);  // Update formData for form submission
+                        handlePasswordChange(value);
+                        handleChange(e);
                     }}
                 />
 
@@ -122,8 +122,8 @@ const SignUpForm = () => {
                         value={formData.confirmPassword}
                         onChange={(e) => {
                             const value = e.target.value;
-                            handleConfirmChange(value);  // Update hook state for validation
-                            handleChange(e);  // Update formData for form submission
+                            handleConfirmChange(value);
+                            handleChange(e);
                         }}
                     />
                     {passwordMatch === false && (
@@ -133,7 +133,6 @@ const SignUpForm = () => {
 
                 </div>
 
-                {/* password rules display */}
                 {formData.password.length > 0 && (
                 <ul className="mt-2 text-sm">
                     <li style={{ color: passwordRules.length ? "darkgreen" : "darkred" }}>

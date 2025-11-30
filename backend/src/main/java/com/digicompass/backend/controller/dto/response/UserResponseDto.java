@@ -15,6 +15,7 @@ public class UserResponseDto {
     private String email;
     private LocalDate birthDate;
     private String imageUrl;
-
+    private String bio;
+    private boolean isPublicProfile;
 
 }

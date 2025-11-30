@@ -37,4 +37,11 @@ public class UserEntity {
 
     @Column()
     private String imageUrl;
+
+    @Column()
+    private String bio;
+
+    @Column(nullable = false)
+    private boolean isPublicProfile = true;  // default: public
+
 }

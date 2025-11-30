@@ -4,14 +4,12 @@ export const writeReview = async (data) => {
     const formData = new FormData();
 
     formData.append("review", data.review || "");
-    // Access the nested userId object properties
     formData.append("userId.id", data.userId.id);
     formData.append("userId.username", data.userId.username);
     formData.append("routeId", data.routeId);
     formData.append("createdAt", data.createdAt);
     formData.append("updatedAt", data.updatedAt);
 
-    // Images are optional for reviews
     if (data.images && data.images.length > 0) {
         data.images.forEach((file) => {
             formData.append("images", file);

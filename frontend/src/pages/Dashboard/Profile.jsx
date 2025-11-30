@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useParams, useNavigate } from "react-router-dom";
-import { getUserProfile } from "@/api/userApi";
+import {getUserProfile, routesCreatedByUserId} from "@/api/userApi";
 import {
     Title,
     Text,
@@ -15,9 +15,13 @@ import {
     Button,
     Tabs,
 } from "@mantine/core";
-import { AlertCircle, ArrowLeft, Settings, Heart, Share2, MapPin } from "lucide-react";
+import { AlertCircle, ArrowLeft, Settings, Heart, Share2, MapPin, Lock, LockOpen } from "lucide-react";
 import dayjs from "dayjs";
+import {RouteCard} from "@/components/routeDetails/route_card.jsx";
+import axios from "axios";
+import {RouteDetails} from "@/components/routeDetails/route_details.jsx";
 
+const API_URL = import.meta.env.VITE_BACKEND_URL;
 const Profile = () => {
     const { user } = useAuth();
     const { userId } = useParams();
@@ -25,6 +29,11 @@ const Profile = () => {
     const [profileData, setProfileData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [isPrivate, setIsPrivate] = useState(false);
+    const [baseRoutes, setBaseRoutes] = useState(null);
+    const [selectedRoute, setSelectedRoute] = useState(null);
+
+
 
     const targetUserId = userId ? parseInt(userId) : user?.id;
     const isOwnProfile = user?.id === targetUserId;
@@ -39,37 +48,48 @@ const Profile = () => {
             try {
                 setLoading(true);
                 const response = await getUserProfile(targetUserId);
-                setProfileData(response.data);
+
+
+                const data = response.data;
+                setProfileData(data);
+
+                console.log(data);
+
+                setIsPrivate(!data.isPublicProfile);
+
+                const routesResponse = await routesCreatedByUserId(targetUserId);
+                setBaseRoutes(routesResponse.data || []);
+
                 setError(null);
 
-                console.log(response);
-                // } catch (err) {
-                //     console.warn("Could not fetch full profile:", err);
-                //     setError("Full profile data unavailable");
-                //
-                //     if (isOwnProfile && user) {
-                //         setProfileData({
-                //             id: user.id,
-                //             username: user.username,
-                //             email: profileData.email,
-                //             birthDate: profileData.birthDate,
-                //         });
-                //     } else {
-                //         setProfileData(null);
-                //     }
             }catch (err) {
-                    console.warn("Could not fetch full profile:", err);
-                    setError("Could not load profile");
-                    setProfileData(null);
-
-
+                console.warn("Could not fetch full profile:", err);
+                setError("Could not load profile");
+                setProfileData(null);
             } finally {
                 setLoading(false);
             }
         };
 
         fetchProfile();
-    }, [targetUserId, isOwnProfile, user]);
+    }, [targetUserId]);
+
+    const handleViewDetails = async (route) => {
+        try {
+            const response = await axios.get(`${API_URL}/route/${route.id}/geometry`);
+            const geojson = response.data.geojson;
+
+            const fullRoute = {
+                ...route,
+                routeGeometry: geojson,
+            };
+
+            setSelectedRoute(fullRoute);
+        } catch (err) {
+            console.error(err);
+            setError("There has been a problem and the data is unavailable at the moment.");
+        }
+    };
 
     if (loading) {
         return (
@@ -103,7 +123,7 @@ const Profile = () => {
 
     if (!loading && !displayData) {
         return (
-            <div className="min-h-screen p-6 w-[calc(100vw-var(--sidebar-width))] text-left"
+            <div className="min-h-screen p-6 w-[calc(95vw-var(--sidebar-width))] text-left"
             >
                 <Stack gap="md">
                     <Button
@@ -133,7 +153,7 @@ const Profile = () => {
     };
 
     return (
-        <div className="min-h-screen p-6 w-[calc(100vw-var(--sidebar-width))] text-left">
+        <div className="min-h-screen p-6 w-[calc(95vw-var(--sidebar-width))] text-left">
 
         {error && (
                 <Alert
@@ -153,20 +173,20 @@ const Profile = () => {
                         <Avatar
                             size={120}
                             radius="xl"
-                            color="blue"
-                            variant="light"
-                        >
-                            {displayData.username?.charAt(0).toUpperCase() || "U"}
-                        </Avatar>
+                            src={displayData.imageUrl}
+                            alt="Profile picture"
+                        />
                         <Stack gap="xs">
                             <Group gap="md" align="center">
                                 <Title style={{ color: "#3C5862" }} order={1}>
                                     {displayData.username || "User"}
                                 </Title>
                                 {isOwnProfile && (
+                                    // Your Profile TODO display the if admin or user
                                     <Badge color="blue" variant="light">
-                                        Your Profile
+                                        {isPrivate ? <Lock size={16} /> : <LockOpen size={16} />}
                                     </Badge>
+
                                 )}
                             </Group>
                             {displayData.birthDate && (
@@ -174,15 +194,19 @@ const Profile = () => {
                                     {calculateAge(displayData.birthDate)} years old
                                 </Badge>
                             )}
+
+                            <Title order={4} className="text-gray-800">Bio</Title>
+                            <Text c="dark">{displayData.bio}</Text>
                         </Stack>
+
+
                     </Group>
                     {isOwnProfile && (
                         <Button
                             variant="light"
                             leftSection={<Settings size={16} />}
                             onClick={() => {
-                                // TODO: Navigate to profile settings page
-                                navigate("/editProfile")
+                                navigate("/edit-profile")
                                 console.log("Edit profile");
                             }}
                         >
@@ -247,17 +271,30 @@ const Profile = () => {
 
                         <Tabs.Panel value="shared" pt="lg">
                             <div className="text-center py-12">
-                                <div className="flex justify-center mb-4">
-                                    <Share2 size={48} style={{ color: "#9ca3af" }} />
+
+
+
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                                    {(!baseRoutes || baseRoutes.length === 0) ? (
+                                        <div>
+                                            <div className="flex justify-center mb-4">
+                                                <Share2 size={48} style={{ color: "#9ca3af" }} />
+                                            </div>
+                                            <Text c="dimmed" size="lg" mb="xs">
+                                                {isOwnProfile ? "You haven't shared any routes yet" : "No shared routes yet"}
+                                            </Text>
+                                            <Text c="dimmed" size="sm">
+                                                {isOwnProfile
+                                                    ? "Start sharing your favorite routes with the community!"
+                                                    : "This user hasn't shared any routes yet."}
+                                            </Text>
+                                        </div>
+                                    ) : (
+                                        baseRoutes.map((route) => (
+                                            <RouteCard key={route.id} route={route} onViewDetails={handleViewDetails} />
+                                        ))
+                                    )}
                                 </div>
-                                <Text c="dimmed" size="lg" mb="xs">
-                                    {isOwnProfile ? "You haven't shared any routes yet" : "No shared routes yet"}
-                                </Text>
-                                <Text c="dimmed" size="sm">
-                                    {isOwnProfile 
-                                        ? "Start sharing your favorite routes with the community!" 
-                                        : "This user hasn't shared any routes yet."}
-                                </Text>
                             </div>
                         </Tabs.Panel>
 
@@ -295,7 +332,15 @@ const Profile = () => {
                     </Tabs>
                 </div>
             </Stack>
+            <RouteDetails
+                selectedRoute={selectedRoute}
+                onOpenChange={(open) => {
+                    if (!open) setSelectedRoute(null);
+                }}
+            />
+
         </div>
+
     );
 };
 

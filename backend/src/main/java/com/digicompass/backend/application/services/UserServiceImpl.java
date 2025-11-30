@@ -1,21 +1,21 @@
 package com.digicompass.backend.application.services;
 
 import com.digicompass.backend.application.interfaces.S3Service;
+import com.digicompass.backend.application.mapper.RouteMapper;
 import com.digicompass.backend.application.mapper.UserMapper;
-import com.digicompass.backend.application.models.Review;
+import com.digicompass.backend.application.models.Route;
 import com.digicompass.backend.application.models.User;
 import com.digicompass.backend.application.interfaces.UserService;
-import com.digicompass.backend.repository.entity.ReviewEntity;
-import com.digicompass.backend.repository.entity.ReviewImageEntity;
+import com.digicompass.backend.repository.repositories.RouteJpaRepository;
 import com.digicompass.backend.repository.repositories.UserJpaRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Slf4j
@@ -23,16 +23,21 @@ public class UserServiceImpl implements UserService {
 
     private final UserJpaRepository userRepository;
 
+    private final RouteJpaRepository routeRepository;
+
+    private final RouteMapper routeMapper;
+
     private final UserMapper userMapper;
 
     private final S3Service s3Service;
 
-    public UserServiceImpl(UserJpaRepository userRepository, UserMapper userMapper, S3Service s3Service) {
+    public UserServiceImpl(UserJpaRepository userRepository, RouteJpaRepository routeRepository, RouteMapper routeMapper, UserMapper userMapper, S3Service s3Service) {
         this.userRepository = userRepository;
+        this.routeRepository = routeRepository;
+        this.routeMapper = routeMapper;
         this.userMapper = userMapper;
         this.s3Service = s3Service;
     }
-
 
     @Override
     public List<User> getAllUsers() {
@@ -47,12 +52,17 @@ public class UserServiceImpl implements UserService {
     public User getUserById(Long id) {
         log.info("[SERVICE] Fetching user with id: {}", id);
 
-        return userRepository.findById(id)
-                .map(userMapper::toDomain)
-                .orElseThrow(() -> {
-                    log.warn("[SERVICE] No user found with id: {}", id);
-                    return new RuntimeException("User not found with id: " + id);
-                });
+        var user = userMapper.toDomain(userRepository.findById(id).orElseThrow(() -> {
+            log.warn("[SERVICE] No user found with id: {}", id);
+            return new RuntimeException("User not found with id: " + id);
+        }));
+
+        if(user.getImageUrl() != null && !user.getImageUrl().isEmpty()){
+            String imageUrl = s3Service.getPreSignedUrl(user.getImageUrl());
+            user.setImageUrl(imageUrl);
+        }
+
+        return user;
     }
 
 
@@ -86,8 +96,6 @@ public class UserServiceImpl implements UserService {
             log.warn("[SERVICE] Username not found: {}", username);
             throw ex;
         }
-
-
     }
 
     @Override
@@ -108,15 +116,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void uploadProfilePicture(User user, MultipartFile image) throws IOException {
-        String fileName = uploadImages(user.getId(), image);
+    public void uploadProfilePicture(Long id, MultipartFile image) throws IOException {
+        String fileName = uploadImages(id, image);
 
         try {
 
+            userRepository.getById(id).setImageUrl(fileName);
 
-            userMapper.toEntity(user).setImageUrl(fileName);
-
-            User saved = userMapper.toDomain(userRepository.save(userMapper.toEntity(user)));
+            userMapper.toDomain(userRepository.save(userMapper.toEntity(userMapper.toDomain(userRepository.getById(id)))));
 
         }catch (NullPointerException e) {
             log.warn("[Service] Validation error uploading profile photo: {}", e.getMessage());
@@ -127,6 +134,49 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("Failed to create review", e);
         }
     }
+
+    @Override
+    public List<User> getByUsername(String keyword) {
+        try{
+            log.info("[SERVICE] Searching users with keyword: {}", keyword);
+
+            List<User> users = userMapper.toDomain(userRepository.findByUsernameContainingIgnoreCase(keyword));
+
+            for(User user : users){
+                if(user.getImageUrl() != null && !user.getImageUrl().isEmpty()){
+                    String imageUrl = s3Service.getPreSignedUrl(user.getImageUrl());
+                    user.setImageUrl(imageUrl);
+                }
+            }
+
+            log.info("[SERVICE] Successfully fetched {} users.", users.size());
+            return users;
+        }
+        catch (Exception e){
+            log.error("[SERVICE] Error occurred while searching users by keyword: {}", e.getMessage());
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to search users.", e);
+        }
+    }
+
+    @Override
+    public void updateProfileVisibility(Long userId, boolean isPublic) {
+        User user = userMapper.toDomain(userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found")));
+
+        user.setPublicProfile(isPublic);
+        userRepository.save(userMapper.toEntity(user));
+    }
+
+    @Override
+    public void updateBio(Long userId, String bio) {
+        User user = userMapper.toDomain(userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found")));
+
+        user.setBio(bio);
+        userRepository.save(userMapper.toEntity(user));
+    }
+
+
 
     protected String uploadImages(Long userId, MultipartFile image) throws IOException {
         String key = "";
@@ -146,6 +196,19 @@ public class UserServiceImpl implements UserService {
                 log.warn("Failed to delete S3 image during rollback: {}", key, ex);
             }
 
+    }
+
+    @Override
+    public List<Route> getRoutesById(Long userId) {
+        try{
+            List<Route> routes = routeMapper.toDomain(routeRepository.findAllByUserId(userId));
+            log.info("[SERVICE] Found {} routes for user with id: {}", routes.size(), userId);
+            return routes;
+        }
+        catch (Exception ex){
+            log.warn("[SERVICE] Failed to fetch routes by userId: {}", userId, ex);
+            throw ex;
+        }
     }
 
 }

@@ -1,5 +1,6 @@
 package com.digicompass.backend.application.interfaces;
 
+import com.digicompass.backend.application.models.Route;
 import com.digicompass.backend.application.models.User;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,5 +16,9 @@ public interface UserService {
     void deleteUser(User user);
     boolean checkUsernameAvailability(String username);
     boolean checkEmailAvailability( String email);
-    public void uploadProfilePicture(User user, MultipartFile image) throws IOException;
+    void uploadProfilePicture(Long id, MultipartFile image) throws IOException;
+    List<User> getByUsername(String keyword);
+    void updateProfileVisibility(Long userId, boolean isPublic);
+    void updateBio(Long userId, String bio);
+    List<Route> getRoutesById(Long userId);
 }

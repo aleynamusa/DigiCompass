@@ -14,6 +14,7 @@ import {RouteDetails} from "@/components/routeDetails/route_details.jsx";
 
 const API_URL = import.meta.env.VITE_BACKEND_URL;
 const RouteDiscovery = () => {
+
     const [routes, setRoutes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -121,9 +122,8 @@ const RouteDiscovery = () => {
         setSearchTerm("");
         setSearchRoutes([]);
 
-        // Load all routes again
         await fetchRoutes();
-        // setFilteredRoutes(res.data);
+
     };
 
     const isFiltering =
@@ -185,7 +185,6 @@ const RouteDiscovery = () => {
                 <Card style={{backgroundColor: "#E3E0E0"}}>
                     <CardContent className="p-4 md:p-5">
                         <div className="flex flex-col gap-4">
-                            {/* Search Bar */}
                             <div className="relative w-full">
                                 <SearchIcon
                                     className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground z-10"/>

@@ -35,13 +35,7 @@ export default function RouteMap({routeGeometry, category}) {
                     <SmartRoutePath geojson={routeGeometry} category={category} />
                 )}
 
-                {/* REMOVE THIS - it was drawing straight lines between waypoints:
-                {getRouteCoords(routeGeometry).map((point, index) => (
-                    <Marker key={index} position={point} icon={smallIcon}>
-                        <Popup>Point {index + 1}</Popup>
-                    </Marker>
-                ))}
-                */}
+
             </MapContainer>
         </div>
     );

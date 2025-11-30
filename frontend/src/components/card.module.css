@@ -13,7 +13,7 @@
     height: 3px;
     transition: all 250ms ease;
     box-shadow: 0 2px 4px rgba(16, 81, 116, 0.3);
-    z-index: 0; /* Behind the tab text */
+    z-index: 0;
     position: absolute;
     bottom: 0;
 }
@@ -44,7 +44,7 @@
     background-color: rgba(16, 81, 116, 0.15) !important;
 }
 
-/* Ensure text inside tab is visible */
+
 .tab * {
     color: inherit !important;
 }

@@ -7,6 +7,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import java.util.List;
+import java.util.Optional;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
@@ -15,6 +16,7 @@ public interface UserMapper {
 
     @Mapping(target = "roleId", source = "role.id")
     User toDomain(UserEntity entity);
+
 
 
     @Mapping(target = "role.id", source = "roleId")

@@ -5,15 +5,12 @@ import {useAuth} from "@/context/AuthContext.jsx";
 import RouteMap from "@/components/routeDetails/routeMap.jsx";
 import RouteReviewForm from "@/components/routeDetails/routeReviewForm.jsx";
 import RouteTabs from "@/components/routeDetails/routeTabs.jsx";
-import axiosClient from "@/api/axiosClient.jsx";
 
 export function RouteDetails({selectedRoute, onOpenChange}) {
     const {user} = useAuth();
     const [reviews, setReviews] = useState([]);
     const [ratings, setRatings] = useState([]);
     const [errors, setErrors] = useState("");
-
-
 
     useEffect(() => {
         if (!selectedRoute?.id) return;

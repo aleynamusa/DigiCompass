@@ -3,7 +3,6 @@ package com.digicompass.backend.integration;
 import com.digicompass.backend.controller.dto.request.LogInRequest;
 import com.digicompass.backend.repository.entity.RoleEntity;
 import com.digicompass.backend.repository.repositories.RoleJpaRepository;
-import com.digicompass.backend.repository.repositories.UserJpaRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,13 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.DockerImageName;
 
 import java.time.LocalDate;
 
@@ -29,26 +22,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         classes = com.digicompass.backend.BackendApplication.class
 )
 @AutoConfigureMockMvc
-@Testcontainers
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
-class AuthControllerIntegrationTest {
-
-    private static final DockerImageName POSTGIS_IMAGE = DockerImageName
-            .parse("postgis/postgis:17-3.5")
-            .asCompatibleSubstituteFor("postgres");
-
-    @Container
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(POSTGIS_IMAGE)
-            .withDatabaseName("test_db")
-            .withUsername("test")
-            .withPassword("test");
-
-    @DynamicPropertySource
-    static void registerPgProps(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", postgres::getJdbcUrl);
-        registry.add("spring.datasource.username", postgres::getUsername);
-        registry.add("spring.datasource.password", postgres::getPassword);
-    }
+class AuthControllerIntegrationTest extends BaseIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -60,21 +35,9 @@ class AuthControllerIntegrationTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Autowired
-    private javax.sql.DataSource dataSource;
 
     @BeforeEach
-    void cleanupDatabase() throws Exception {
-        try (var connection = dataSource.getConnection();
-             var statement = connection.createStatement()) {
-
-            statement.execute("TRUNCATE TABLE rating CASCADE");
-            statement.execute("TRUNCATE TABLE review CASCADE");
-            statement.execute("TRUNCATE TABLE review_images CASCADE");
-            statement.execute("TRUNCATE TABLE routes CASCADE");
-            statement.execute("TRUNCATE TABLE users CASCADE");
-        }
-
+    void cleanupDatabase(){
 
         if (!roleRepository.existsById(2L)) {
             RoleEntity role = new RoleEntity();

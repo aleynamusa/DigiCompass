@@ -44,13 +44,12 @@ public class ReviewServiceImpl implements ReviewService {
                 throw new IllegalArgumentException("Route ID must not be null or negative.");
             }
 
-            var entities = reviewRepo.getReviewsByRoute(routeId);
-            if (entities == null) {
+            var reviews = reviewMapper.toDomainList(reviewRepo.getReviewsByRoute(routeId));
+            if (reviews == null) {
                 log.warn("[Service] No reviews found for routeId: {0}", routeId);
                 return List.of();
             }
 
-            List<Review> reviews = reviewMapper.toDomainList(entities);
 
             for (Review review : reviews) {
                 if (review.getImages() != null && !review.getImages().isEmpty()) {

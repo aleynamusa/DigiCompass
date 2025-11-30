@@ -60,7 +60,6 @@ export default function Layout({ user, onLogout }) {
                 isMobileMenuOpen={isMobileMenuOpen}
                 closeMobileMenu={closeMobileMenu}
             />
-
             <main className={`flex-1 p-6 transition-all duration-300 ${
                 isMobile ? "ml-0" : "ml-[var(--sidebar-width)]"
             }`}>

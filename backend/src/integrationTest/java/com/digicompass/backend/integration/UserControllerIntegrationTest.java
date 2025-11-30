@@ -10,18 +10,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+
 import org.springframework.http.MediaType;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.DockerImageName;
+
 
 import java.time.LocalDate;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.hamcrest.Matchers.*;
 
@@ -31,30 +28,9 @@ import static org.hamcrest.Matchers.*;
         classes = com.digicompass.backend.BackendApplication.class
 )
 @AutoConfigureMockMvc
-@Testcontainers
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
-public class UserControllerIntegrationTest {
-    private static final DockerImageName POSTGIS_IMAGE = DockerImageName
-            .parse("postgis/postgis:17-3.5")
-            .asCompatibleSubstituteFor("postgres");
+public class UserControllerIntegrationTest  extends BaseIntegrationTest {
 
-    @Container
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(POSTGIS_IMAGE)
-            .withDatabaseName("test_db")
-            .withUsername("test")
-            .withPassword("test");
-
-
-    @DynamicPropertySource
-    static void registerPgProps(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", postgres::getJdbcUrl);
-        registry.add("spring.datasource.username", postgres::getUsername);
-        registry.add("spring.datasource.password", postgres::getPassword);
-
-        registry.add("spring.jpa.hibernate.ddl-auto", () -> "update");
-
-        registry.add("spring.jpa.show-sql", () -> "true");
-    }
 
     @Autowired
     private MockMvc mockMvc;
@@ -84,7 +60,7 @@ public class UserControllerIntegrationTest {
             user.setBirthDate(LocalDate.of(1995, 1, 1));
             user.setPassword("oldpassword123");
             user.setRole(role);
-            user = userRepo.save(user); // <-- FIX
+            user = userRepo.save(user);
         }
     }
 
@@ -151,6 +127,23 @@ public class UserControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.available", is(true)))
                 .andExpect(jsonPath("$.message", is("Email is available")));
+    }
+
+    @Test
+    void shouldUpdateProfilePicture() throws Exception {
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "profile.jpg",
+                MediaType.IMAGE_JPEG_VALUE,
+                "dummy image content".getBytes()
+        );
+
+        mockMvc.perform(multipart("/users/profilePictureUpdate/{id}", user.getId())
+                        .file(file)
+                        .contentType(MediaType.MULTIPART_FORM_DATA))
+                .andExpect(status().isOk());
+
+
     }
 
 

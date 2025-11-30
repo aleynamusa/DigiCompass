@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -8,11 +7,13 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {
+    Avatar
+} from "@mantine/core";
+import {
     MapIcon,
     CloudIcon,
     CalendarIcon,
     UsersIcon,
-
     LogInIcon,
     UserIcon,
     LogOutIcon,
@@ -24,9 +25,12 @@ import '/src/index.css';
 import '/src/App.css'
 import { useNavigate } from "react-router-dom";
 import {useAuth} from "@/context/AuthContext.jsx";
+import React, {useEffect, useState} from "react";
+import {getUserProfile} from "@/api/userApi.jsx";
 
 export function Sidebar({ activeTab, setActiveTab, isMobileMenuOpen = false, closeMobileMenu }) {
 
+    const [profilePic, setProfilePic] = useState(null);
 
     const navItems = [
         { id: "dashboard", label: "Dashboard", icon: HomeIcon, path: "/" },
@@ -38,15 +42,26 @@ export function Sidebar({ activeTab, setActiveTab, isMobileMenuOpen = false, clo
 
     const { user, logout, isAuthenticated } = useAuth();
 
+    useEffect(() => {
+        if (!user?.id) return;
+
+        const fetchProfile = async () => {
+            try {
+                const response = await getUserProfile(user.id);
+
+                if (response?.data?.imageUrl) {
+                    setProfilePic(response.data.imageUrl);
+                }
+            } catch (err) {
+                console.error("Failed to load profile picture", err);
+            }
+        };
+
+        fetchProfile();
+    }, [user]);
+
     const navigate = useNavigate();
 
-    const navigateLogIn = () => {
-        navigate("/LogIn");
-    };
-    console.log("🔍 Sidebar Debug:");
-    console.log("  isAuthenticated:", isAuthenticated);
-    console.log("  user:", user);
-    console.log("  typeof isAuthenticated:", typeof isAuthenticated);
 
     const handleNavClick = (item) => {
         setActiveTab(item.id);
@@ -120,11 +135,22 @@ export function Sidebar({ activeTab, setActiveTab, isMobileMenuOpen = false, clo
                                 variant="ghost"
                                 className="w-full justify-start gap-3 p-2 hover:bg-sidebar-accent"
                             >
-                                <Avatar className="h-8 w-8">
-                                    <AvatarFallback className="bg-primary text-primary-foreground">
-                                        {user?.username?.charAt(0)?.toUpperCase() || "?"}
-                                    </AvatarFallback>
-                                </Avatar>
+                                {/*<Avatar className="h-8 w-8">*/}
+                                {/*    <AvatarFallback className="bg-primary text-primary-foreground">*/}
+                                {/*        {profilePic}*/}
+                                {/*    </AvatarFallback>*/}
+                                {/*</Avatar>*/}
+
+                                <Avatar
+                                    src={profilePic}
+                                    alt="Profile picture"
+                                    size={32}        // equivalent to h-8 w-8
+                                    radius="xl"
+                                    styles={{
+                                        image: { objectFit: "cover" }
+                                    }}
+                                />
+
                                 <div className="flex-1 text-left">
                                     <p className="text-sm font-medium text-sidebar-foreground">
                                         {user?.username}

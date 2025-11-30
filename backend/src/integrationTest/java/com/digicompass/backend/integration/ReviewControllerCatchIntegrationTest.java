@@ -1,6 +1,5 @@
 package com.digicompass.backend.integration;
 
-import com.digicompass.backend.BackendApplication;
 import com.digicompass.backend.application.interfaces.ReviewService;
 import com.digicompass.backend.controller.mapper.ReviewMapperController;
 import org.junit.jupiter.api.Test;
@@ -8,16 +7,10 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.DockerImageName;
+
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -25,32 +18,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        classes = BackendApplication.class
+        classes = com.digicompass.backend.BackendApplication.class
 )
 @AutoConfigureMockMvc
-@Testcontainers
-public class ReviewControllerCatchIntegrationTest {
-
-    private static final DockerImageName POSTGIS_IMAGE = DockerImageName
-            .parse("postgis/postgis:17-3.5")
-            .asCompatibleSubstituteFor("postgres");
-
-    @Container
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(POSTGIS_IMAGE)
-            .withDatabaseName("test_db")
-            .withUsername("test")
-            .withPassword("test");
-
-    @DynamicPropertySource
-    static void registerPgProps(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", postgres::getJdbcUrl);
-        registry.add("spring.datasource.username", postgres::getUsername);
-        registry.add("spring.datasource.password", postgres::getPassword);
-
-        registry.add("spring.jpa.hibernate.ddl-auto", () -> "update");
-
-        registry.add("spring.jpa.show-sql", () -> "true");
-    }
+@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+public class ReviewControllerCatchIntegrationTest extends BaseIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -60,10 +32,6 @@ public class ReviewControllerCatchIntegrationTest {
 
     @MockitoBean
     private ReviewMapperController reviewMapper; // if needed
-
-
-
-    private MockMultipartFile mockImage;
 
 
     @Test

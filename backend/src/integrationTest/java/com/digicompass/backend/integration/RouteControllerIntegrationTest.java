@@ -1,6 +1,5 @@
 package com.digicompass.backend.integration;
 
-import com.digicompass.backend.application.interfaces.RouteService;
 import com.digicompass.backend.repository.entity.RouteEntity;
 import com.digicompass.backend.repository.entity.UserEntity;
 import com.digicompass.backend.repository.repositories.RouteJpaRepository;
@@ -11,13 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.DockerImageName;
+
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -32,30 +26,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         classes = com.digicompass.backend.BackendApplication.class
 )
 @AutoConfigureMockMvc
-@Testcontainers
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")//escape the autowired bean warning
-public class RouteControllerIntegrationTest {
-    private static final DockerImageName POSTGIS_IMAGE = DockerImageName
-            .parse("postgis/postgis:17-3.5")
-            .asCompatibleSubstituteFor("postgres");
-
-    @Container
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(POSTGIS_IMAGE)
-            .withDatabaseName("test_db")
-            .withUsername("test")
-            .withPassword("test");
-
-
-    @DynamicPropertySource
-    static void registerPgProps(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", postgres::getJdbcUrl);
-        registry.add("spring.datasource.username", postgres::getUsername);
-        registry.add("spring.datasource.password", postgres::getPassword);
-
-        registry.add("spring.jpa.hibernate.ddl-auto", () -> "update");
-
-        registry.add("spring.jpa.show-sql", () -> "true");
-    }
+public class RouteControllerIntegrationTest extends BaseIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;

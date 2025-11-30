@@ -1,9 +1,7 @@
 package com.digicompass.backend.application.mapper;
 
-import com.digicompass.backend.application.models.ReviewImage;
 import com.digicompass.backend.repository.entity.ReviewImageEntity;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)

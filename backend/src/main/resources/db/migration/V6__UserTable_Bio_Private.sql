@@ -1,0 +1,3 @@
+
+ALTER TABLE users ADD COLUMN bio TEXT;
+ALTER TABLE users ADD COLUMN is_public_profile BOOLEAN DEFAULT true;

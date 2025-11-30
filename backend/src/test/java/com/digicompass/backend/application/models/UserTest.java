@@ -12,7 +12,7 @@ class UserTest {
     @Test
     void testCalculateAge() {
         LocalDate birthDate = LocalDate.of(2000, 1, 1);
-        User user = new User(1L, "test", "test@example.com", birthDate, "password123", 2L, null);
+        User user = new User(1L, "test", "test@example.com", birthDate, "password123", 2L, null, null, true);
 
         int age = user.CalculateAge();
 
