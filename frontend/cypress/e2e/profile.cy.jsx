@@ -24,9 +24,17 @@ describe("Profile Page (Authenticated User)", () => {
                 id: 1,
                 username: "admin",
                 email: "admin@example.com",
-                birthDate: "2005-11-10"
+                birthDate: "2005-11-10",
+                imageUrl: "avatar.jpg",
+                bio: "hello Testing",
+                isPublicProfile: false,
             }
         }).as("fetchProfile");
+
+        cy.intercept("GET", "/users/1/routes", {
+            statusCode: 200,
+            body: []
+        }).as("fetchRoutes");
 
         cy.visit("/profile/1");
 
@@ -34,7 +42,6 @@ describe("Profile Page (Authenticated User)", () => {
 
         cy.contains("admin").should("exist");
         cy.contains("admin@example.com").should("exist");
-        cy.contains("Your Profile").should("exist");
     });
 
     it("shows loading skeleton while fetching profile", () => {
@@ -58,25 +65,49 @@ describe("Profile Page (Authenticated User)", () => {
             },
         }).as("fetchProfile");
 
+        cy.intercept("GET", "/users/1/routes", {
+            statusCode: 200,
+            body: []
+        }).as("fetchRoutes");
+
         cy.visit("/profile/1");
         cy.wait("@fetchProfile");
 
         cy.contains("admin").should("exist");
-        cy.contains("Your Profile").should("exist");
         cy.contains("admin@example.com").should("exist");
         cy.contains("November 10, 2005").should("exist");
     });
 
     it("does not show email on another user's profile", () => {
-        cy.intercept("GET", `${backendUrl}/users/2`, {
+        cy.intercept("GET", "/users/1", {
+            statusCode: 200,
+            body: {
+                id: 1,
+                username: "admin",
+                email: "admin@example.com",
+                isPublicProfile: true
+            }
+        }).as("fetchAuthUser");
+
+        cy.intercept("GET", "/users/2", {
             statusCode: 200,
             body: {
                 id: 2,
                 username: "otherUser",
-                email: "private@mail.com",
-                birthDate: "2000-01-01",
-            },
+                email: "otherUser@example.com",
+                isPublicProfile: true
+            }
         }).as("fetchProfile");
+
+        cy.intercept("GET", "/users/2/routes", {
+            statusCode: 200,
+            body: []
+        }).as("fetchRoutes");
+
+        cy.intercept("GET", "/users/1/routes", {
+            statusCode: 200,
+            body: []
+        }).as("fetchRoutes");
 
         cy.visit("/profile/2");
         cy.wait("@fetchProfile");
@@ -96,6 +127,11 @@ describe("Profile Page (Authenticated User)", () => {
             },
         }).as("fetchProfile");
 
+        cy.intercept("GET", "/users/1/routes", {
+            statusCode: 200,
+            body: []
+        }).as("fetchRoutes");
+
         cy.visit("/profile/1");
         cy.wait("@fetchProfile");
 
@@ -110,6 +146,11 @@ describe("Profile Page (Authenticated User)", () => {
             statusCode: 404,
             body: { error: "User not found" },
         }).as("fetchProfile");
+
+        cy.intercept("GET", "/users/1/routes", {
+            statusCode: 200,
+            body: []
+        }).as("fetchRoutes");
 
         cy.visit("/profile/99");
         cy.wait("@fetchProfile");

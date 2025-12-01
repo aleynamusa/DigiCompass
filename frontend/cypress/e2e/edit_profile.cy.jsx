@@ -51,7 +51,6 @@ describe("Edit Profile Page", () => {
             force: true,
         });
 
-        // Avatar preview updated
         cy.get("img").should("have.attr", "src").and("include", "blob:");
     });
 
@@ -70,11 +69,22 @@ describe("Edit Profile Page", () => {
             }
         ).as("uploadAvatar");
 
+        cy.intercept("POST", `${backendUrl}/users/1/bio`, {
+            statusCode: 200,
+            body: { message: "Bio updated" }
+        }).as("updateBio");
+
+        cy.intercept("POST", `${backendUrl}/users/1/visibility`, {
+            statusCode: 200,
+            body: { message: "Visibility updated" }
+        }).as("updateVisibility");
+
+
+
 
         cy.visit("/edit-profile");
         cy.wait("@fetchProfile");
 
-        // Upload new file
         cy.get("input[type='file']").selectFile("cypress/fixtures/avatar.jpg", {
             force: true,
         });
@@ -82,7 +92,7 @@ describe("Edit Profile Page", () => {
         cy.contains("Save Changes").click();
 
 
-        cy.contains("Profile picture updated successfully!").should("exist");
+        cy.contains("Profile updated successfully!").should("exist");
     });
 
     it("shows an error if the upload fails", () => {
