@@ -39,7 +39,6 @@ describe("Sign Up Flow", () => {
 
         cy.wait("@signUpRequest").its("response.statusCode").should("eq", 200);
 
-
     });
 
     it("should show if the username is already taken",()=>{
