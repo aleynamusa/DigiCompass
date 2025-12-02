@@ -67,6 +67,7 @@ sonarcloud-analysis:
     - development
   allow_failure: true
 
+
 #docker-backend:build-and-push:
 #  stage: deploy
 #  image: docker:26.1.3
