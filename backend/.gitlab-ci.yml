@@ -58,7 +58,7 @@ sonarcloud-analysis:
     - backend
   script:
     - echo "Running SonarCloud analysis..."
-    - 'echo "Token length: $($env:SONAR_TOKEN.Length)"'
+    - 'echo "Token length: $($SONAR_TOKEN.Length)"'
     - cd backend
     - ./gradlew test integrationTest jacocoTestReport --no-daemon
     - ./gradlew sonar -Dsonar.token=$env:SONAR_TOKEN --no-daemon
