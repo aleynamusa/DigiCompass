@@ -9,8 +9,5 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class BackendApplicationTests {
 
-    @Test
-    void contextLoads() {// Noncompliant - method is empty
-    }
 
 }

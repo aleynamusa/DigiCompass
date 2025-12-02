@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
@@ -63,14 +64,11 @@ class PasswordResetServiceTest {
     void testCreatePasswordResetToken_Success() {
         String email = "test@example.com";
 
-        // Arrange
         when(userRepository.findByEmail(email)).thenReturn(userEntity);
         when(userMapperMock.toDomain(userEntity)).thenReturn(user);
 
-        // Act
         passwordResetService.createPasswordResetToken(email);
 
-        // Assert
         verify(valueOps, times(1)).set(anyString(), eq(email), eq(15L), eq(java.util.concurrent.TimeUnit.MINUTES));
         verify(emailService, times(1)).sendResetLink(eq(email), anyString());
     }
@@ -95,7 +93,6 @@ class PasswordResetServiceTest {
         String email = "user@example.com";
         String newPassword = "newPass123";
 
-        // Arrange
         UserEntity entity = new UserEntity();
         entity.setEmail(email);
         entity.setPassword("oldPassword");
@@ -109,10 +106,8 @@ class PasswordResetServiceTest {
         when(userMapperMock.toDomain(entity)).thenReturn(domainUser);
         when(userMapperMock.toEntity(domainUser)).thenReturn(entity);
 
-        // Act
         passwordResetService.resetPassword(token, newPassword);
 
-        // Assert
         verify(userRepository, times(1)).save(entity);
         verify(redisTemplate, times(1)).delete(token);
 
@@ -149,4 +144,118 @@ class PasswordResetServiceTest {
         verify(redisTemplate, never()).delete(anyString());
         verify(userRepository, never()).save(any());
     }
+
+    @Test
+    void testCreatePasswordResetToken_RedisConnectionFailure() {
+        String email = "test@example.com";
+
+        when(userRepository.findByEmail(email)).thenReturn(userEntity);
+        when(userMapperMock.toDomain(userEntity)).thenReturn(user);
+
+        doThrow(new RedisConnectionFailureException("Redis down"))
+                .when(valueOps)
+                .set(anyString(), eq(email), anyLong(), any());
+
+        RuntimeException ex = assertThrows(
+                RuntimeException.class,
+                () -> passwordResetService.createPasswordResetToken(email)
+        );
+
+        assertTrue(ex.getMessage().contains("Failed to connect to Redis"));
+        verify(emailService, never()).sendResetLink(anyString(), anyString());
+    }
+
+
+    @Test
+    void testCreatePasswordResetToken_DatabaseError() {
+        String email = "test@example.com";
+
+        when(userRepository.findByEmail(email))
+                .thenThrow(new org.springframework.dao.DataAccessResourceFailureException("DB error"));
+
+        RuntimeException ex = assertThrows(
+                RuntimeException.class,
+                () -> passwordResetService.createPasswordResetToken(email)
+        );
+
+        assertTrue(ex.getMessage().contains("Database error"));
+        verify(emailService, never()).sendResetLink(anyString(), anyString());
+    }
+
+    @Test
+    void testCreatePasswordResetToken_UnexpectedError() {
+        String email = "test@example.com";
+
+        when(userRepository.findByEmail(email))
+                .thenThrow(new RuntimeException("Something broke"));
+
+        RuntimeException ex = assertThrows(
+                RuntimeException.class,
+                () -> passwordResetService.createPasswordResetToken(email)
+        );
+
+        assertTrue(ex.getMessage().contains("Unexpected error"));
+    }
+
+
+    @Test
+    void testResetPassword_RedisConnectionFailure() {
+        String token = "reset-token";
+        String email = "test@example.com";
+
+        when(valueOps.get(token)).thenReturn(email);
+        when(userRepository.findByEmail(email)).thenReturn(userEntity);
+        when(userMapperMock.toDomain(userEntity)).thenReturn(user);
+
+        doThrow(new RedisConnectionFailureException("Redis offline"))
+                .when(redisTemplate)
+                .delete(token);
+
+        RuntimeException ex = assertThrows(
+                RuntimeException.class,
+                () -> passwordResetService.resetPassword(token, "newPass123")
+        );
+
+        assertTrue(ex.getMessage().contains("Redis connection error"));
+    }
+
+
+    @Test
+    void testResetPassword_DatabaseError() {
+        String token = "reset-token";
+        String email = "test@example.com";
+
+        when(valueOps.get(token)).thenReturn(email);
+        when(userRepository.findByEmail(email)).thenReturn(userEntity);
+        when(userMapperMock.toDomain(userEntity)).thenReturn(user);
+
+        when(userRepository.save(any()))
+                .thenThrow(new org.springframework.dao.DataAccessResourceFailureException("DB failure"));
+
+        RuntimeException ex = assertThrows(
+                RuntimeException.class,
+                () -> passwordResetService.resetPassword(token, "newPass123")
+        );
+
+        assertTrue(ex.getMessage().contains("Database error"));
+    }
+
+
+    @Test
+    void testResetPassword_UnexpectedError() {
+        String token = "reset-token";
+        String email = "test@example.com";
+
+        when(valueOps.get(token)).thenReturn(email);
+        when(userRepository.findByEmail(email)).thenThrow(new RuntimeException("Unknown failure"));
+
+        RuntimeException ex = assertThrows(
+                RuntimeException.class,
+                () -> passwordResetService.resetPassword(token, "newPass123")
+        );
+
+        assertTrue(ex.getMessage().contains("Unexpected error"));
+    }
+
+
 }

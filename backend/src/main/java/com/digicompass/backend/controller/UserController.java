@@ -5,6 +5,7 @@ import com.digicompass.backend.controller.dto.RouteDto;
 import com.digicompass.backend.controller.dto.response.UserResponseDto;
 import com.digicompass.backend.controller.mapper.RouteMapperController;
 import com.digicompass.backend.controller.mapper.UserMapperController;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
@@ -82,7 +83,6 @@ public class UserController {
         }
     }
 
-
     @PostMapping(value = "/profilePictureUpdate/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> updateUserProfilePicture(@PathVariable Long id, @RequestParam("file") MultipartFile file) throws IOException {
         log.info("[CONTROLLER] Request to update profile picture for user ID {}", id);
@@ -102,7 +102,7 @@ public class UserController {
 
             return ResponseEntity.ok(response);
 
-        } catch (NoSuchElementException e) {
+        } catch (NoSuchElementException | EntityNotFoundException e) {
             log.error("[CONTROLLER] User ID {} not found: {}", id, e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
 

@@ -16,7 +16,6 @@ import org.testcontainers.utility.DockerImageName;
 )
 @Testcontainers
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)// context is being removed from the cache
-
 public abstract class BaseIntegrationTest {
     private static final DockerImageName POSTGIS_IMAGE = DockerImageName
             .parse("postgis/postgis:17-3.5")

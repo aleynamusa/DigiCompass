@@ -4,15 +4,18 @@ stages:
   - sonar
   - deploy
 
+
 backend:build:
   stage: build
-  image: gradle:8.3-jdk24
+  image: docker:stable
+  services:
+    - docker:dind
   tags:
     - backend
   script:
-    - echo "Building Spring Boot backend..."
-    - cd backend
-    - ./gradlew clean bootJar --no-daemon
+    - echo "Building backend Docker image..."
+    - docker build -t backend-app -f backend/Dockerfile backend
+
 
 unit-tests:
   stage: test

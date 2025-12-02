@@ -80,48 +80,44 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public Map<String, String> logIn(String username, String password) {
+        log.info("Login attempt for username: {}", username);
+
+        if (username == null || username.isBlank() ||
+                password == null || password.isBlank()) {
+            log.warn("[SERVICE] Invalid login parameters");
+            throw new IllegalArgumentException("Username and password must not be blank.");
+        }
+
         try {
-            log.info("Login attempt for username: {}", username);
-
-            if (username == null || username.isBlank() || password == null || password.isBlank()) {
-                log.warn("[SERVICE] Invalid login parameters (empty username or password).");
-                throw new IllegalArgumentException("Username and password must not be blank.");
-            }
-
             UserEntity userEntity = userRepository.findUserDocumentByUsername(username);
+
             if (userEntity == null) {
-               log.warn("[SERVICE] Login failed: user not found for username: {}", username);
+                log.warn("[SERVICE] User not found for username: {}", username);
                 return null;
             }
 
             boolean verified = PasswordHasher.verify(userEntity.getPassword(), password);
-            if (verified) {
-                log.info("[SERVICE] Login successful for username: {}", username);
-                String accessToken = jwt.generateAccessToken(userMapper.toDomain(userEntity));
-                String refreshToken = jwt.generateRefreshToken(userMapper.toDomain(userEntity));
-                Map<String, String> tokens = Map.of(
-                        "accessToken", accessToken,
-                        "refreshToken", refreshToken
-                );
-                return tokens;
-            } else {
-                log.warn("[SERVICE] Login failed: invalid password for username: {}", username);
+            if (!verified) {
+                log.warn("[SERVICE] Invalid password for username: {}", username);
                 return null;
             }
 
-        } catch (IllegalArgumentException e) {
-            log.warn("Validation error during login: {}", e.getMessage());
-            throw e;
+            log.info("[SERVICE] Login successful for username: {}", username);
+
+            String accessToken = jwt.generateAccessToken(userMapper.toDomain(userEntity));
+            String refreshToken = jwt.generateRefreshToken(userMapper.toDomain(userEntity));
+
+            return Map.of(
+                    "accessToken", accessToken,
+                    "refreshToken", refreshToken
+            );
 
         } catch (DataAccessException e) {
-            log.error("[SERVICE] Database access error during login for {}: {}",
-                    username, e.getMessage());
-            throw new RuntimeException("Database error while processing login.", e);
-
+            log.error("[SERVICE] Database error during login: {}", e.getMessage());
+            throw e;
         } catch (Exception e) {
-            log.error("[SERVICE] Unexpected error during login for {}: {}",
-                    username, e.getMessage());
-            throw new RuntimeException("Unexpected error while logging in.", e);
+            log.error("[SERVICE] Unexpected error during login: {}", e.getMessage(), e);
+            throw new RuntimeException("Unexpected login error", e);
         }
     }
 

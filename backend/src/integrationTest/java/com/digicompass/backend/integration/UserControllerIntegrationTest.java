@@ -9,7 +9,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
@@ -22,11 +21,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.hamcrest.Matchers.*;
 
-
-@SpringBootTest(
-        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        classes = com.digicompass.backend.BackendApplication.class
-)
 @AutoConfigureMockMvc
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 public class UserControllerIntegrationTest  extends BaseIntegrationTest {
@@ -146,5 +140,52 @@ public class UserControllerIntegrationTest  extends BaseIntegrationTest {
 
     }
 
+
+    @Test
+    void shouldRejectEmptyProfilePicture() throws Exception {
+        MockMultipartFile emptyFile = new MockMultipartFile(
+                "file",
+                "",
+                MediaType.IMAGE_JPEG_VALUE,
+                new byte[0]
+        );
+
+        mockMvc.perform(multipart("/users/profilePictureUpdate/{id}", user.getId())
+                        .file(emptyFile)
+                        .contentType(MediaType.MULTIPART_FORM_DATA))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("File must not be empty"));
+    }
+
+
+    @Test
+    void shouldReturnNotFoundWhenUpdatingProfilePictureForMissingUser() throws Exception {
+        userRepo.deleteById(user.getId());
+
+        MockMultipartFile file = new MockMultipartFile(
+                "file", "test.jpg", MediaType.IMAGE_JPEG_VALUE, "bytes".getBytes()
+        );
+
+        mockMvc.perform(multipart("/users/profilePictureUpdate/{id}", user.getId())
+                        .file(file)
+                        .contentType(MediaType.MULTIPART_FORM_DATA))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("User not found"));
+    }
+
+    @Test
+    void shouldReturnBadRequestForInvalidUserRoutes() throws Exception {
+        mockMvc.perform(get("/users/{id}/routes", 99999))
+                .andExpect(status().isBadRequest());
+    }
+
+
+    @Test
+    void shouldReturnUserSearchResults() throws Exception {
+        mockMvc.perform(get("/users/search")
+                        .param("username", "test"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].username", is("testuser")));
+    }
 
 }

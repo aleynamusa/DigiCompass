@@ -162,8 +162,6 @@ tasks.register("integrationTest", Test) {
     shouldRunAfter(tasks.test)
 }
 
-
-
 jacocoTestReport {
     dependsOn(tasks.test, tasks.named("integrationTest"))
 

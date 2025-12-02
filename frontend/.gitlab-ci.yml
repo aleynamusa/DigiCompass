@@ -3,18 +3,16 @@ stages:
   - test
   - deploy
 
-
 frontend:build:
   stage: build
-  image: node:22-alpine
+  image: docker:stable
+  services:
+    - docker:dind
   tags:
     - frontend
   script:
     - echo "Building Vite + React frontend..."
-    - cd frontend
-    - npm install
-    - npm run build
-
+    - docker build -t frontend-app -f frontend/Dockerfile frontend
 
 e2e:
   stage: test

@@ -6,6 +6,7 @@ import com.digicompass.backend.application.mapper.UserMapper;
 import com.digicompass.backend.application.models.Route;
 import com.digicompass.backend.application.models.User;
 import com.digicompass.backend.application.interfaces.UserService;
+import com.digicompass.backend.repository.entity.UserEntity;
 import com.digicompass.backend.repository.repositories.RouteJpaRepository;
 import com.digicompass.backend.repository.repositories.UserJpaRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +17,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @Slf4j
@@ -30,6 +32,8 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
 
     private final S3Service s3Service;
+
+    private String message =  "User not found";
 
     public UserServiceImpl(UserJpaRepository userRepository, RouteJpaRepository routeRepository, RouteMapper routeMapper, UserMapper userMapper, S3Service s3Service) {
         this.userRepository = userRepository;
@@ -117,21 +121,18 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void uploadProfilePicture(Long id, MultipartFile image) throws IOException {
+        UserEntity user = userRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException(message));
+
         String fileName = uploadImages(id, image);
 
         try {
-
-            userRepository.getById(id).setImageUrl(fileName);
-
-            userMapper.toDomain(userRepository.save(userMapper.toEntity(userMapper.toDomain(userRepository.getById(id)))));
-
-        }catch (NullPointerException e) {
-            log.warn("[Service] Validation error uploading profile photo: {}", e.getMessage());
-            throw new NullPointerException(e.getMessage());
+            user.setImageUrl(fileName);
+            userRepository.save(user);
         }
         catch (Exception e) {
             rollbackS3Uploads(fileName);
-            throw new RuntimeException("Failed to create review", e);
+            throw e;
         }
     }
 
@@ -161,7 +162,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void updateProfileVisibility(Long userId, boolean isPublic) {
         User user = userMapper.toDomain(userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found")));
+                .orElseThrow(() -> new RuntimeException(message)));
 
         user.setPublicProfile(isPublic);
         userRepository.save(userMapper.toEntity(user));
@@ -170,13 +171,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public void updateBio(Long userId, String bio) {
         User user = userMapper.toDomain(userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found")));
+                .orElseThrow(() -> new RuntimeException(message)));
 
         user.setBio(bio);
         userRepository.save(userMapper.toEntity(user));
     }
-
-
 
     protected String uploadImages(Long userId, MultipartFile image) throws IOException {
         String key = "";
@@ -201,6 +200,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<Route> getRoutesById(Long userId) {
         try{
+            if (userRepository.findById(userId).isEmpty()) {
+                throw new NoSuchElementException(message);
+            }
+
             List<Route> routes = routeMapper.toDomain(routeRepository.findAllByUserId(userId));
             log.info("[SERVICE] Found {} routes for user with id: {}", routes.size(), userId);
             return routes;

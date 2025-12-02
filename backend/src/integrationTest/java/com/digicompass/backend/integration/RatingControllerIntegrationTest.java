@@ -1,7 +1,5 @@
 package com.digicompass.backend.integration;
 
-import com.digicompass.backend.repository.repositories.RouteJpaRepository;
-import com.digicompass.backend.repository.repositories.UserJpaRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,8 +49,14 @@ public class RatingControllerIntegrationTest extends BaseIntegrationTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").exists())
                 .andExpect(jsonPath("$.rating").value(4.0));
+    }
 
-
+    @Test
+    void shouldCreatingRatingCannotCreate() throws Exception{
+        mockMvc.perform(post("/rating")
+                        .contentType(MediaType.APPLICATION_JSON)
+                .content(""))
+                .andExpect(status().isBadRequest());
     }
 
     @Test

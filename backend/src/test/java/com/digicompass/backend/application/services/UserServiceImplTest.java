@@ -1,10 +1,14 @@
 package com.digicompass.backend.application.services;
 
+import com.digicompass.backend.application.interfaces.S3Service;
+import com.digicompass.backend.application.mapper.RouteMapper;
 import com.digicompass.backend.application.mapper.UserMapper;
 import com.digicompass.backend.application.models.Route;
 import com.digicompass.backend.application.models.User;
 import com.digicompass.backend.repository.entity.RoleEntity;
+import com.digicompass.backend.repository.entity.RouteEntity;
 import com.digicompass.backend.repository.entity.UserEntity;
+import com.digicompass.backend.repository.repositories.RouteJpaRepository;
 import com.digicompass.backend.repository.repositories.UserJpaRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,9 +19,13 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -30,6 +38,15 @@ class UserServiceImplTest {
 
     @Mock
     private UserMapper userMapper;
+
+    @Mock
+    private RouteMapper routeMapper;
+
+    @Mock
+    private RouteJpaRepository routeRepository;
+
+    @Mock
+    private S3Service s3Service;
 
     @InjectMocks
     private UserServiceImpl userService;
@@ -186,5 +203,213 @@ class UserServiceImplTest {
                 userService.checkEmailAvailability("test@gmail.com")
         );
     }
+
+    @Test
+    void getByUsername_returnsUsersAndPresignsImages() {
+        String keyword = "john";
+
+        UserEntity e1 = new UserEntity();
+        e1.setImageUrl("path/to/img");
+
+        User u1 = new User();
+        u1.setImageUrl("path/to/img");
+
+        when(userRepository.findByUsernameContainingIgnoreCase(keyword))
+                .thenReturn(List.of(e1));
+
+        when(userMapper.toDomain(List.of(e1)))
+                .thenReturn(List.of(u1));
+
+        when(s3Service.getPreSignedUrl("path/to/img"))
+                .thenReturn("signed-url");
+
+        List<User> result = userService.getByUsername(keyword);
+
+        assertEquals(1, result.size());
+        assertEquals("signed-url", result.get(0).getImageUrl());
+    }
+
+    @Test
+    void getByUsername_throwsResponseStatusExceptionOnError() {
+        String keyword = "abc";
+
+        when(userRepository.findByUsernameContainingIgnoreCase(keyword))
+                .thenThrow(new RuntimeException("DB failed"));
+
+        assertThrows(ResponseStatusException.class,
+                () -> userService.getByUsername(keyword));
+    }
+
+    @Test
+    void updateProfileVisibility_updatesVisibility() {
+        Long userId = 5L;
+
+        UserEntity entity = new UserEntity();
+        User domainUser = new User();
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(entity));
+        when(userMapper.toDomain(entity)).thenReturn(domainUser);
+        when(userMapper.toEntity(domainUser)).thenReturn(entity);
+
+        userService.updateProfileVisibility(userId, true);
+
+        assertTrue(domainUser.isPublicProfile());
+        verify(userRepository).save(entity);
+    }
+
+    @Test
+    void updateProfileVisibility_throwsRuntimeExceptionWhenUserNotFound() {
+        when(userRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        assertThrows(RuntimeException.class,
+                () -> userService.updateProfileVisibility(99L, true));
+    }
+
+    @Test
+    void updateBio_updatesBioField() {
+        Long userId = 7L;
+
+        UserEntity entity = new UserEntity();
+        User domainUser = new User();
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(entity));
+        when(userMapper.toDomain(entity)).thenReturn(domainUser);
+        when(userMapper.toEntity(domainUser)).thenReturn(entity);
+
+        userService.updateBio(userId, "New bio");
+
+        assertEquals("New bio", domainUser.getBio());
+        verify(userRepository).save(entity);
+    }
+
+    @Test
+    void updateBio_throwsRuntimeExceptionWhenUserNotFound() {
+        when(userRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        assertThrows(RuntimeException.class,
+                () -> userService.updateBio(10L, "bio"));
+    }
+
+    @Test
+    void uploadProfilePicture_success() throws Exception {
+        MultipartFile file = mock(MultipartFile.class);
+
+        UserEntity entity = new UserEntity();
+        entity.setId(1L);
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(entity));
+        when(s3Service.uploadImage(anyString(), eq(file))).thenReturn("img-key");
+
+        userService.uploadProfilePicture(1L, file);
+
+        assertEquals("img-key", entity.getImageUrl());
+        verify(userRepository).save(entity);
+    }
+
+    @Test
+    void uploadProfilePicture_userNotFound_throwsNoSuchElement() throws Exception {
+        MultipartFile file = mock(MultipartFile.class);
+
+        when(userRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(NoSuchElementException.class, () ->
+                userService.uploadProfilePicture(1L, file)
+        );
+
+        verify(s3Service, never()).uploadImage(anyString(), any());
+    }
+
+    @Test
+    void uploadProfilePicture_saveFails_triggersRollback() throws Exception {
+        MultipartFile file = mock(MultipartFile.class);
+
+        UserEntity entity = new UserEntity();
+        entity.setId(1L);
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(entity));
+        when(s3Service.uploadImage(anyString(), eq(file))).thenReturn("img-key");
+
+        doThrow(new RuntimeException("DB error"))
+                .when(userRepository).save(entity);
+
+        assertThrows(RuntimeException.class,
+                () -> userService.uploadProfilePicture(1L, file));
+
+        verify(s3Service).deleteImage("img-key");
+    }
+
+
+    @Test
+    void uploadProfilePicture_s3UploadFails_throwsIOException() throws Exception {
+        MultipartFile file = mock(MultipartFile.class);
+
+        UserEntity entity = new UserEntity();
+        entity.setId(1L);
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(entity));
+        when(s3Service.uploadImage(anyString(), eq(file)))
+                .thenThrow(new IOException("IO failed"));
+
+        assertThrows(IOException.class,
+                () -> userService.uploadProfilePicture(1L, file));
+
+        verify(userRepository, never()).save(any());
+    }
+
+
+    @Test
+    void getRoutesById_userNotFound_throwsNoSuchElement() {
+        when(userRepository.findById(5L)).thenReturn(Optional.empty());
+
+        assertThrows(NoSuchElementException.class,
+                () -> userService.getRoutesById(5L));
+
+        verify(routeRepository, never()).findAllByUserId(anyLong());
+    }
+
+    @Test
+    void getRoutesById_success() {
+        when(userRepository.findById(5L)).thenReturn(Optional.of(new UserEntity()));
+
+        RouteEntity r1 = new RouteEntity();
+        when(routeRepository.findAllByUserId(5L)).thenReturn(List.of(r1));
+
+        Route mapped = new Route();
+        when(routeMapper.toDomain(List.of(r1))).thenReturn(List.of(mapped));
+
+        List<Route> result = userService.getRoutesById(5L);
+
+        assertEquals(1, result.size());
+    }
+
+
+    @Test
+    void uploadImages_callsS3Service() throws Exception {
+        MultipartFile file = mock(MultipartFile.class);
+        when(file.isEmpty()).thenReturn(false);
+
+        when(s3Service.uploadImage(anyString(), eq(file))).thenReturn("key123");
+
+        var method = UserServiceImpl.class.getDeclaredMethod(
+                "uploadImages", Long.class, MultipartFile.class);
+        method.setAccessible(true);
+
+        String result = (String) method.invoke(userService, 10L, file);
+
+        assertEquals("key123", result);
+    }
+
+
+    @Test
+    void rollbackS3Uploads_deletesImage() throws Exception {
+        var method = UserServiceImpl.class.getDeclaredMethod(
+                "rollbackS3Uploads", String.class);
+        method.setAccessible(true);
+
+        method.invoke(userService, "key123");
+
+        verify(s3Service).deleteImage("key123");
+    }
+
 
 }

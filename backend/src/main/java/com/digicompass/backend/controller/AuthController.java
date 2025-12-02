@@ -59,7 +59,7 @@ public class AuthController {
                         .sameSite("Lax")
                         .secure(false)
                         .path("/")
-                        .maxAge(7 * 24 * 60 * 60)
+                        .maxAge(7 * 24 * 60 * 60l)
                         .build();
                 response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
             }
@@ -103,7 +103,7 @@ public class AuthController {
                 .sameSite("Strict")
                 .secure(false)
                 .path("/")
-                .maxAge(7 * 24 * 60 * 60)
+                .maxAge(7 * 24 * 60 * 60l)
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 

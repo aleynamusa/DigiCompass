@@ -29,16 +29,16 @@ public class RatingController {
     @PostMapping
     public ResponseEntity<RatingDto> createRating(@RequestBody RatingDto rating) {
         try {
-            log.info("Creating rating {}", rating);
+            log.info("[CONTROLLER] Creating rating {}", rating);
             RatingDto response = ratingMapper.toDto(ratingService.addRating(ratingMapper.toModel(rating)));
 
-            log.debug("Created rating {}", response);
+            log.debug("[CONTROLLER] Created rating {}", response);
             if(response.getId() != null) {
                 return ResponseEntity
                         .status(HttpStatus.CREATED)
                         .body(response);
             }else{
-                log.warn("Failed to create rating");
+                log.warn("[CONTROLLER] Failed to create rating");
                 return ResponseEntity
                         .status(HttpStatus.BAD_REQUEST)
                         .body(null);
@@ -54,19 +54,19 @@ public class RatingController {
 
     @GetMapping("/route/{id}")
     public ResponseEntity<List<RatingDto>> getRatingsByRoute(@PathVariable Long id) {
-        log.info("Getting ratings by routeId {}", id);
+        log.info("[CONTROLLER] Getting ratings by routeId {}", id);
         try{
             List<RatingDto> ratings = ratingMapper.toDto(ratingService.getRatingsByRouteId(id));
 
-            log.debug("Fetched {} ratings of route with id: {}", ratings.size(), id);
-            log.debug("Fetched {}", ratings);
+            log.debug("[CONTROLLER] Fetched {} ratings of route with id: {}", ratings.size(), id);
+            log.debug("[CONTROLLER] Fetched {}", ratings);
 
             if (ratings.isEmpty()) {
-                log.info("No ratings found for route with id: {}", id);
+                log.info("[CONTROLLER] No ratings found for route with id: {}", id);
                 return ResponseEntity.ok(ratings);
             }
             else{
-                log.info("Found {} ratings for route with id: {}", ratings.size(), id);
+                log.info("[CONTROLLER] Found {} ratings for route with id: {}", ratings.size(), id);
                 return ResponseEntity.ok(ratings);
             }
         }
