@@ -60,7 +60,8 @@ sonarcloud-analysis:
     - echo "Running SonarCloud analysis..."
     - cd backend
     - ./gradlew test integrationTest jacocoTestReport --no-daemon
-    - ./gradlew sonar `
+    - |
+      ./gradlew sonar `
       -Dsonar.organization="$env:SONAR_ORG" `
       -Dsonar.projectKey="$env:SONAR_PROJECT_KEY" `
       -Dsonar.host.url="$env:SONAR_HOST_URL" `
