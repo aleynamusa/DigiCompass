@@ -57,9 +57,11 @@ sonarcloud-analysis:
   tags:
     - backend
   script:
+    - echo "Running SonarCloud analysis..."
     - cd backend
     - ./gradlew test integrationTest jacocoTestReport --no-daemon
-    - powershell -Command "--% ./gradlew sonar -Dsonar.organization=$env:SONAR_ORG -Dsonar.projectKey=$env:SONAR_PROJECT_KEY -Dsonar.host.url=$env:SONAR_HOST_URL -Dsonar.login=$env:SONAR_TOKEN --no-daemon"
+    - ./gradlew sonar -Dsonar.organization="$env:SONAR_ORG" -Dsonar.projectKey="$env:SONAR_PROJECT_KEY" -Dsonar.host.url="$env:SONAR_HOST_URL" -Dsonar.login="$env:SONAR_TOKEN" --no-daemon
+
   only:
     - main
     - development
