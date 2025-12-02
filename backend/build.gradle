@@ -118,10 +118,10 @@ dependencies {
 
 sonar {
     properties {
-        property "sonar.projectKey", ${ORG_GRADLE_PROJECT_PROJECT_KEY}
-        property "sonar.organization", ${ORG_GRADLE_PROJECT_ORGANIZATION}
-        property "sonar.host.url", ${ORG_GRADLE_PROJECT_HOST_URL}
-        property "sonar.branch.name", ${ORG_GRADLE_PROJECT_BRANCH_NAME}
+        property "sonar.projectKey", System.getenv("ORG_GRADLE_PROJECT_PROJECT_KEY")
+        property "sonar.organization", System.getenv("ORG_GRADLE_PROJECT_ORGANIZATION")
+        property "sonar.host.url", System.getenv("ORG_GRADLE_PROJECT_HOST_URL")
+        property "sonar.branch.name", System.getenv("ORG_GRADLE_PROJECT_BRANCH_NAME")
 
         property "sonar.sources", "src/main/java"
         property "sonar.tests", "src/test/java"
