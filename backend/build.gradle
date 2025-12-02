@@ -131,6 +131,7 @@ sonar {
     }
 }
 
+
 configurations {
     integrationTestImplementation.extendsFrom testImplementation
     integrationTestRuntimeOnly.extendsFrom testRuntimeOnly
