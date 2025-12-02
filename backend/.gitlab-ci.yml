@@ -58,10 +58,10 @@ sonarcloud-analysis:
     - backend
   script:
     - echo "Running SonarCloud analysis..."
+    - echo "Token exists: $($env:SONAR_TOKEN -ne $null)"
     - cd backend
-    - echo "Token exists: $($env:SONAR_TOKEN -ne $null)"  # Will print True/False
     - ./gradlew test integrationTest jacocoTestReport --no-daemon
-    - ./gradlew sonar -Dsonar.token=$env:SONAR_TOKEN --no-daemon
+    - ./gradlew sonar -Dsonar.token="$SONAR_TOKEN" --no-daemon
   only:
     - main
     - development
