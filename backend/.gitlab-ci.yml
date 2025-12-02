@@ -60,7 +60,7 @@ sonarcloud-analysis:
     - echo "Running SonarCloud analysis..."
     - cd backend
     - ./gradlew test integrationTest jacocoTestReport --no-daemon
-    - cmd.exe /C ".\gradlew.bat sonar -Dsonar.login=%SONAR_TOKEN% --no-daemon"
+    - ./gradlew sonar Dsonar.login=$SONAR_TOKEN --no-daemon
   only:
     - main
     - development
