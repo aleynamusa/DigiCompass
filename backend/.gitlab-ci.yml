@@ -58,15 +58,10 @@ sonarcloud-analysis:
     - backend
   script:
     - echo "Running SonarCloud analysis..."
+    - 'echo "Token length: $($SONAR_TOKEN.Length)"'
     - cd backend
     - ./gradlew test integrationTest jacocoTestReport --no-daemon
-    - |
-      $token = $env:SONAR_TOKEN
-      if ([string]::IsNullOrEmpty($token)) {
-        Write-Error "SONAR_TOKEN is not set!"
-        exit 1
-      }
-      ./gradlew sonar "-Dsonar.token=$token" --no-daemon
+    - ./gradlew sonar -Dsonar.token=$env:SONAR_TOKEN --no-daemon
   only:
     - main
     - development
