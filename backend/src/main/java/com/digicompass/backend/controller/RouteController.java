@@ -29,9 +29,9 @@ public class RouteController {
 
 
     @GetMapping()
-    public ResponseEntity<List<Route>> getRoutes() {
+    public ResponseEntity<List<RouteDto>> getRoutes() {
         try {
-            List<Route> routes = routeService.getRoutes();
+            List<RouteDto> routes = routeMapper.toControllerRoute(routeService.getRoutes());
             log.info("[CONTROLLER] Fetched routes: {}", routes.size());
             return ResponseEntity.ok(routes);
         } catch (Exception e) {

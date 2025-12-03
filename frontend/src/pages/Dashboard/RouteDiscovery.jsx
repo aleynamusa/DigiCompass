@@ -31,6 +31,7 @@ const RouteDiscovery = () => {
         try {
             const response = await axios.get(`${API_URL}/route`);
             setRoutes(response.data);
+            console.log(response.data);
         } catch (err) {
             setError("There has been a problem and the data is unavailable at the moment.");
         } finally {

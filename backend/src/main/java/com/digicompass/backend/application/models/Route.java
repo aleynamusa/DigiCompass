@@ -18,7 +18,7 @@ public class Route {
     private String name;
     private String description;
     private String routeType;   //HIKING, CYCLING, RUNNING, WALKING
-    private String difficulty;  //BEGINNER, EASY, MODERATE, HARD, EXPERT, EXTREME
+    private String difficulty;  //BEGINNER, EASY, MODERATE, HARD
     private float distance;
     private String duration;
     private User createdByUserId;

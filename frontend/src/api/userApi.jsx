@@ -1,4 +1,5 @@
 import axiosClient from "./axiosClient";
+import axios from "axios";
 
 export const getUserProfile = async (userId) => axiosClient.get(`/users/${userId}`);
 
@@ -24,3 +25,5 @@ export const updateProfileVisibility = (id, isPublicProfile) =>
 
 export const routesCreatedByUserId = (id) =>
     axiosClient.get(`/users/${id}/routes`);
+
+// const res = await axios.get(`${API_URL}/route`);

@@ -1,5 +1,6 @@
 package com.digicompass.backend.application.services;
 
+import com.digicompass.backend.application.interfaces.RatingService;
 import com.digicompass.backend.application.interfaces.S3Service;
 import com.digicompass.backend.application.mapper.RouteMapper;
 import com.digicompass.backend.application.mapper.UserMapper;
@@ -27,6 +28,8 @@ public class UserServiceImpl implements UserService {
 
     private final RouteJpaRepository routeRepository;
 
+    private final RatingService ratingService;
+
     private final RouteMapper routeMapper;
 
     private final UserMapper userMapper;
@@ -35,9 +38,10 @@ public class UserServiceImpl implements UserService {
 
     private String message =  "User not found";
 
-    public UserServiceImpl(UserJpaRepository userRepository, RouteJpaRepository routeRepository, RouteMapper routeMapper, UserMapper userMapper, S3Service s3Service) {
+    public UserServiceImpl(UserJpaRepository userRepository, RouteJpaRepository routeRepository, RatingService ratingService, RouteMapper routeMapper, UserMapper userMapper, S3Service s3Service) {
         this.userRepository = userRepository;
         this.routeRepository = routeRepository;
+        this.ratingService = ratingService;
         this.routeMapper = routeMapper;
         this.userMapper = userMapper;
         this.s3Service = s3Service;
@@ -205,6 +209,10 @@ public class UserServiceImpl implements UserService {
             }
 
             List<Route> routes = routeMapper.toDomain(routeRepository.findAllByUserId(userId));
+
+            for (Route route : routes) {
+                route.setAverageRating(ratingService.getRouteRating(route.getId()));
+            }
             log.info("[SERVICE] Found {} routes for user with id: {}", routes.size(), userId);
             return routes;
         }

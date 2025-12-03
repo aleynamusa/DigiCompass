@@ -1,8 +1,11 @@
 package com.digicompass.backend.application.repository;
 
-import com.digicompass.backend.repository.entity.*;
-import com.digicompass.backend.repository.repositories.RatingJpaRepository;
-import jakarta.persistence.*;
+import com.digicompass.backend.repository.entity.ReviewEntity;
+import com.digicompass.backend.repository.entity.RoleEntity;
+import com.digicompass.backend.repository.entity.RouteEntity;
+import com.digicompass.backend.repository.entity.UserEntity;
+import com.digicompass.backend.repository.repositories.ReviewJpaRepository;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -10,31 +13,33 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.util.List;
 
-@ExtendWith(SpringExtension.class) //H2 database - in memory database(stores in RAM)
+import static org.assertj.core.api.Assertions.assertThat;
+
+@ExtendWith(SpringExtension.class)
 @DataJpaTest
 @TestPropertySource(properties = {
         "spring.flyway.enabled=false",
         "spring.jpa.hibernate.ddl-auto=create"
 })
+public class ReviewJpaRepositoryTest {
 
-public class RatingJpaRepositoryTest {
     @Autowired
     private EntityManager entityManager;
+
     @Autowired
-    private RatingJpaRepository ratingRepo;
+    private ReviewJpaRepository reviewRepo;
 
     UserEntity firstUser;
     UserEntity secondUser;
     RouteEntity route;
-    RatingEntity firstRating;
-    RatingEntity secondRating;
-    RatingEntity firstSaved;
-    RatingEntity secondSaved;
+    ReviewEntity firstReview;
+    ReviewEntity secondReview;
+    ReviewEntity firstSaved;
+    ReviewEntity secondSaved;
 
     @BeforeEach
     void setup() {
@@ -68,51 +73,39 @@ public class RatingJpaRepositoryTest {
         route.setCreatedByUserId(firstUser);
         entityManager.persist(route);
 
-        firstRating = new RatingEntity();
-        firstRating.setRating(4.0);
-        firstRating.setUserId(firstUser);
-        firstRating.setRouteId(route);
+        firstReview = new ReviewEntity();
+        firstReview.setUserId(firstUser);
+        firstReview.setReview("review");
+        firstReview.setRouteId(route);
 
-        secondRating = new RatingEntity();
-        secondRating.setRating(3.0);
-        secondRating.setUserId(firstUser);
-        secondRating.setRouteId(route);
+        secondReview = new ReviewEntity();
+        secondReview.setUserId(secondUser);
+        secondReview.setReview("review");
+        secondReview.setRouteId(route);
 
-        firstSaved = ratingRepo.save(firstRating);
-        secondSaved = ratingRepo.save(secondRating);
+        firstSaved = reviewRepo.save(firstReview);
+        secondSaved = reviewRepo.save(secondReview);
     }
 
     @Test
-    void shouldSaveRatingCorrectly() {
-
+    void shouldSaveReviewCorrectly() {
         assertThat(firstSaved.getId()).isNotNull();
-        assertThat(firstSaved.getRating()).isEqualTo(4.0);
+        assertThat(firstSaved.getUserId()).isNotNull();
         assertThat(firstSaved.getUserId().getUsername()).isEqualTo("testuser");
+        assertThat(firstSaved.getRouteId()).isNotNull();
         assertThat(firstSaved.getRouteId().getName()).isEqualTo("Test Route");
     }
 
     @Test
-    void shouldReturnAvgRatingCorrectly(){
-        Double avg = ratingRepo.getAvgRatingByRoute(route.getId());
-        assertThat(avg).isNotNull();
-        assertThat(avg).isEqualTo(3.5);
-    }
+    void shouldGetReviewsByRouteCorrectly() {
+        List<ReviewEntity> reviews = reviewRepo.getReviewsByRoute(route.getId());
 
-    @Test
-    void shouldGetRatingsByRouteCorrectly(){
-        List<RatingEntity> ratings = ratingRepo.getRatingsByRoute(route.getId());
+        assertThat(reviews).hasSize(2);
 
-        assertThat(ratings).hasSize(2);
-        assertThat(ratings).extracting(RatingEntity::getRating)
-                .containsExactlyInAnyOrder(4.0, 3.0);
-
-        assertThat(ratings).allSatisfy(r -> {
+        assertThat(reviews).allSatisfy(r -> {
             assertThat(r.getRouteId()).isNotNull();
             assertThat(r.getRouteId().getId()).isEqualTo(route.getId());
             assertThat(r.getUserId()).isNotNull();
         });
     }
-
 }
-
-

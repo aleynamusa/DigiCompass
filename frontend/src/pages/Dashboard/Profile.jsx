@@ -55,7 +55,7 @@ const Profile = () => {
 
                 console.log(data);
 
-                setIsPrivate(!data.isPublicProfile);
+                setIsPrivate(data.isPublicProfile);
 
                 const routesResponse = await routesCreatedByUserId(targetUserId);
                 setBaseRoutes(routesResponse.data || []);
