@@ -9,19 +9,11 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class Rating {
+public class FavouriteRoute {
 
-    private Long id;
+    private User user;
 
-    private Double rating; // 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0
-
-    private User userId;
+    private Route route;
 
     private LocalDateTime createdAt;
-
-    private LocalDateTime updatedAt;
-
-    private Long routeId;
 }
-
-

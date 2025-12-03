@@ -42,6 +42,6 @@ public class UserEntity {
     private String bio;
 
     @Column(nullable = false)
-    private boolean isPublicProfile = true;  // default: public
+    private boolean isPublicProfile = true;//default: public
 
 }

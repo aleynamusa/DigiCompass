@@ -19,8 +19,6 @@ public abstract class RouteMapper {
     protected S3Service s3Service;
     @Mapping(source = "createdByUserId", target = "createdByUserId")
     @Mapping(target = "images", ignore = true)
-    @Mapping(target = "reviews", ignore = true)
-    @Mapping(target = "ratings", ignore = true)
     @Mapping(target = "averageRating", ignore = true)
     public abstract Route toDomain(RouteEntity entity);
 

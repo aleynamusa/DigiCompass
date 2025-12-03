@@ -74,9 +74,9 @@ public class RouteServiceImpl implements RouteService {
             return new RouteGeometry(
                     route.getId(),
                     route.getName(),
-                    objectMapper.readTree(geojson),
-                    route.getReviews(),
-                    route.getRatings()
+                    objectMapper.readTree(geojson)
+//                    route.getReviews(),
+//                    route.getRatings()
             );
 
         } catch (JsonProcessingException e) {

@@ -29,8 +29,7 @@ public class Route {
     private Geometry routeGeometry;
 
     private List<String> images = new ArrayList<>();
-    private List<String> reviews = new ArrayList<>();
-    private List<Double> ratings = new ArrayList<>();
+
 
     private String averageRating;
 }

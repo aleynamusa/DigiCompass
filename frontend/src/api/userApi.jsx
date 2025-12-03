@@ -1,5 +1,4 @@
 import axiosClient from "./axiosClient";
-import axios from "axios";
 
 export const getUserProfile = async (userId) => axiosClient.get(`/users/${userId}`);
 
@@ -27,3 +26,6 @@ export const routesCreatedByUserId = (id) =>
     axiosClient.get(`/users/${id}/routes`);
 
 // const res = await axios.get(`${API_URL}/route`);
+
+export const favouriteRoute = (ids) => axiosClient.post(`/action/favorite`,ids);
+export const unfavoriteRoute = (ids) => axiosClient.post(`/action/unfavorite`,ids);

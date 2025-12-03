@@ -1,0 +1,53 @@
+package com.digicompass.backend.controller;
+
+import com.digicompass.backend.application.interfaces.UserActionsService;
+import com.digicompass.backend.controller.dto.request.FavouriteRouteRequest;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/action")
+@Slf4j
+public class UserActionsController {
+    private final UserActionsService userActionsService;
+
+    public UserActionsController(UserActionsService userActionsService) {
+        this.userActionsService = userActionsService;
+    }
+
+    @PostMapping("/favorite")
+    public ResponseEntity<?> favoriteRoute(@RequestBody FavouriteRouteRequest request) {
+        log.info("[CONTROLLER] Favorite route called. userId={}, routeId={}", request.getUserId(), request.getRouteId());
+        try {
+            userActionsService.FavouriteRoute(request.getUserId(), request.getRouteId());
+            log.info("[CONTROLLER] Favorite route succeeded. userId={}, routeId={}", request.getUserId(), request.getRouteId());
+            return ResponseEntity.ok("Route favorited successfully.");
+        } catch (IllegalArgumentException e) {
+            log.warn("[CONTROLLER] Favorite route failed due to invalid input. userId={}, routeId={}, reason={}", request.getUserId(), request.getRouteId(), e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            log.error("[CONTROLLER] Favorite route failed. userId={}, routeId={}", request.getUserId(), request.getRouteId(), e);
+            return ResponseEntity.status(500).body("Internal server error");
+        }
+    }
+
+    @PostMapping("/unfavorite")
+    public ResponseEntity<?> unfavoriteRoute(@RequestBody FavouriteRouteRequest request) {
+        log.info("[CONTROLLER] Unfavorite route called. userId={}, routeId={}", request.getUserId(), request.getRouteId());
+        try {
+            userActionsService.UnfavouriteRoute(request.getUserId(), request.getRouteId());
+            log.info("[CONTROLLER] Unfavorite route succeeded. userId={}, routeId={}", request.getUserId(), request.getRouteId());
+            return ResponseEntity.ok("Route unfavorited successfully.");
+        } catch (IllegalArgumentException e) {
+            log.warn("[CONTROLLER] Unfavorite route failed due to invalid input. userId={}, routeId={}, reason={}", request.getUserId(), request.getRouteId(), e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            log.error("[CONTROLLER] Unfavorite route failed. userId={}, routeId={}", request.getUserId(), request.getRouteId(), e);
+            return ResponseEntity.status(500).body("Internal server error");
+        }
+    }
+}

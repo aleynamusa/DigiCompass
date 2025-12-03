@@ -12,9 +12,33 @@ import {Badge} from "@/components/ui/badge.jsx";
 import {Carousel} from "@mantine/carousel";
 import { useNavigate } from "react-router-dom";
 import classes from '@/components/card.module.css';
+import {useAuth} from "@/context/AuthContext.jsx";
+import {favouriteRoute, unfavoriteRoute} from "@/api/userApi.jsx";
+import {useState} from "react";
 
 export function RouteCard({ route, onViewDetails }) {
     const navigate = useNavigate();
+
+    const [isFavorite, setIsFavorite] = useState(route.isFavorite || false);
+    const { user } = useAuth();
+
+    const handleToggleFavourite = async (e) => {
+        e.stopPropagation(); //prevent card click
+
+        const payload = { userId: Number(user.id), routeId: route.id };
+
+        try {
+            if (!isFavorite) {
+                await favouriteRoute(payload);
+                setIsFavorite(true);
+            } else {
+                await unfavoriteRoute(payload);
+                setIsFavorite(false);
+            }
+        } catch (err) {
+            console.error("Failed to toggle favorite:", err);
+        }
+    };
     
     return (
         <div>
@@ -33,8 +57,16 @@ export function RouteCard({ route, onViewDetails }) {
                     ))}
                 </Carousel>
                 <div className="absolute top-2 right-2 flex gap-1">
-                    <Button size="icon" variant="secondary" className="h-8 w-8 bg-white/80 hover:bg-white">
-                        <HeartIcon className="h-4 w-4" />
+                    <Button
+                        size="icon"
+                        variant="secondary"
+                        className="h-8 w-8 bg-white/80 hover:bg-white"
+                        onClick={handleToggleFavourite}
+                    >
+                        <HeartIcon
+                            className={`h-4 w-4 transition-all 
+                                ${isFavorite ? "fill-red-900 text-red-900" : ""}`}
+                        />
                     </Button>
                     <Button size="icon" variant="secondary" className="h-8 w-8 bg-white/80 hover:bg-white">
                         <ShareIcon className="h-4 w-4" />

@@ -13,6 +13,6 @@ public class RouteGeometry {
     private Long id;
     private String name;
     private Object geojson;
-    private List<String> reviews;
-    private List<Double> ratings;
+//    private List<String> reviews;
+//    private List<Double> ratings;
 }
