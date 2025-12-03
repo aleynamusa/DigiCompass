@@ -3,6 +3,7 @@ package com.digicompass.backend.controller;
 import com.digicompass.backend.application.interfaces.UserActionsService;
 import com.digicompass.backend.controller.dto.request.FavouriteRouteRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,7 +32,7 @@ public class UserActionsController {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             log.error("[CONTROLLER] Favorite route failed. userId={}, routeId={}", request.getUserId(), request.getRouteId(), e);
-            return ResponseEntity.status(500).body("Internal server error");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal server error");
         }
     }
 
@@ -47,7 +48,7 @@ public class UserActionsController {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             log.error("[CONTROLLER] Unfavorite route failed. userId={}, routeId={}", request.getUserId(), request.getRouteId(), e);
-            return ResponseEntity.status(500).body("Internal server error");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal server error");
         }
     }
 }

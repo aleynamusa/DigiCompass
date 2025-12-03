@@ -1,0 +1,158 @@
+package com.digicompass.backend.application.services;
+
+import com.digicompass.backend.application.mapper.FavouriteRouteMapper;
+import com.digicompass.backend.application.mapper.RouteMapper;
+import com.digicompass.backend.application.mapper.UserMapper;
+import com.digicompass.backend.application.models.FavouriteRoute;
+import com.digicompass.backend.repository.entity.FavouriteRouteEntity;
+import com.digicompass.backend.repository.entity.RouteEntity;
+import com.digicompass.backend.repository.entity.UserEntity;
+import com.digicompass.backend.repository.repositories.FavouriteRouteJpaRepository;
+import com.digicompass.backend.repository.repositories.RouteJpaRepository;
+import com.digicompass.backend.repository.repositories.UserJpaRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.*;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.time.LocalDateTime;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+public class UserActionsServiceImplTest {
+    @Mock
+    private FavouriteRouteJpaRepository favouriteRouteRepository;
+
+    @Mock
+    private UserJpaRepository userRepository;
+
+    @Mock
+    private RouteJpaRepository routeRepository;
+
+    @Mock
+    private UserMapper userMapper;
+
+    @Mock
+    private RouteMapper routeMapper;
+
+    @Mock
+    private FavouriteRouteMapper favouriteRouteMapper;
+
+    @InjectMocks
+    private UserActionsServiceImpl userActionsService;
+
+    private UserEntity mockUser;
+    private RouteEntity mockRoute;
+
+    @BeforeEach
+    void setup() {
+
+        mockUser = new UserEntity();
+        mockUser.setId(1L);
+
+        mockRoute = new RouteEntity();
+        mockRoute.setId(1L);
+    }
+
+
+    @Test
+    void testFavouriteRoute_success() {
+        when(userRepository.existsById(1L)).thenReturn(true);
+        when(routeRepository.existsById(1L)).thenReturn(true);
+        when(userRepository.getById(1L)).thenReturn(mockUser);
+        when(routeRepository.getById(1L)).thenReturn(mockRoute);
+
+        FavouriteRoute domain = new FavouriteRoute(null, null, LocalDateTime.now());
+        when(userMapper.toDomain(mockUser)).thenReturn(domain.getUser());
+        when(routeMapper.toDomain(mockRoute)).thenReturn(domain.getRoute());
+
+        FavouriteRouteEntity mappedEntity = new FavouriteRouteEntity();
+        when(favouriteRouteMapper.toEntity(any(FavouriteRoute.class))).thenReturn(mappedEntity);
+
+        userActionsService.FavouriteRoute(1L, 1L);
+
+        verify(favouriteRouteRepository, times(1)).save(mappedEntity);
+    }
+
+    @Test
+    void testUnfavouriteRoute_success() {
+        when(userRepository.existsById(1L)).thenReturn(true);
+        when(routeRepository.existsById(1L)).thenReturn(true);
+        when(userRepository.getById(1L)).thenReturn(mockUser);
+        when(routeRepository.getById(1L)).thenReturn(mockRoute);
+
+        FavouriteRoute domain = new FavouriteRoute(null, null, LocalDateTime.now());
+        when(userMapper.toDomain(mockUser)).thenReturn(domain.getUser());
+        when(routeMapper.toDomain(mockRoute)).thenReturn(domain.getRoute());
+
+        FavouriteRouteEntity mappedEntity = new FavouriteRouteEntity();
+        when(favouriteRouteMapper.toEntity(any(FavouriteRoute.class))).thenReturn(mappedEntity);
+
+        userActionsService.UnfavouriteRoute(1L, 1L);
+
+        verify(favouriteRouteRepository, times(1)).delete(mappedEntity);
+    }
+
+    @Test
+    void testFavouriteRoute_userOrRouteNotFound() {
+        when(userRepository.existsById(1L)).thenReturn(false);
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> userActionsService.FavouriteRoute(1L, 1L)
+        );
+
+        assertEquals("User or route does not exist.", exception.getMessage());
+        verify(favouriteRouteRepository, never()).save(any());
+    }
+
+    @Test
+    void testUnfavouriteRoute_userOrRouteNotFound() {
+        when(userRepository.existsById(1L)).thenReturn(false);
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> userActionsService.UnfavouriteRoute(1L, 1L)
+        );
+
+        assertEquals("User or route does not exist.", exception.getMessage());
+        verify(favouriteRouteRepository, never()).delete(any());
+    }
+
+    @Test
+    void testFavouriteRoute_repositoryThrowsException() {
+        when(userRepository.existsById(1L)).thenReturn(true);
+        when(routeRepository.existsById(1L)).thenReturn(true);
+        when(userRepository.getById(1L)).thenReturn(mockUser);
+        when(routeRepository.getById(1L)).thenReturn(mockRoute);
+
+        when(favouriteRouteMapper.toEntity(any())).thenThrow(new RuntimeException("DB ERROR"));
+
+        RuntimeException exception = assertThrows(
+                RuntimeException.class,
+                () -> userActionsService.FavouriteRoute(1L, 1L)
+        );
+
+        assertEquals("Error liking the route.", exception.getMessage());
+    }
+
+    @Test
+    void testUnfavouriteRoute_repositoryThrowsException() {
+        when(userRepository.existsById(1L)).thenReturn(true);
+        when(routeRepository.existsById(1L)).thenReturn(true);
+        when(userRepository.getById(1L)).thenReturn(mockUser);
+        when(routeRepository.getById(1L)).thenReturn(mockRoute);
+
+        when(favouriteRouteMapper.toEntity(any())).thenThrow(new RuntimeException("DB ERROR"));
+
+        RuntimeException exception = assertThrows(
+                RuntimeException.class,
+                () -> userActionsService.UnfavouriteRoute(1L, 1L)
+        );
+
+        assertEquals("Error unliking the route.", exception.getMessage());
+    }
+}
