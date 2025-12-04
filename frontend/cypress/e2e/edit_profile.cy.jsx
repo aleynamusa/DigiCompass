@@ -31,7 +31,7 @@ describe("Edit Profile Page", () => {
         cy.visit("/edit-profile");
         cy.wait("@fetchProfile");
 
-        cy.get("img")                  // Avatar component renders as img tag
+        cy.get("img")
             .should("have.attr", "src", "https://example.com/avatar.jpg");
 
         cy.contains("Edit Profile").should("exist");

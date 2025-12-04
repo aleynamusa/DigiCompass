@@ -4,6 +4,10 @@ import io.jsonwebtoken.Claims;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import java.io.IOException;
+import java.util.List;
+
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -29,18 +33,35 @@ public class JWTAuthFilter implements Filter {
                 token = authHeader.substring(7);
             }
 
+//            if (token != null) {
+//                try {
+//                    Claims claims = jwt.extractAllClaims(token);
+//                    String username = claims.getSubject();
+//                    Long id = claims.get("id", Long.class);
+//                    request.setAttribute("user", username);
+//                    request.setAttribute("id", id);
+//                } catch (Exception e) {
+//                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+//                    return;
+//                }
+//            }
+
             if (token != null) {
                 try {
                     Claims claims = jwt.extractAllClaims(token);
                     String username = claims.getSubject();
-                    Long id = claims.get("id", Long.class);
-                    request.setAttribute("user", username);
-                    request.setAttribute("id", id);
+
+                    UsernamePasswordAuthenticationToken auth =
+                            new UsernamePasswordAuthenticationToken(username, null, List.of());
+
+                    SecurityContextHolder.getContext().setAuthentication(auth);
+
                 } catch (Exception e) {
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                     return;
                 }
             }
+
 
             chain.doFilter(req, res);
         }

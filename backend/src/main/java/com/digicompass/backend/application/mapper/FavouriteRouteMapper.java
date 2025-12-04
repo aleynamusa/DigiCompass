@@ -9,18 +9,21 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring", uses = {UserMapper.class, RouteMapper.class})
-public abstract class FavouriteRouteMapper {
+public interface FavouriteRouteMapper {
 
-    @Mapping(target = "id", ignore = true) // we set it manually
-    public abstract FavouriteRouteEntity toEntity(FavouriteRoute favouriteRoute);
+//    id
+//    @Mapping(target = "id", ignore = true) working vers
+    @Mapping(target = "id.userId", source = "user.id")
+    @Mapping(target = "id.routeId", source = "route.id")
+    FavouriteRouteEntity toEntity(FavouriteRoute favouriteRoute);
 
-    public abstract FavouriteRoute toDomain(FavouriteRouteEntity entity);
+    FavouriteRoute toDomain(FavouriteRouteEntity entity);
 
-    @AfterMapping
-    protected void assignKey(FavouriteRoute favouriteRoute, @MappingTarget FavouriteRouteEntity entity) {
-        entity.setId(new FavouriteRouteKey(
-                favouriteRoute.getUser().getId(),
-                favouriteRoute.getRoute().getId()
-        ));
-    }
+//    @AfterMapping
+//    protected void assignKey(FavouriteRoute favouriteRoute, @MappingTarget FavouriteRouteEntity entity) {
+//        entity.setId(new FavouriteRouteKey(
+//                favouriteRoute.getUser().getId(),
+//                favouriteRoute.getRoute().getId()
+//        ));
+//    }
 }

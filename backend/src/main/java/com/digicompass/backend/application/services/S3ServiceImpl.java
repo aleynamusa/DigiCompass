@@ -39,7 +39,7 @@ public class S3ServiceImpl implements S3Service {
                 .build();
 
         GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
-                .signatureDuration(Duration.ofMinutes(10))
+                .signatureDuration(Duration.ofMinutes(1))
                 .getObjectRequest(getObjectRequest)
                 .build();
 
@@ -65,7 +65,6 @@ public class S3ServiceImpl implements S3Service {
                 .key(key)
                 .contentType(file.getContentType())
                 .build();
-
 
         s3.putObject(putRequest, RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
         return key;

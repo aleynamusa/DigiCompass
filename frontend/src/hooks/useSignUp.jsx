@@ -66,7 +66,7 @@ export function useSignUp() {
             const response = await signUpCheck(field, value);
             setAvailability((prev) => ({
                 ...prev,
-                [field]: response.data.available ? "taken" : "available"
+                [field]: response.data.available ? "available" : "taken"
             }));
         } catch (error) {
             console.error("Availability check failed:", error);

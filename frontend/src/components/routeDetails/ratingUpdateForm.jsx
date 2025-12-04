@@ -26,7 +26,7 @@ export default function RatingUpdateForm({ selectedRoute, onOpenChange }) {
 
         try {
             await handleEditRating(selectedRoute.id, updatedRating);
-            onOpenChange(); // close modal
+            onOpenChange();
         } catch (err) {
             console.error("Rating update failed:", err.response?.data || err);
         }
