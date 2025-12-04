@@ -17,7 +17,6 @@ backend:build:
     - docker build -t backend-app -f backend/Dockerfile backend
 
 
-
 unit-tests:
   stage: test
   image: gradle:8.3-jdk24
