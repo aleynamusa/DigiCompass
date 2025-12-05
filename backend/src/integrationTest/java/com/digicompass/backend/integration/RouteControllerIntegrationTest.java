@@ -22,7 +22,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-@AutoConfigureMockMvc
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")//escape the autowired bean warning
 public class RouteControllerIntegrationTest extends BaseIntegrationTest {
     @Autowired private MockMvc mockMvc;

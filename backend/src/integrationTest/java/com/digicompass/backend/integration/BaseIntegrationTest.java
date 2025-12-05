@@ -1,5 +1,6 @@
 package com.digicompass.backend.integration;
 
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -16,6 +17,8 @@ import org.testcontainers.utility.DockerImageName;
 )
 @Testcontainers
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)// context is being removed from the cache
+@AutoConfigureMockMvc(addFilters = false)
+@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 public abstract class BaseIntegrationTest {
     private static final DockerImageName POSTGIS_IMAGE = DockerImageName
             .parse("postgis/postgis:17-3.5")

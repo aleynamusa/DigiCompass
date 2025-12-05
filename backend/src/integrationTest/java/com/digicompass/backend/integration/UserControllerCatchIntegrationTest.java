@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-@AutoConfigureMockMvc
+
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 public class UserControllerCatchIntegrationTest extends BaseIntegrationTest{
 

@@ -26,7 +26,6 @@ import static org.mockito.Mockito.times;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-@AutoConfigureMockMvc
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 public class ResetPasswordControllerIntegrationTest extends BaseIntegrationTest {
 
