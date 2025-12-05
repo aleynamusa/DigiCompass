@@ -14,18 +14,34 @@ import { useNavigate } from "react-router-dom";
 import classes from '@/components/card.module.css';
 import {useAuth} from "@/context/AuthContext.jsx";
 import {favouriteRoute, unfavoriteRoute} from "@/api/userApi.jsx";
-import {useState} from "react";
+import {useEffect, useState} from "react";
+import {isLiked} from "@/api/routeApi.jsx";
 
 export function RouteCard({ route, onViewDetails }) {
     const navigate = useNavigate();
 
-    const [isFavorite, setIsFavorite] = useState(route.isFavorite || false);
+    const [isFavorite, setIsFavorite] = useState(false);
     const { user } = useAuth();
 
-    const handleToggleFavourite = async (e) => {
-        e.stopPropagation(); //prevent card click
+    const payload = { userId: Number(user.id), routeId: route.id };
 
-        const payload = { userId: Number(user.id), routeId: route.id };
+    useEffect(() => {
+        const fetchLiked = async () => {
+            try {
+                const res = await isLiked(payload);
+                setIsFavorite(res.data);
+            } catch (err) {
+                console.error(err);
+            }
+        };
+
+        fetchLiked();
+    }, [route.id, user.id]);
+
+    const handleToggleFavourite = async (e) => {
+        e.stopPropagation();//prevent card click
+
+
 
         try {
             if (!isFavorite) {

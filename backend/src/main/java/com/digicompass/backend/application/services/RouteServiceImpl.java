@@ -5,7 +5,9 @@ import com.digicompass.backend.application.interfaces.RouteService;
 import com.digicompass.backend.application.mapper.RouteMapper;
 import com.digicompass.backend.application.models.Route;
 import com.digicompass.backend.application.models.RouteGeometry;
+import com.digicompass.backend.repository.repositories.FavouriteRouteJpaRepository;
 import com.digicompass.backend.repository.repositories.RouteJpaRepository;
+import com.digicompass.backend.repository.repositories.UserJpaRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -24,16 +26,20 @@ public class RouteServiceImpl implements RouteService {
     private final RouteMapper routeMapper;
     private final ObjectMapper objectMapper;
     private final RatingService ratingService;
+    private final UserJpaRepository userRepository;
+    private final FavouriteRouteJpaRepository favouriteRouteRepository;
 
 
     public RouteServiceImpl(RouteJpaRepository routeRepository,
                             RouteMapper routeMapper,
                             ObjectMapper objectMapper,
-                            RatingService ratingService) {
+                            RatingService ratingService, UserJpaRepository userRepository, FavouriteRouteJpaRepository favouriteRouteRepository) {
         this.routeRepository = routeRepository;
         this.routeMapper = routeMapper;
         this.objectMapper = objectMapper;
         this.ratingService = ratingService;
+        this.userRepository = userRepository;
+        this.favouriteRouteRepository = favouriteRouteRepository;
     }
 
     @Override
@@ -75,8 +81,6 @@ public class RouteServiceImpl implements RouteService {
                     route.getId(),
                     route.getName(),
                     objectMapper.readTree(geojson)
-//                    route.getReviews(),
-//                    route.getRatings()
             );
 
         } catch (JsonProcessingException e) {
@@ -132,6 +136,25 @@ public class RouteServiceImpl implements RouteService {
         catch (Exception e){
             log.error("[SERVICE] Error occurred while searching routes by keyword: {}", e.getMessage());
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to filter routes.", e);
+        }
+    }
+
+    @Override
+    public List<Route> getLikedRoutesByUserId(Long userId) {
+        if(!userRepository.existsById(userId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with id: " + userId);
+        }
+        try{
+            List<Route> likedRoutes = routeMapper.toDomain(favouriteRouteRepository.findAllLikedRoutesByUserId(userId));
+            likedRoutes.forEach(r -> r.setRouteGeometry(null));
+
+            log.debug("[SERVICE] Successfully fetched {} liked routes for user id: {}", likedRoutes.size(), userId);
+
+            return likedRoutes;
+        }
+        catch (Exception e){
+            log.error("[SERVICE] Error occurred while fetching liked routes for user id {}: {}", userId, e.getMessage());
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to fetch liked routes.", e);
         }
     }
 }

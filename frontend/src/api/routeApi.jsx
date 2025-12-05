@@ -48,3 +48,15 @@ export const handleDeleteRating = (id) => axiosClient.delete(`/rating/delete/${i
 export const handleEditRating = async (id, data) => {
     return axiosClient.put(`/rating/update/${id}`, data);
 };
+
+export const isLiked = (data) =>
+    axiosClient.get(`/action/isLiked`, {
+        params: {
+            userId: data.userId,
+            routeId: data.routeId
+        }
+    });
+
+export const getLikedRoutesByUser = (userId) =>
+    axiosClient.get(`/route/liked/${userId}`);
+

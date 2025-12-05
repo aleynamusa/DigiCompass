@@ -20,6 +20,7 @@ import dayjs from "dayjs";
 import {RouteCard} from "@/components/routeDetails/route_card.jsx";
 import axios from "axios";
 import {RouteDetails} from "@/components/routeDetails/route_details.jsx";
+import {getLikedRoutesByUser} from "@/api/routeApi.jsx";
 
 const API_URL = import.meta.env.VITE_BACKEND_URL;
 const Profile = () => {
@@ -32,6 +33,7 @@ const Profile = () => {
     const [isPrivate, setIsPrivate] = useState(false);
     const [baseRoutes, setBaseRoutes] = useState(null);
     const [selectedRoute, setSelectedRoute] = useState(null);
+    const [likedRoutes, setLikedRoutes] = useState(null);
 
 
 
@@ -90,6 +92,17 @@ const Profile = () => {
             setError("There has been a problem and the data is unavailable at the moment.");
         }
     };
+
+    const handleLikedRoutes = async () => {
+        try {
+            const response = await getLikedRoutesByUser(targetUserId);
+            setLikedRoutes(response.data || []);
+        } catch (err) {
+            console.error(err);
+            setError("There has been a problem and the data is unavailable at the moment.");
+        }
+    };
+
 
     if (loading) {
         return (
@@ -260,9 +273,14 @@ const Profile = () => {
                                 {isOwnProfile ? "My Shared Routes" : "Shared Routes"}
                             </Tabs.Tab>
                             {isOwnProfile && (
-                                <Tabs.Tab value="liked" leftSection={<Heart size={16} />}>
+                                <Tabs.Tab
+                                    value="liked"
+                                    leftSection={<Heart size={16} />}
+                                    onClick={handleLikedRoutes}
+                                >
                                     Liked Routes
                                 </Tabs.Tab>
+
                             )}
                             <Tabs.Tab value="all" leftSection={<MapPin size={16} />}>
                                 {isOwnProfile ? "All My Routes" : "All Routes"}
@@ -298,15 +316,29 @@ const Profile = () => {
                         {isOwnProfile && (
                             <Tabs.Panel value="liked" pt="lg">
                                 <div className="text-center py-12">
-                                    <div className="flex justify-center mb-4">
-                                        <Heart size={48} style={{ color: "#9ca3af" }} />
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                                        {(!likedRoutes || likedRoutes.length === 0) ? (
+                                            <div>
+                                                <div className="flex justify-center mb-4">
+                                                    <Heart size={48} style={{ color: "#9ca3af" }} />
+                                                </div>
+                                                <Text c="dimmed" size="lg" mb="xs">
+                                                    No liked routes yet
+                                                </Text>
+                                                <Text c="dimmed" size="sm">
+                                                    Routes you like will appear here
+                                                </Text>
+                                            </div>
+                                        ) : (
+                                            likedRoutes.map((route) => (
+                                                <RouteCard
+                                                    key={route.id}
+                                                    route={route}
+                                                    onViewDetails={() => handleViewDetails(route)}
+                                                />
+                                            ))
+                                        )}
                                     </div>
-                                    <Text c="dimmed" size="lg" mb="xs">
-                                        No liked routes yet
-                                    </Text>
-                                    <Text c="dimmed" size="sm">
-                                        Routes you like will appear here
-                                    </Text>
                                 </div>
                             </Tabs.Panel>
                         )}

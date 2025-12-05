@@ -5,6 +5,7 @@ import com.digicompass.backend.application.mapper.FavouriteRouteMapper;
 import com.digicompass.backend.application.mapper.RouteMapper;
 import com.digicompass.backend.application.mapper.UserMapper;
 import com.digicompass.backend.application.models.FavouriteRoute;
+import com.digicompass.backend.repository.entity.FavouriteRouteKey;
 import com.digicompass.backend.repository.repositories.FavouriteRouteJpaRepository;
 import com.digicompass.backend.repository.repositories.RouteJpaRepository;
 import com.digicompass.backend.repository.repositories.UserJpaRepository;
@@ -73,6 +74,23 @@ public class UserActionsServiceImpl implements UserActionsService {
             log.debug("[SERVICE] Deleted favourite route for userId={} routeId={}", userId, routeId);
         } catch (Exception e) {
             log.error("[SERVICE] Error unliking the route for userId={} routeId={}", userId, routeId, e);
+            throw new RuntimeException("Error unliking the route.", e);
+        }
+    }
+
+    @Override
+    public boolean IsLikedRoute(Long userId, Long routeId) {
+        if (!userRepository.existsById(userId) || !routeRepository.existsById(routeId)) {
+            log.warn("[SERVICE] User or route does not exist. userId={} routeId={}", userId, routeId);
+            throw new IllegalArgumentException("User or route does not exist.");
+        }
+        try {
+
+            boolean isLiked = favouriteRouteRepository.existsByIdUserIdAndIdRouteId(userId, routeId);
+            log.debug("[SERVICE] isLikedRoute for userId={} routeId={} : {}", userId, routeId, isLiked);
+            return isLiked;
+        } catch (Exception e) {
+            log.error("[SERVICE] Error unliking the route for userId={} routeId={}", userId, routeId, e);//TODO change this
             throw new RuntimeException("Error unliking the route.", e);
         }
     }

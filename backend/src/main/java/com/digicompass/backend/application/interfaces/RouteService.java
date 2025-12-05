@@ -12,4 +12,5 @@ public interface RouteService {
     RouteGeometry getRouteById(Long id);
     List<Route> getFilteredRoutes(String type, String difficulty, Float distance);
     List<Route> searchRoutes(String keyword);
+    List<Route> getLikedRoutesByUserId(Long userId);
 }

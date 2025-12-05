@@ -82,4 +82,18 @@ public class RouteController {
             return ResponseEntity.badRequest().build();
         }
     }
+
+    @GetMapping("/liked/{userId}")
+    public ResponseEntity<List<RouteDto>> getLikedRoutesByUserId(@PathVariable Long userId) {
+        try {
+            List<RouteDto> routes = routeMapper.toControllerRoute(
+                    routeService.getLikedRoutesByUserId(userId)
+            );
+            log.info("[CONTROLLER] Fetched liked routes for user with id {}: {}", userId, routes.size());
+            return ResponseEntity.ok(routes);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return ResponseEntity.badRequest().build();
+        }
+    }
 }
