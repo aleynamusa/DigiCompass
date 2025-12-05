@@ -34,13 +34,15 @@ e2e:
     - cd frontend
     - npm install
     - npx cypress run
-#    - cd ..
-#    - docker compose -f docker-compose-test.yml rm -sf db_test
+    - cd ..
+    - docker compose -f docker-compose-test.yml rm -sf db_test
   artifacts:
     when: always
     paths:
       - frontend/cypress/videos
       - frontend/cypress/screenshots
+  only:
+    - main
 
 
 docker-frontend:build-and-push:
