@@ -22,7 +22,7 @@ import java.util.List;
         "spring.jpa.hibernate.ddl-auto=create"
 })
 
-public class RatingJpaRepositoryTest {
+class RatingJpaRepositoryTest {
     @Autowired
     private EntityManager entityManager;
     @Autowired
