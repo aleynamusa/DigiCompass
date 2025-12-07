@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginModel } from "@/models/authModels.jsx";
-import {useAuth} from "@/context/AuthContext.jsx";
+import { useAuth } from "@/context/AuthContext.jsx";
 
-export function useLogin() {
+export function useLogin(onSuccess) {
     const [loginData, setLoginData] = useState(loginModel);
     const [isChecked, setChecked] = useState(false);
     const [errors, setErrors] = useState({});
@@ -19,7 +19,14 @@ export function useLogin() {
         setErrors({});
         try {
             await login(loginData.username, loginData.password, isChecked);
-            navigate("/");
+
+            // If onSuccess callback is provided, call it (for modal usage)
+            if (onSuccess) {
+                onSuccess();
+            } else {
+                // Otherwise, navigate to home (for normal login page usage)
+                navigate("/");
+            }
         } catch (err) {
             console.error("Login failed", err);
             setErrors({

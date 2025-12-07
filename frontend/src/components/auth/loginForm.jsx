@@ -59,7 +59,7 @@ const LoginForm = ({
 
 
             <Link to="/signup" className="text-sm text-blue-200 hover:underline block mt-2">
-                        Don’t have an account?
+                Don’t have an account?
             </Link>
 
 

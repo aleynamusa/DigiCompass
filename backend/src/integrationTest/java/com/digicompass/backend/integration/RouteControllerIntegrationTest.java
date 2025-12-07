@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.test.web.servlet.MockMvc;
 
 
@@ -134,10 +133,12 @@ public class RouteControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void getRoutes_ShouldReturnBadRequest_WhenServiceThrows() throws Exception {
-        routeRepository.deleteAll(); // cause empty list (still OK)
+        routeRepository.deleteAll();
 
         mockMvc.perform(get("/route"))
-                .andExpect(status().isOk()) // controller returns OK with empty list
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(0)));
     }
+
+
 }

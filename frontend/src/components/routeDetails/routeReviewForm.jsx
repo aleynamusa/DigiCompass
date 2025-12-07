@@ -1,6 +1,7 @@
 import {useState} from "react";
 import {Button, Rating, Stack, Group, Textarea, SimpleGrid, Text, Image} from "@mantine/core";
 import {Dropzone, IMAGE_MIME_TYPE} from "@mantine/dropzone";
+import ImageDropzone from "@/components/imageDropzone.jsx";
 
 export default function RouteReviewForm({onSubmit}) {
     const [openRateReview, setOpenRateReview] = useState(false);
@@ -80,18 +81,14 @@ export default function RouteReviewForm({onSubmit}) {
                                     onChange={(e) => setText(e.target.value)}
                                 />
 
-                                <Dropzone
-                                    accept={IMAGE_MIME_TYPE}
-                                    onDrop={(acceptedFiles) => {
-                                        setFiles(acceptedFiles);
-                                    }}
-                                >
-                                    <Text ta="center">Drop images here</Text>
-                                </Dropzone>
+                                <ImageDropzone
+                                    existingImages={[]}
+                                    onExistingImagesChange={() => {}}
+                                    newFiles={files}
+                                    onNewFilesChange={setFiles}
+                                    label="Drop images here"
+                                />
 
-                                <SimpleGrid cols={{ base: 1, sm: 4 }} mt={previews.length > 0 ? 'xl' : 0}>
-                                    {previews}
-                                </SimpleGrid>
                             </>
                         )}
                     </div>

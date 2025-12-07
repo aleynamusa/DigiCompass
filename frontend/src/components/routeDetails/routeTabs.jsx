@@ -19,8 +19,8 @@ export default function RouteTabs({reviews, ratings, routeId}) {
     const [isFormOpenRating, setIsFormOpenRating] = useState(false);
     const { user } = useAuth();
     const navigate = useNavigate();
-    const [reviewList, setReviewList] = useState(reviews);
-    const [ratingList, setRatingList] = useState(ratings);
+    const [reviewList, setReviewList] = useState(reviews || []);
+    const [ratingList, setRatingList] = useState(ratings || []);
     const [successMessage, setSuccessMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
 
@@ -84,12 +84,13 @@ export default function RouteTabs({reviews, ratings, routeId}) {
 
 
     useEffect(() => {
-        setReviewList(reviews);
+        setReviewList(Array.isArray(reviews) ? reviews : []);
     }, [reviews]);
 
     useEffect(() => {
-        setRatingList(ratings);
+        setRatingList(Array.isArray(ratings) ? ratings : []);
     }, [ratings]);
+
 
     const deleteRating = async (rating) => {
         try {

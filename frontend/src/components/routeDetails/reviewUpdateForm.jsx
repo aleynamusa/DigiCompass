@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Textarea, Text, SimpleGrid } from "@mantine/core";
-import { Dropzone, IMAGE_MIME_TYPE } from "@mantine/dropzone";
 import { handleEditReview } from "@/api/routeApi.jsx";
+import ImageDropzone from "@/components/imageDropzone.jsx";
 
 export default function ReviewUpdateForm({ selectedRoute, onOpenChange }) {
     const [text, setText] = useState("");
@@ -60,44 +60,43 @@ export default function ReviewUpdateForm({ selectedRoute, onOpenChange }) {
                     onChange={(e) => setText(e.target.value)}
                 />
 
-                <Dropzone
-                    accept={IMAGE_MIME_TYPE}
-                    onDrop={(acceptedFiles) => {
-                        setFiles([...files, ...acceptedFiles]);
-                    }}
-                >
-                    <Text ta="center">Drop images here</Text>
-                </Dropzone>
+                <ImageDropzone
+                    existingImages={existingImages}
+                    onExistingImagesChange={setExistingImages}
+                    newFiles={files}
+                    onNewFilesChange={setFiles}
+                />
 
-                <SimpleGrid cols={{ base: 1, sm: 4 }} mt={existingImages.length + files.length > 0 ? "xl" : 0}>
-                    {existingImages.map((img, i) => (
-                        <div key={`existing-${i}`} className="relative">
-                            <img src={img} alt={`image-${i}`} className="rounded-md object-cover w-full h-32" />
-                            <button
-                                onClick={() => removeExistingImage(i)}
-                                className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600"
-                            >
-                                ×
-                            </button>
-                        </div>
-                    ))}
 
-                    {files.map((file, i) => (
-                        <div key={`new-${i}`} className="relative">
-                            <img
-                                src={URL.createObjectURL(file)}
-                                alt={`preview-${i}`}
-                                className="rounded-md object-cover w-full h-32"
-                            />
-                            <button
-                                onClick={() => removeNewFile(i)}
-                                className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600"
-                            >
-                                ×
-                            </button>
-                        </div>
-                    ))}
-                </SimpleGrid>
+                {/*<SimpleGrid cols={{ base: 1, sm: 4 }} mt={existingImages.length + files.length > 0 ? "xl" : 0}>*/}
+                {/*    {existingImages.map((img, i) => (*/}
+                {/*        <div key={`existing-${i}`} className="relative">*/}
+                {/*            <img src={img} alt={`image-${i}`} className="rounded-md object-cover w-full h-32" />*/}
+                {/*            <button*/}
+                {/*                onClick={() => removeExistingImage(i)}*/}
+                {/*                className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600"*/}
+                {/*            >*/}
+                {/*                ×*/}
+                {/*            </button>*/}
+                {/*        </div>*/}
+                {/*    ))}*/}
+
+                {/*    {files.map((file, i) => (*/}
+                {/*        <div key={`new-${i}`} className="relative">*/}
+                {/*            <img*/}
+                {/*                src={URL.createObjectURL(file)}*/}
+                {/*                alt={`preview-${i}`}*/}
+                {/*                className="rounded-md object-cover w-full h-32"*/}
+                {/*            />*/}
+                {/*            <button*/}
+                {/*                onClick={() => removeNewFile(i)}*/}
+                {/*                className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600"*/}
+                {/*            >*/}
+                {/*                ×*/}
+                {/*            </button>*/}
+                {/*        </div>*/}
+                {/*    ))}*/}
+                {/*</SimpleGrid>*/}
 
                 <div className="flex justify-end gap-2 pt-2">
                     <button

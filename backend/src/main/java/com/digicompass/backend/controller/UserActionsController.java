@@ -52,6 +52,18 @@ public class UserActionsController {
     @GetMapping("/isLiked")
     public ResponseEntity<?> isLikedRoute(@RequestParam Long userId,
                                           @RequestParam Long routeId) {
-        return ResponseEntity.status(HttpStatus.OK).body(userActionsService.IsLikedRoute(userId, routeId));
+        log.info("[CONTROLLER] IsLikedRoute called. userId={}, routeId={}", userId, routeId);
+        try{
+            boolean isLiked = userActionsService.IsLikedRoute(userId, routeId);
+            log.info("[CONTROLLER] IsLikedRoute succeeded. userId={}, routeId={}, isLiked={}", userId, routeId, isLiked);
+            return ResponseEntity.ok(isLiked);
+        } catch (IllegalArgumentException e) {
+            log.warn("[CONTROLLER] IsLikedRoute failed due to invalid input. userId={}, routeId={}, reason={}", userId, routeId, e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            log.error("[CONTROLLER] IsLikedRoute failed. userId={}, routeId={}", userId, routeId, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal server error");
+        }
+//
     }
 }

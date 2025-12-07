@@ -155,4 +155,63 @@ public class UserActionsServiceImplTest {
 
         assertEquals("Error unliking the route.", exception.getMessage());
     }
+
+    @Test
+    void testIsLikedRoute_success_true() {
+        when(userRepository.existsById(1L)).thenReturn(true);
+        when(routeRepository.existsById(1L)).thenReturn(true);
+        when(favouriteRouteRepository.existsByIdUserIdAndIdRouteId(1L, 1L))
+                .thenReturn(true);
+
+        boolean result = userActionsService.IsLikedRoute(1L, 1L);
+
+        assertTrue(result);
+        verify(favouriteRouteRepository, times(1))
+                .existsByIdUserIdAndIdRouteId(1L, 1L);
+    }
+
+    @Test
+    void testIsLikedRoute_success_false() {
+        when(userRepository.existsById(1L)).thenReturn(true);
+        when(routeRepository.existsById(1L)).thenReturn(true);
+        when(favouriteRouteRepository.existsByIdUserIdAndIdRouteId(1L, 1L))
+                .thenReturn(false);
+
+        boolean result = userActionsService.IsLikedRoute(1L, 1L);
+
+        assertFalse(result);
+        verify(favouriteRouteRepository, times(1))
+                .existsByIdUserIdAndIdRouteId(1L, 1L);
+    }
+
+    @Test
+    void testIsLikedRoute_userOrRouteNotFound() {
+        when(userRepository.existsById(1L)).thenReturn(false);
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> userActionsService.IsLikedRoute(1L, 1L)
+        );
+
+        assertEquals("User or route does not exist.", exception.getMessage());
+        verify(favouriteRouteRepository, never()).existsByIdUserIdAndIdRouteId(any(), any());
+    }
+
+    @Test
+    void testIsLikedRoute_repositoryThrowsException() {
+        when(userRepository.existsById(1L)).thenReturn(true);
+        when(routeRepository.existsById(1L)).thenReturn(true);
+        when(favouriteRouteRepository.existsByIdUserIdAndIdRouteId(1L, 1L))
+                .thenThrow(new RuntimeException("DB ERROR"));
+
+        RuntimeException exception = assertThrows(
+                RuntimeException.class,
+                () -> userActionsService.IsLikedRoute(1L, 1L)
+        );
+
+        assertEquals("Error unliking the route.", exception.getMessage());
+        assertNotNull(exception.getCause());
+        assertEquals("DB ERROR", exception.getCause().getMessage());
+    }
+
 }

@@ -5,6 +5,7 @@ import {useAuth} from "@/context/AuthContext.jsx";
 import RouteMap from "@/components/routeDetails/routeMap.jsx";
 import RouteReviewForm from "@/components/routeDetails/routeReviewForm.jsx";
 import RouteTabs from "@/components/routeDetails/routeTabs.jsx";
+import RouteTabsReviewRating from "@/components/routeDetails/routeTabs.jsx";
 
 export function RouteDetails({selectedRoute, onOpenChange}) {
     const {user} = useAuth();
@@ -112,7 +113,7 @@ export function RouteDetails({selectedRoute, onOpenChange}) {
                             )}
 
                             <RouteReviewForm onSubmit={handleSubmit}/>
-                            <RouteTabs
+                            <RouteTabsReviewRating
                                 reviews={reviews}
                                 ratings={ratings}
                                 routeId={selectedRoute.id}
