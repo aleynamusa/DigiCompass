@@ -26,6 +26,7 @@ public class    FavouriteRouteEntity {
     @JoinColumn(name = "route_id")
     private RouteEntity route;
 
+    @Column
     private LocalDateTime createdAt = LocalDateTime.now();
 
     public FavouriteRouteEntity(UserEntity user, RouteEntity route) {

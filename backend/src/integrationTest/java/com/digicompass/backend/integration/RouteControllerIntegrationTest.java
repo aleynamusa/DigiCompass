@@ -33,13 +33,14 @@ public class RouteControllerIntegrationTest extends BaseIntegrationTest {
     private UserJpaRepository userRepository;
 
     private RouteEntity route;
+    private UserEntity user;
 
     @BeforeEach
     void setup() {
         routeRepository.deleteAll();
         userRepository.deleteAll();
 
-        UserEntity user = new UserEntity();
+        user = new UserEntity();
         user.setUsername("testuser");
         user.setEmail("test@mail.com");
         user.setBirthDate(LocalDate.of(1995,1,1));
@@ -181,5 +182,11 @@ public class RouteControllerIntegrationTest extends BaseIntegrationTest {
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    void getLikedRoutesByUserId_ShouldReturnLikedRoutes() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/route/liked/" + user.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(0)));
 
+    }
 }
