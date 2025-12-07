@@ -45,7 +45,7 @@ public class UserActionsIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
-    void shouldIsLikedRoute_returnTrue() throws Exception {
+    void isLikedRouteShould_returnTrue() throws Exception {
 
         mockMvc.perform(post("/action/favorite")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -63,7 +63,7 @@ public class UserActionsIntegrationTest extends BaseIntegrationTest {
     void shouldIsLikedRoute_returnFalse() throws Exception {
         mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/action/isLiked")
                         .param("userId", "1")
-                        .param("routeId", "2"))
+                        .param("routeId", "1"))
                 .andExpect(status().isOk())
                 .andExpect(content().string("false"));
     }
