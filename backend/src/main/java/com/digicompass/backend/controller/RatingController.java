@@ -70,7 +70,7 @@ public class RatingController {
                 return ResponseEntity.ok(ratings);
             }
         }
-        catch (Exception ex) {
+        catch (Exception _) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
@@ -109,12 +109,12 @@ public class RatingController {
                     .status(HttpStatus.NO_CONTENT)
                     .build();
 
-        } catch (IllegalArgumentException ex) {
+        } catch (IllegalArgumentException _) {
             log.warn("[CONTROLLER] Review not found: {}", id);
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND).body(null);
 
-        } catch (AccessDeniedException ex) {
+        } catch (AccessDeniedException _) {
             log.warn("[CONTROLLER] Access denied deleting review {}", id);
             return ResponseEntity
                     .status(HttpStatus.FORBIDDEN)

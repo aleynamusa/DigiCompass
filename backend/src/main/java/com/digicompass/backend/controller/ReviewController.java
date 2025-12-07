@@ -57,7 +57,7 @@ public class  ReviewController {
             List<ReviewResponseDto> response = reviewMapper.toDtosResponse(reviewService.getReviewsByRoute(routeId));
             return ResponseEntity.ok(response);
 
-        } catch (IllegalArgumentException ex) {
+        } catch (IllegalArgumentException _) {
             log.warn("[CONTROLLER] Invalid route ID: {}", routeId);
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
@@ -77,13 +77,8 @@ public class  ReviewController {
             @ModelAttribute ReviewRequestDto reviewRequestDto
     ) {
         try {
-//            Review reviewModel = ;
-//            reviewModel.setId(id);
 
             List<String> existingImageUrls = reviewRequestDto.getExistingImageUrlsList();
-
-//            Review updatedReview =
-//            );
 
             ReviewResponseDto response = reviewMapper.toDtoResponse(reviewService.updateReview(
                     reviewMapper.toModel(reviewRequestDto),
@@ -114,13 +109,13 @@ public class  ReviewController {
                     .noContent()
                     .build();
 
-        } catch (IllegalArgumentException ex) {
+        } catch (IllegalArgumentException _) {
             log.warn("[CONTROLLER] Review not found: {}", id);
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
                     .body(null);
 
-        } catch (AccessDeniedException ex) {
+        } catch (AccessDeniedException _) {
             log.warn("[CONTROLLER] Access denied deleting review {}", id);
             return ResponseEntity
                     .status(HttpStatus.FORBIDDEN)
