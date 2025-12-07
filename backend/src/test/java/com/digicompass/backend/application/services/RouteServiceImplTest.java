@@ -1,11 +1,13 @@
 package com.digicompass.backend.application.services;
 
+import com.digicompass.backend.repository.repositories.FavouriteRouteJpaRepository;
 import com.digicompass.backend.repository.repositories.RouteJpaRepository;
 import com.digicompass.backend.application.interfaces.RatingService;
 import com.digicompass.backend.application.mapper.RouteMapper;
 import com.digicompass.backend.repository.entity.RouteEntity;
 import com.digicompass.backend.application.models.Route;
 import com.digicompass.backend.application.models.RouteGeometry;
+import com.digicompass.backend.repository.repositories.UserJpaRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,6 +27,8 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Tag("unit")
 @ExtendWith(SpringExtension.class)
@@ -33,11 +37,16 @@ class RouteServiceImplTest {
     private RouteJpaRepository routeRepository;
 
     @Mock
+    private FavouriteRouteJpaRepository favouriteRouteRepository;
+
+    @Mock
+    private UserJpaRepository userRepository;
+
+    @Mock
     private RouteMapper routeMapper;
 
     @Mock
     private RatingService ratingService;
-
 
     @Mock
     private ObjectMapper objectMapper;
@@ -205,4 +214,95 @@ class RouteServiceImplTest {
         assertEquals("Failed to filter routes.", ex.getReason());
     }
 
+    @Test
+    void getLikedRoutesByUserId_ReturnsRoutes_WhenUserExists() {
+        Long userId = 1L;
+
+        when(userRepository.existsById(userId)).thenReturn(true);
+
+        RouteEntity e = new RouteEntity();
+        e.setId(10L);
+
+        when(favouriteRouteRepository.findAllLikedRoutesByUserId(userId))
+                .thenReturn(List.of(e));
+
+        when(routeMapper.toDomain(anyList()))
+                .thenReturn(List.of(route));
+
+        List<Route> result = routeService.getLikedRoutesByUserId(userId);
+        result.forEach(r -> r.setAverageRating("4,50"));
+
+        assertEquals(1, result.size());
+        assertEquals("4,50", result.getFirst().getAverageRating());
+        assertNull(result.getFirst().getRouteGeometry());
+
+        verify(userRepository).existsById(userId);
+        verify(favouriteRouteRepository).findAllLikedRoutesByUserId(userId);
+    }
+
+    @Test
+    void getLikedRoutesByUserId_ThrowsNotFound_WhenUserDoesNotExist() {
+        Long userId = 999L;
+
+        when(userRepository.existsById(userId)).thenReturn(false);
+
+        ResponseStatusException ex = assertThrows(
+                ResponseStatusException.class,
+                () -> routeService.getLikedRoutesByUserId(userId)
+        );
+
+        assertEquals(NOT_FOUND, ex.getStatusCode());
+        assertTrue(ex.getReason().contains("User not found"));
+
+        verify(favouriteRouteRepository, never()).findAllLikedRoutesByUserId(any());
+    }
+
+    @Test
+    void getLikedRoutesByUserId_ThrowsInternalServerError_OnUnexpectedFailure() {
+        Long userId = 1L;
+
+        when(userRepository.existsById(userId)).thenReturn(true);
+
+        when(favouriteRouteRepository.findAllLikedRoutesByUserId(userId))
+                .thenThrow(new RuntimeException("DB error"));
+
+        ResponseStatusException ex = assertThrows(
+                ResponseStatusException.class,
+                () -> routeService.getLikedRoutesByUserId(userId)
+        );
+
+        assertEquals(INTERNAL_SERVER_ERROR, ex.getStatusCode());
+        assertEquals("Failed to fetch liked routes.", ex.getReason());
+    }
+
+
+    @Test
+    void saveRoute_SavesSuccessfully() {
+        RouteEntity mapped = new RouteEntity();
+        mapped.setName("Route X");
+
+        when(routeMapper.toEntity(route)).thenReturn(mapped);
+
+        routeService.saveRoute(route);
+
+        verify(routeMapper).toEntity(route);
+        verify(routeRepository).save(mapped);
+    }
+
+    @Test
+    void saveRoute_ThrowsInternalServerError_WhenSaveFails() {
+        when(routeMapper.toEntity(route)).thenReturn(new RouteEntity());
+
+        when(routeRepository.save(any(RouteEntity.class)))
+                .thenThrow(new RuntimeException("DB error"));
+
+        ResponseStatusException ex = assertThrows(
+                ResponseStatusException.class,
+                () -> routeService.saveRoute(route)
+        );
+
+        assertEquals(INTERNAL_SERVER_ERROR, ex.getStatusCode());
+        assertEquals("Failed to save route.", ex.getReason());
+    }
 }
+
