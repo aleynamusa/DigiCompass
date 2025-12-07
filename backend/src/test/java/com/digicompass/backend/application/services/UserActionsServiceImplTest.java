@@ -72,7 +72,7 @@ public class UserActionsServiceImplTest {
         FavouriteRouteEntity mappedEntity = new FavouriteRouteEntity();
         when(favouriteRouteMapper.toEntity(any(FavouriteRoute.class))).thenReturn(mappedEntity);
 
-        userActionsService.FavouriteRoute(1L, 1L);
+        userActionsService.favouriteRoute(1L, 1L);
 
         verify(favouriteRouteRepository, times(1)).save(mappedEntity);
     }
@@ -91,7 +91,7 @@ public class UserActionsServiceImplTest {
         FavouriteRouteEntity mappedEntity = new FavouriteRouteEntity();
         when(favouriteRouteMapper.toEntity(any(FavouriteRoute.class))).thenReturn(mappedEntity);
 
-        userActionsService.UnfavouriteRoute(1L, 1L);
+        userActionsService.unfavouriteRoute(1L, 1L);
 
         verify(favouriteRouteRepository, times(1)).delete(mappedEntity);
     }
@@ -102,7 +102,7 @@ public class UserActionsServiceImplTest {
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> userActionsService.FavouriteRoute(1L, 1L)
+                () -> userActionsService.favouriteRoute(1L, 1L)
         );
 
         assertEquals("User or route does not exist.", exception.getMessage());
@@ -115,7 +115,7 @@ public class UserActionsServiceImplTest {
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> userActionsService.UnfavouriteRoute(1L, 1L)
+                () -> userActionsService.unfavouriteRoute(1L, 1L)
         );
 
         assertEquals("User or route does not exist.", exception.getMessage());
@@ -133,7 +133,7 @@ public class UserActionsServiceImplTest {
 
         RuntimeException exception = assertThrows(
                 RuntimeException.class,
-                () -> userActionsService.FavouriteRoute(1L, 1L)
+                () -> userActionsService.favouriteRoute(1L, 1L)
         );
 
         assertEquals("Error liking the route.", exception.getMessage());
@@ -150,7 +150,7 @@ public class UserActionsServiceImplTest {
 
         RuntimeException exception = assertThrows(
                 RuntimeException.class,
-                () -> userActionsService.UnfavouriteRoute(1L, 1L)
+                () -> userActionsService.unfavouriteRoute(1L, 1L)
         );
 
         assertEquals("Error unliking the route.", exception.getMessage());
@@ -163,7 +163,7 @@ public class UserActionsServiceImplTest {
         when(favouriteRouteRepository.existsByIdUserIdAndIdRouteId(1L, 1L))
                 .thenReturn(true);
 
-        boolean result = userActionsService.IsLikedRoute(1L, 1L);
+        boolean result = userActionsService.isLikedRoute(1L, 1L);
 
         assertTrue(result);
         verify(favouriteRouteRepository, times(1))
@@ -177,7 +177,7 @@ public class UserActionsServiceImplTest {
         when(favouriteRouteRepository.existsByIdUserIdAndIdRouteId(1L, 1L))
                 .thenReturn(false);
 
-        boolean result = userActionsService.IsLikedRoute(1L, 1L);
+        boolean result = userActionsService.isLikedRoute(1L, 1L);
 
         assertFalse(result);
         verify(favouriteRouteRepository, times(1))
@@ -190,7 +190,7 @@ public class UserActionsServiceImplTest {
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> userActionsService.IsLikedRoute(1L, 1L)
+                () -> userActionsService.isLikedRoute(1L, 1L)
         );
 
         assertEquals("User or route does not exist.", exception.getMessage());
@@ -206,7 +206,7 @@ public class UserActionsServiceImplTest {
 
         RuntimeException exception = assertThrows(
                 RuntimeException.class,
-                () -> userActionsService.IsLikedRoute(1L, 1L)
+                () -> userActionsService.isLikedRoute(1L, 1L)
         );
 
         assertEquals("Error unliking the route.", exception.getMessage());

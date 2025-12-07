@@ -66,7 +66,7 @@ public class PasswordResetServiceImpl implements PasswordResetService {
         } catch (RedisConnectionFailureException e) {
             log.error("[SERVICE] Redis connection error while creating reset token for {}: {}",
                     email, e.getMessage());
-            throw new RuntimeException("Failed to connect to Redis service.", e);
+            throw new RedisConnectionFailureException("Failed to connect to Redis service.", e);
 
         } catch (DataAccessException e) {
             log.error("[SERVICE] Database access error while creating reset token for {}: {}",
@@ -119,7 +119,7 @@ public class PasswordResetServiceImpl implements PasswordResetService {
         } catch (RedisConnectionFailureException e) {
             log.error("[SERVICE] Redis connection failure during password reset for token {}: {}",
                     token, e.getMessage());
-            throw new RuntimeException("Redis connection error during password reset.", e);
+            throw new RedisConnectionFailureException("Redis connection error during password reset.", e);
 
         } catch (DataAccessException e) {
             log.error("[SERVICE] Database access error during password reset for token {}: {}",

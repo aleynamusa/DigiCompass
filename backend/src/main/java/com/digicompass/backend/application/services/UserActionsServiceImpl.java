@@ -36,7 +36,7 @@ public class UserActionsServiceImpl implements UserActionsService {
 
 
     @Override
-    public void FavouriteRoute(Long userId, Long routeId) {
+    public void favouriteRoute(Long userId, Long routeId) {
         log.info("[SERVICE] FavouriteRoute called with userId={} routeId={}", userId, routeId);
         if (!userRepository.existsById(userId) || !routeRepository.existsById(routeId)) {
             log.warn("[SERVICE] User or route does not exist. userId={} routeId={}", userId, routeId);
@@ -58,7 +58,7 @@ public class UserActionsServiceImpl implements UserActionsService {
 
 
     @Override
-    public void UnfavouriteRoute(Long userId, Long routeId) {
+    public void unfavouriteRoute(Long userId, Long routeId) {
         log.info("[SERVICE] UnfavouriteRoute called with userId={} routeId={}", userId, routeId);
         if (!userRepository.existsById(userId) || !routeRepository.existsById(routeId)) {
             log.warn("[SERVICE] User or route does not exist. userId={} routeId={}", userId, routeId);
@@ -79,7 +79,7 @@ public class UserActionsServiceImpl implements UserActionsService {
     }
 
     @Override
-    public boolean IsLikedRoute(Long userId, Long routeId) {
+    public boolean isLikedRoute(Long userId, Long routeId) {
         if (!userRepository.existsById(userId) || !routeRepository.existsById(routeId)) {
             log.warn("[SERVICE] User or route does not exist. userId={} routeId={}", userId, routeId);
             throw new IllegalArgumentException("User or route does not exist.");

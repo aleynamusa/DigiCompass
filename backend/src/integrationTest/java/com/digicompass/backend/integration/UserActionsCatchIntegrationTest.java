@@ -39,7 +39,7 @@ public class UserActionsCatchIntegrationTest extends BaseIntegrationTest {
     void shouldReturnBadRequest_whenIllegalArgument() throws Exception {
         Mockito.doThrow(new IllegalArgumentException("User or route does not exist."))
                 .when(userActionsService)
-                .FavouriteRoute(2L, 2L);
+                .favouriteRoute(2L, 2L);
 
         mockMvc.perform(post("/action/favorite")
                         .contentType(String.valueOf(MediaType.APPLICATION_JSON))
@@ -52,7 +52,7 @@ public class UserActionsCatchIntegrationTest extends BaseIntegrationTest {
     void shouldReturnInternalServerError_whenUnexpectedException() throws Exception {
         Mockito.doThrow(new RuntimeException("DB down"))
                 .when(userActionsService)
-                .FavouriteRoute(3L, 3L);
+                .favouriteRoute(3L, 3L);
 
         mockMvc.perform(post("/action/favorite")
                         .contentType(String.valueOf(MediaType.APPLICATION_JSON))
@@ -65,7 +65,7 @@ public class UserActionsCatchIntegrationTest extends BaseIntegrationTest {
     void isLikedRoute_ShouldReturnBadRequest_WhenIllegalArgument() throws Exception {
         Mockito.doThrow(new IllegalArgumentException("User or route does not exist."))
                 .when(userActionsService)
-                .IsLikedRoute(2L, 2L);
+                .isLikedRoute(2L, 2L);
 
         mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/action/isLiked")
                         .param("userId", "2")
@@ -77,7 +77,7 @@ public class UserActionsCatchIntegrationTest extends BaseIntegrationTest {
     void isLikedRoute_ShouldInternalServerError_WhenUnexpectedException() throws Exception {
         Mockito.doThrow(new RuntimeException("DB down"))
                 .when(userActionsService)
-                .IsLikedRoute(3L, 3L);
+                .isLikedRoute(3L, 3L);
 
         mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/action/isLiked")
                         .param("userId", "3")
