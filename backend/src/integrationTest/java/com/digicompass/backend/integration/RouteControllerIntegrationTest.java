@@ -9,23 +9,28 @@ import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static org.hamcrest.Matchers.hasSize;
+import static org.springframework.mock.http.server.reactive.MockServerHttpRequest.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")//escape the autowired bean warning
 public class RouteControllerIntegrationTest extends BaseIntegrationTest {
-    @Autowired private MockMvc mockMvc;
-    @Autowired private RouteJpaRepository routeRepository;
-    @Autowired private UserJpaRepository userRepository;
+    @Autowired
+    private MockMvc mockMvc;
+    @Autowired
+    private RouteJpaRepository routeRepository;
+    @Autowired
+    private UserJpaRepository userRepository;
 
     private RouteEntity route;
 
@@ -138,6 +143,42 @@ public class RouteControllerIntegrationTest extends BaseIntegrationTest {
         mockMvc.perform(get("/route"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(0)));
+    }
+
+    @Test
+    void calculateDistance_ShouldReturnDistance() throws Exception {
+        String jsonBody = """
+        {
+            "type": "LineString",
+            "coordinates": [
+                [10.0, 20.0],
+                [11.0, 21.0]
+            ]
+        }
+        """;
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/route/calculate-distance")
+                        .contentType("application/json")
+                        .content(jsonBody))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isNumber());
+    }
+
+    @Test
+    void calculateDistance_ShouldReturnBadRequest_WhenOnlyOnePoint() throws Exception {
+        String jsonBody = """
+        {
+            "type": "LineString",
+            "coordinates": [
+                [10.0, 20.0]
+            ]
+        }
+        """;
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/route/calculate-distance")
+                        .contentType("application/json")
+                        .content(jsonBody))
+                .andExpect(status().isBadRequest());
     }
 
 

@@ -44,4 +44,29 @@ public class UserActionsIntegrationTest extends BaseIntegrationTest {
                 .andExpect(content().string("Route unfavorited successfully."));
     }
 
+    @Test
+    void shouldIsLikedRoute_returnTrue() throws Exception {
+
+        mockMvc.perform(post("/action/favorite")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(favoriteJson(1L, 2L)))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/action/isLiked")
+                        .param("userId", "1")
+                        .param("routeId", "2"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("true"));
+    }
+
+    @Test
+    void shouldIsLikedRoute_returnFalse() throws Exception {
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/action/isLiked")
+                        .param("userId", "1")
+                        .param("routeId", "2"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("false"));
+    }
+
+
 }

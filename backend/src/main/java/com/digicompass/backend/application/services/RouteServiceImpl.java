@@ -243,7 +243,17 @@ public class RouteServiceImpl implements RouteService {
 
     @Override
     public double calculateDistanceFromGeoJson(GeoJson geoJson) {
-        LineString lineString = buildLineStringFromGeoJson(geoJson);
-        return calculateDistance(lineString);
+        try{
+            if (geoJson == null || !"LineString".equals(geoJson.getType())) {
+                throw new IllegalArgumentException("Invalid GeoJSON: Expected LineString type.");
+            }
+            LineString lineString = buildLineStringFromGeoJson(geoJson);
+            return calculateDistance(lineString);
+        }
+        catch (Exception e){
+            log.error("[SERVICE] Invalid GeoJSON provided: {}", e.getMessage());
+            throw new IllegalArgumentException("Invalid GeoJSON provided.", e);
+        }
+
     }
 }

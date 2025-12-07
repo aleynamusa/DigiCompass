@@ -33,27 +33,7 @@ public class UserActionsCatchIntegrationTest extends BaseIntegrationTest {
         """.formatted(userId, routeId);
     }
 
-    @Test
-    void shouldFavoriteRoute_success() throws Exception {
-        Mockito.doNothing().when(userActionsService).FavouriteRoute(1L, 1L);
 
-        mockMvc.perform(post("/action/favorite")
-                        .contentType(String.valueOf(MediaType.APPLICATION_JSON))
-                        .content(favoriteJson(1L, 1L)))
-                .andExpect(status().isOk())
-                .andExpect(content().string("Route favorited successfully."));
-    }
-
-    @Test
-    void shouldUnfavoriteRoute_success() throws Exception {
-        Mockito.doNothing().when(userActionsService).UnfavouriteRoute(1L, 1L);
-
-        mockMvc.perform(post("/action/unfavorite")
-                        .contentType(String.valueOf(MediaType.APPLICATION_JSON))
-                        .content(favoriteJson(1L, 1L)))
-                .andExpect(status().isOk())
-                .andExpect(content().string("Route unfavorited successfully."));
-    }
 
     @Test
     void shouldReturnBadRequest_whenIllegalArgument() throws Exception {
@@ -80,4 +60,30 @@ public class UserActionsCatchIntegrationTest extends BaseIntegrationTest {
                 .andExpect(status().isInternalServerError())
                 .andExpect(content().string("Internal server error"));
     }
+
+    @Test
+    void isLikedRoute_ShouldReturnBadRequest_WhenIllegalArgument() throws Exception {
+        Mockito.doThrow(new IllegalArgumentException("User or route does not exist."))
+                .when(userActionsService)
+                .IsLikedRoute(2L, 2L);
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/action/isLiked")
+                        .param("userId", "2")
+                        .param("routeId", "2"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("User or route does not exist."));
+    }
+    @Test
+    void isLikedRoute_ShouldInternalServerError_WhenUnexpectedException() throws Exception {
+        Mockito.doThrow(new RuntimeException("DB down"))
+                .when(userActionsService)
+                .IsLikedRoute(3L, 3L);
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/action/isLiked")
+                        .param("userId", "3")
+                        .param("routeId", "3"))
+                .andExpect(status().isInternalServerError())
+                .andExpect(content().string("Internal server error"));
+    }
+
 }
