@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class UserActionsServiceImplTest {
+public class UserActionsServiceImplTest {
     @Mock
     private FavouriteRouteJpaRepository favouriteRouteRepository;
 
@@ -62,7 +62,8 @@ class UserActionsServiceImplTest {
     void testFavouriteRoute_success() {
         when(userRepository.existsById(1L)).thenReturn(true);
         when(routeRepository.existsById(1L)).thenReturn(true);
-
+        when(userRepository.getById(1L)).thenReturn(mockUser);
+        when(routeRepository.getById(1L)).thenReturn(mockRoute);
 
         FavouriteRoute domain = new FavouriteRoute(null, null, LocalDateTime.now());
         when(userMapper.toDomain(mockUser)).thenReturn(domain.getUser());
@@ -80,6 +81,8 @@ class UserActionsServiceImplTest {
     void testUnfavouriteRoute_success() {
         when(userRepository.existsById(1L)).thenReturn(true);
         when(routeRepository.existsById(1L)).thenReturn(true);
+        when(userRepository.getById(1L)).thenReturn(mockUser);
+        when(routeRepository.getById(1L)).thenReturn(mockRoute);
 
         FavouriteRoute domain = new FavouriteRoute(null, null, LocalDateTime.now());
         when(userMapper.toDomain(mockUser)).thenReturn(domain.getUser());
@@ -123,7 +126,8 @@ class UserActionsServiceImplTest {
     void testFavouriteRoute_repositoryThrowsException() {
         when(userRepository.existsById(1L)).thenReturn(true);
         when(routeRepository.existsById(1L)).thenReturn(true);
-
+        when(userRepository.getById(1L)).thenReturn(mockUser);
+        when(routeRepository.getById(1L)).thenReturn(mockRoute);
 
         when(favouriteRouteMapper.toEntity(any())).thenThrow(new RuntimeException("DB ERROR"));
 
@@ -139,6 +143,8 @@ class UserActionsServiceImplTest {
     void testUnfavouriteRoute_repositoryThrowsException() {
         when(userRepository.existsById(1L)).thenReturn(true);
         when(routeRepository.existsById(1L)).thenReturn(true);
+        when(userRepository.getById(1L)).thenReturn(mockUser);
+        when(routeRepository.getById(1L)).thenReturn(mockRoute);
 
         when(favouriteRouteMapper.toEntity(any())).thenThrow(new RuntimeException("DB ERROR"));
 
