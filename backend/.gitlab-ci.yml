@@ -5,49 +5,49 @@ stages:
   - deploy
 
 
-#backend:build:
-#  stage: build
-#  image: docker:stable
-#  services:
-#    - docker:dind
-#  tags:
-#    - backend
-#  script:
-#    - echo "Building backend Docker image..."
-#    - docker build -t backend-app -f backend/Dockerfile backend
-#
-#
-#unit-tests:
-#  stage: test
-#  image: gradle:8.3-jdk24
-#  tags:
-#    - backend
-#  script:
-#    - echo "Running tests with Mockito..."
-#    - cd backend
-#    - ./gradlew test --no-daemon
-#  artifacts:
-#    when: always
-#    reports:
-#      junit: backend/build/test-results/test/TEST-*.xml
-#    paths:
-#      - backend/build/reports/tests/test
-#
-#integration-tests:
-#  stage: test
-#  image: gradle:8.3-jdk24
-#  tags:
-#    - backend
-#  script:
-#    - echo "Running Integration tests..."
-#    - cd backend
-#    - ./gradlew integrationTest --no-daemon
-#  artifacts:
-#    when: always
-#    reports:
-#      junit: backend/build/test-results/integrationTest/TEST-*.xml
-#    paths:
-#      - backend/build/reports/tests/integrationTest
+backend:build:
+  stage: build
+  image: docker:stable
+  services:
+    - docker:dind
+  tags:
+    - backend
+  script:
+    - echo "Building backend Docker image..."
+    - docker build -t backend-app -f backend/Dockerfile backend
+
+
+unit-tests:
+  stage: test
+  image: gradle:8.3-jdk24
+  tags:
+    - backend
+  script:
+    - echo "Running tests with Mockito..."
+    - cd backend
+    - ./gradlew test --no-daemon
+  artifacts:
+    when: always
+    reports:
+      junit: backend/build/test-results/test/TEST-*.xml
+    paths:
+      - backend/build/reports/tests/test
+
+integration-tests:
+  stage: test
+  image: gradle:8.3-jdk24
+  tags:
+    - backend
+  script:
+    - echo "Running Integration tests..."
+    - cd backend
+    - ./gradlew integrationTest --no-daemon
+  artifacts:
+    when: always
+    reports:
+      junit: backend/build/test-results/integrationTest/TEST-*.xml
+    paths:
+      - backend/build/reports/tests/integrationTest
 
 sonarcloud-analysis:
   stage: sonar
