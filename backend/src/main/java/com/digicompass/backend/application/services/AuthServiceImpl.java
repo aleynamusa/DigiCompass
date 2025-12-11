@@ -28,6 +28,8 @@ public class AuthServiceImpl implements AuthService {
     private final RoleJpaRepository roleRepository;
     private final UserMapper userMapper;
     private final JWTToken jwt;
+    private final String refresh = "refreshToken";
+    private final String access = "accessToken";
 
 
     public AuthServiceImpl(UserJpaRepository userRepository, RoleJpaRepository roleRepository, UserMapper userMapper, JWTToken jwt) {
@@ -108,8 +110,8 @@ public class AuthServiceImpl implements AuthService {
             String refreshToken = jwt.generateRefreshToken(userMapper.toDomain(userEntity));
 
             return Map.of(
-                    "accessToken", accessToken,
-                    "refreshToken", refreshToken
+                    access, accessToken,
+                    refresh, refreshToken
             );
 
         } catch (DataAccessException e) {
@@ -123,7 +125,7 @@ public class AuthServiceImpl implements AuthService {
 
     public Map<String, String> refresh(Map<String, String> tokens) {
         try {
-            String refreshToken = tokens.get("refreshToken");
+            String refreshToken = tokens.get(refresh);
 
             if (jwt.isTokenExpired(refreshToken) || !jwt.isRefreshToken(refreshToken)) {
                 throw new IllegalArgumentException("Refresh token expired or not valid.");
@@ -138,8 +140,8 @@ public class AuthServiceImpl implements AuthService {
             String newRefreshToken = jwt.generateRefreshToken(user);
 
             Map<String, String> newTokens = Map.of(
-                    "accessToken", newAccessToken,
-                    "refreshToken", newRefreshToken
+                    access, newAccessToken,
+                    refresh, newRefreshToken
             );
 
             log.info("[SERVICE] New access token: {}", newAccessToken);

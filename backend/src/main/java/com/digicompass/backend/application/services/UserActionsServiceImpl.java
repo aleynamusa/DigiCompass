@@ -34,44 +34,32 @@ public class UserActionsServiceImpl implements UserActionsService {
         this.routeMapper = routeMapper;
     }
 
-
     @Override
     public void favouriteRoute(Long userId, Long routeId) {
         log.info("[SERVICE] FavouriteRoute called with userId={} routeId={}", userId, routeId);
-        if (!userRepository.existsById(userId) || !routeRepository.existsById(routeId)) {
-            log.warn("[SERVICE] User or route does not exist. userId={} routeId={}", userId, routeId);
-            throw new IllegalArgumentException("User or route does not exist.");
-        }
         try {
-            FavouriteRoute favouriteRoute = new FavouriteRoute(
-                    userMapper.toDomain(userRepository.getById(userId)),
-                    routeMapper.toDomain(routeRepository.getById(routeId)),
-                    LocalDateTime.now()
-            );
+            FavouriteRoute favouriteRoute = buildFavouriteRoute(userId, routeId);
             favouriteRouteRepository.save(favouriteRouteMapper.toEntity(favouriteRoute));
             log.debug("[SERVICE] Saved favourite route for userId={} routeId={}", userId, routeId);
+        } catch (IllegalArgumentException e) {
+            log.warn("[SERVICE] User or route does not exist. userId={} routeId={}, reason={}", userId, routeId, e.getMessage());
+            throw e;
         } catch (Exception e) {
             log.error("[SERVICE] Error liking the route for userId={} routeId={}", userId, routeId, e);
             throw new RuntimeException("Error liking the route.", e);
         }
     }
 
-
     @Override
     public void unfavouriteRoute(Long userId, Long routeId) {
         log.info("[SERVICE] UnfavouriteRoute called with userId={} routeId={}", userId, routeId);
-        if (!userRepository.existsById(userId) || !routeRepository.existsById(routeId)) {
-            log.warn("[SERVICE] User or route does not exist. userId={} routeId={}", userId, routeId);
-            throw new IllegalArgumentException("User or route does not exist.");
-        }
         try {
-            FavouriteRoute favouriteRoute = new FavouriteRoute(
-                    userMapper.toDomain(userRepository.getById(userId)),
-                    routeMapper.toDomain(routeRepository.getById(routeId)),
-                    LocalDateTime.now()
-            );
+            FavouriteRoute favouriteRoute = buildFavouriteRoute(userId, routeId);
             favouriteRouteRepository.delete(favouriteRouteMapper.toEntity(favouriteRoute));
             log.debug("[SERVICE] Deleted favourite route for userId={} routeId={}", userId, routeId);
+        } catch (IllegalArgumentException e) {
+            log.warn("[SERVICE] User or route does not exist. userId={} routeId={}, reason={}", userId, routeId, e.getMessage());
+            throw e;
         } catch (Exception e) {
             log.error("[SERVICE] Error unliking the route for userId={} routeId={}", userId, routeId, e);
             throw new RuntimeException("Error unliking the route.", e);
@@ -80,18 +68,34 @@ public class UserActionsServiceImpl implements UserActionsService {
 
     @Override
     public boolean isLikedRoute(Long userId, Long routeId) {
-        if (!userRepository.existsById(userId) || !routeRepository.existsById(routeId)) {
-            log.warn("[SERVICE] User or route does not exist. userId={} routeId={}", userId, routeId);
-            throw new IllegalArgumentException("User or route does not exist.");
-        }
         try {
-
+            ensureUserAndRouteExist(userId, routeId);
             boolean isLiked = favouriteRouteRepository.existsByIdUserIdAndIdRouteId(userId, routeId);
             log.debug("[SERVICE] isLikedRoute for userId={} routeId={} : {}", userId, routeId, isLiked);
             return isLiked;
+        } catch (IllegalArgumentException e) {
+            log.warn("[SERVICE] User or route does not exist. userId={} routeId={}, reason={}", userId, routeId, e.getMessage());
+            throw e;
         } catch (Exception e) {
             log.error("[SERVICE] Error checking if the routeId {} was liked by userId {}", routeId, userId, e);
-            throw new RuntimeException("Error unliking the route.", e);
+            throw new RuntimeException("Error checking liked state.", e);
         }
+    }
+
+    private FavouriteRoute buildFavouriteRoute(Long userId, Long routeId) {
+        var userEntity = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User does not exist."));
+        var routeEntity = routeRepository.findById(routeId)
+                .orElseThrow(() -> new IllegalArgumentException("Route does not exist."));
+        return new FavouriteRoute(
+                userMapper.toDomain(userEntity),
+                routeMapper.toDomain(routeEntity),
+                LocalDateTime.now()
+        );
+    }
+
+    private void ensureUserAndRouteExist(Long userId, Long routeId) {
+        userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("User does not exist."));
+        routeRepository.findById(routeId).orElseThrow(() -> new IllegalArgumentException("Route does not exist."));
     }
 }
