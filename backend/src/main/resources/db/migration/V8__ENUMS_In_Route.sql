@@ -1,0 +1,14 @@
+ALTER TABLE routes
+    DROP COLUMN route_type;
+
+ALTER TABLE routes
+DROP COLUMN difficulty;
+
+ALTER TABLE routes
+    ADD COLUMN route_type SMALLINT NOT NULL DEFAULT 0;
+
+
+ALTER TABLE routes
+    ADD COLUMN difficulty SMALLINT NOT NULL DEFAULT 0;
+
+

@@ -55,6 +55,7 @@ class UserServiceImplTest {
 
     private User user;
     private UserEntity userEntity;
+    private final Long userId = 1L;
 
     @BeforeEach
     void setUp() {
@@ -244,44 +245,39 @@ class UserServiceImplTest {
 
     @Test
     void updateProfileVisibility_updatesVisibility() {
-        Long userId = 5L;
 
-        UserEntity entity = new UserEntity();
-        User domainUser = new User();
-
-        when(userRepository.findById(userId)).thenReturn(Optional.of(entity));
-        when(userMapper.toDomain(entity)).thenReturn(domainUser);
-        when(userMapper.toEntity(domainUser)).thenReturn(entity);
+        when(userRepository.existsById(userId)).thenReturn(true);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(userEntity));
+        when(userMapper.toDomain(userEntity)).thenReturn(user);
+        when(userMapper.toEntity(user)).thenReturn(userEntity);
 
         userService.updateProfileVisibility(userId, true);
 
-        assertTrue(domainUser.isPublicProfile());
-        verify(userRepository).save(entity);
+        assertTrue(user.isPublicProfile());
+        verify(userRepository).save(userEntity);
     }
 
     @Test
-    void updateProfileVisibility_throwsRuntimeExceptionWhenUserNotFound() {
-        when(userRepository.findById(anyLong())).thenReturn(Optional.empty());
+    void updateProfileVisibility_throwsResponseStatusExceptionWhenUserNotFound() {
 
-        assertThrows(RuntimeException.class,
+        when(userRepository.existsById(anyLong())).thenReturn(false);
+
+        assertThrows(ResponseStatusException.class,
                 () -> userService.updateProfileVisibility(99L, true));
     }
 
+
     @Test
     void updateBio_updatesBioField() {
-        Long userId = 7L;
 
-        UserEntity entity = new UserEntity();
-        User domainUser = new User();
-
-        when(userRepository.findById(userId)).thenReturn(Optional.of(entity));
-        when(userMapper.toDomain(entity)).thenReturn(domainUser);
-        when(userMapper.toEntity(domainUser)).thenReturn(entity);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(userEntity));
+        when(userMapper.toDomain(userEntity)).thenReturn(user);
+        when(userMapper.toEntity(user)).thenReturn(userEntity);
 
         userService.updateBio(userId, "New bio");
 
-        assertEquals("New bio", domainUser.getBio());
-        verify(userRepository).save(entity);
+        assertEquals("New bio", user.getBio());
+        verify(userRepository).save(userEntity);
     }
 
     @Test

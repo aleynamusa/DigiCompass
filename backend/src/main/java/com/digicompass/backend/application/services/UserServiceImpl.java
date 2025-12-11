@@ -88,8 +88,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean checkUsernameAvailability(String username) {
-
-
         if (username == null) {
             log.warn("[SERVICE] Attempted to check username is null.");
             throw new IllegalArgumentException("Username cannot be null");
@@ -181,29 +179,33 @@ public class UserServiceImpl implements UserService {
             log.error("[SERVICE] Error occurred while updating profile visibility for userId: {}: {}", userId, e.getMessage());
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to update profile visibility.", e);
         }
-
     }
 
     @Override
     public void updateBio(Long userId, String bio) {
-        try{
-            log.info("[SERVICE] Updating bio for userId: {}", userId);
-            if(bio.isEmpty() || !userRepository.existsById(userId) ){
-                throw new IllegalArgumentException("Bio cannot be null or user does not exist.");
-            }
-            User user = userMapper.toDomain(userRepository.findById(userId)
-                    .orElseThrow(() -> new RuntimeException(message)));
+        log.info("[SERVICE] Updating bio for userId: {}", userId);
+
+        if (bio == null || bio.isBlank()) {
+            throw new IllegalArgumentException("Bio cannot be null or empty.");
+        }
+
+        try {
+            User user = userRepository.findById(userId)
+                    .map(userMapper::toDomain)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
 
             user.setBio(bio);
             userRepository.save(userMapper.toEntity(user));
             log.info("[SERVICE] Successfully updated bio for userId: {}", userId);
-        }
-        catch (Exception e){
-            log.error("[SERVICE] Error occurred while updating bio for userId: {}: {}", userId, e.getMessage());
+
+        } catch (RuntimeException e) {
+            throw e; // don't convert expected exceptions
+        } catch (Exception e) {
+            log.error("Unexpected error updating bio", e);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to update bio.", e);
         }
-
     }
+
 
     protected String uploadImages(Long userId, MultipartFile image) throws IOException {
         String key = "";

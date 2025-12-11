@@ -35,9 +35,11 @@ public class RouteEntity {
     @Column
     private String description;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private RouteType routeType; //HIKING, CYCLING, RUNNING, WALKING
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Difficulty difficulty; //EASY, MEDIUM, HARD
 

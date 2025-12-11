@@ -2,6 +2,8 @@ package com.digicompass.backend.application.repository;
 
 import com.digicompass.backend.repository.entity.*;
 import com.digicompass.backend.repository.repositories.RatingJpaRepository;
+import com.digicompass.backend.types.Difficulty;
+import com.digicompass.backend.types.RouteType;
 import jakarta.persistence.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -61,8 +63,8 @@ class RatingJpaRepositoryTest {
         route = new RouteEntity();
         route.setName("Test Route");
         route.setDescription("desc");
-        route.setRouteType("HIKING");
-        route.setDifficulty("EASY");
+        route.setRouteType(RouteType.Cycling);
+        route.setDifficulty(Difficulty.Easy);
         route.setDistance(5f);
         route.setDuration("1h");
         route.setCreatedByUserId(firstUser);
