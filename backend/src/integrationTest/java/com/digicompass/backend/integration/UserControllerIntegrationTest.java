@@ -80,8 +80,6 @@ public class UserControllerIntegrationTest  extends BaseIntegrationTest {
                 .andExpect(status().isBadRequest());
     }
 
-
-
     @Test
     void usernameShouldBeTaken() throws Exception {
         mockMvc.perform(get("/users/usernames")
@@ -135,10 +133,7 @@ public class UserControllerIntegrationTest  extends BaseIntegrationTest {
                         .file(file)
                         .contentType(MediaType.MULTIPART_FORM_DATA))
                 .andExpect(status().isOk());
-
-
     }
-
 
     @Test
     void shouldRejectEmptyProfilePicture() throws Exception {
@@ -155,7 +150,6 @@ public class UserControllerIntegrationTest  extends BaseIntegrationTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("File must not be empty"));
     }
-
 
     @Test
     void shouldReturnNotFoundWhenUpdatingProfilePictureForMissingUser() throws Exception {

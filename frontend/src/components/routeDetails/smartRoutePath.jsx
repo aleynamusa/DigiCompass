@@ -140,7 +140,7 @@ export default function SmartRoutePath({geojson, category = 'walking'}) {
                             <>
                                 <br/>
                                 <small style={{color: '#d32f2f'}}>
-                                    ⚠️ {error}
+                                     {error}
                                 </small>
                             </>
                         )}

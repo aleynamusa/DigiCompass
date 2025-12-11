@@ -165,20 +165,44 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updateProfileVisibility(Long userId, boolean isPublic) {
-        User user = userMapper.toDomain(userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException(message)));
+        try{
+            log.info("[SERVICE] Updating profile visibility for userId: {} to {}", userId, isPublic);
+            if(!userRepository.existsById(userId)){
+                throw new IllegalArgumentException("User does not exist.");
+            }
+            User user = userMapper.toDomain(userRepository.findById(userId)
+                    .orElseThrow(() -> new RuntimeException(message)));
 
-        user.setPublicProfile(isPublic);
-        userRepository.save(userMapper.toEntity(user));
+            user.setPublicProfile(isPublic);
+            userRepository.save(userMapper.toEntity(user));
+            log.info("[SERVICE] Successfully updated profile visibility for userId: {}", user.getId());
+        }
+        catch (Exception e){
+            log.error("[SERVICE] Error occurred while updating profile visibility for userId: {}: {}", userId, e.getMessage());
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to update profile visibility.", e);
+        }
+
     }
 
     @Override
     public void updateBio(Long userId, String bio) {
-        User user = userMapper.toDomain(userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException(message)));
+        try{
+            log.info("[SERVICE] Updating bio for userId: {}", userId);
+            if(bio.isEmpty() || !userRepository.existsById(userId) ){
+                throw new IllegalArgumentException("Bio cannot be null or user does not exist.");
+            }
+            User user = userMapper.toDomain(userRepository.findById(userId)
+                    .orElseThrow(() -> new RuntimeException(message)));
 
-        user.setBio(bio);
-        userRepository.save(userMapper.toEntity(user));
+            user.setBio(bio);
+            userRepository.save(userMapper.toEntity(user));
+            log.info("[SERVICE] Successfully updated bio for userId: {}", userId);
+        }
+        catch (Exception e){
+            log.error("[SERVICE] Error occurred while updating bio for userId: {}: {}", userId, e.getMessage());
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to update bio.", e);
+        }
+
     }
 
     protected String uploadImages(Long userId, MultipartFile image) throws IOException {

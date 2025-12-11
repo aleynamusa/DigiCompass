@@ -1,5 +1,7 @@
 package com.digicompass.backend.application.models;
 
+import com.digicompass.backend.types.Difficulty;
+import com.digicompass.backend.types.RouteType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,8 +19,8 @@ public class Route {
     private Long id;
     private String name;
     private String description;
-    private String routeType;   //HIKING, CYCLING, RUNNING, WALKING
-    private String difficulty;  //BEGINNER, EASY, MODERATE, HARD
+    private RouteType routeType;   //HIKING, CYCLING, RUNNING, WALKING
+    private Difficulty difficulty;  // EASY, MEDIUM, HARD
     private float distance;
     private String duration;
     private User createdByUserId;

@@ -1,5 +1,7 @@
 package com.digicompass.backend.repository.entity;
 
+import com.digicompass.backend.types.Difficulty;
+import com.digicompass.backend.types.RouteType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -22,7 +24,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-
 public class RouteEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,10 +36,10 @@ public class RouteEntity {
     private String description;
 
     @Column(nullable = false)
-    private String routeType; //HIKING, CYCLING, RUNNING, WALKING
+    private RouteType routeType; //HIKING, CYCLING, RUNNING, WALKING
 
     @Column(nullable = false)
-    private String difficulty; //BEGINNER, EASY, MODERATE, HARD, EXPERT, EXTREME
+    private Difficulty difficulty; //EASY, MEDIUM, HARD
 
     @Column(nullable = false)
     private float distance;

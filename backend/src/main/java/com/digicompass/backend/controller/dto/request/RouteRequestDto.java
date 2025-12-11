@@ -1,6 +1,9 @@
 package com.digicompass.backend.controller.dto.request;
 
+import com.digicompass.backend.controller.dto.GeoJsonDto;
 import com.digicompass.backend.controller.dto.UserDto;
+import com.digicompass.backend.types.Difficulty;
+import com.digicompass.backend.types.RouteType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,11 +17,11 @@ public class RouteRequestDto {
     private Long id;
     private String name;
     private String description;
-    private String routeType;
-    private String difficulty;
-    private float distance;        // <-- ADD THIS
-    private String duration;       // <-- ADD THIS
-    private String geometry;       // <-- ADD THIS (frontend sends GeoJSON)
+    private RouteType routeType;
+    private Difficulty difficulty;
+    private float distance;
+    private String duration;
+    private GeoJsonDto geometry;
     private UserDto createdByUserId;
     private List<String> images;
 }

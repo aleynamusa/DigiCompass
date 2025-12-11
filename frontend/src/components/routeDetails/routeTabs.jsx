@@ -1,4 +1,4 @@
-import {Tabs, Flex, FloatingIndicator, Rating, Modal, Dialog} from "@mantine/core";
+import {Tabs, Flex, FloatingIndicator, Rating     } from "@mantine/core";
 import {useEffect, useRef, useState} from "react";
 import { useNavigate } from "react-router-dom";
 import classes from "@/components/card.module.css";

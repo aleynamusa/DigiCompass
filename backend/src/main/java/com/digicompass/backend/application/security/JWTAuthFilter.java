@@ -33,18 +33,6 @@ public class JWTAuthFilter implements Filter {
                 token = authHeader.substring(7);
             }
 
-//            if (token != null) {
-//                try {
-//                    Claims claims = jwt.extractAllClaims(token);
-//                    String username = claims.getSubject();
-//                    Long id = claims.get("id", Long.class);
-//                    request.setAttribute("user", username);
-//                    request.setAttribute("id", id);
-//                } catch (Exception e) {
-//                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-//                    return;
-//                }
-//            }
 
             if (token != null) {
                 try {

@@ -8,7 +8,7 @@ import FiltersBar from "@/components/routeDiscovery/filtersBar.jsx";
 import {getFilteredRoutes, getRouteGeometry, getRoutes, searchRoutesByKeyword} from "@/api/routeApi.jsx";
 import RouteTabsDiscovery from "@/components/routeDiscovery/routeTabs.jsx";
 import {AlertCircle, CheckCircle, CirclePlus} from "lucide-react";
-import CreateRoutePopup from "@/components/createRoutePopup.jsx";
+import CreateRoutePopup from "@/components/ceateRoutePopup/createRoutePopup.jsx";
 
 const RouteDiscovery = () => {
     const {
@@ -146,52 +146,7 @@ const RouteDiscovery = () => {
         )
         : baseRoutes;
 
-    // Add this function for saving routes
-    const handleSaveRoute = async (routeData) => {
-        setSaveLoading(true);
 
-        try {
-            // Your API call to save the route
-            const response = await fetch('/api/routes', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${userToken}`
-                },
-                body: JSON.stringify(routeData)
-            });
-
-            if (!response.ok) {
-                const error = await response.json();
-                throw new Error(error.message || 'Failed to save route');
-            }
-
-            const result = await response.json();
-
-            // Show success notification
-            showNotification('Success', 'Route created successfully!', 'green');
-
-            // Refresh routes
-            await fetchRoutes();
-
-            return result;
-
-        } catch (error) {
-            showNotification('Error', error.message, 'red');
-            throw error;
-        } finally {
-            setSaveLoading(false);
-        }
-    };
-
-    // Add this function for notifications
-    const showNotification = (title, message, color = 'blue') => {
-        const id = Date.now();
-        setNotifications(prev => [...prev, { id, title, message, color }]);
-        setTimeout(() => {
-            setNotifications(prev => prev.filter(n => n.id !== id));
-        }, 5000);
-    };
 
     // Needs to be used after every hook is defined others doesnt work
     if (loading) {
@@ -255,7 +210,7 @@ const RouteDiscovery = () => {
             <CreateRoutePopup
                 isOpen={showRoutePopup}
                 onClose={() => setShowRoutePopup(false)}
-                onSave={handleSaveRoute}
+                // onSave={handleSaveRoute}
                 loading={saveLoading}
             />
 

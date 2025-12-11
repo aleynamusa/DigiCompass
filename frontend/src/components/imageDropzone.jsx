@@ -27,10 +27,10 @@ export default function ImageDropzone({
             <Dropzone
                 accept={IMAGE_MIME_TYPE}
                 onDrop={handleDrop}
-                style={{ minHeight: 150 }}
+                style={{ minHeight: 30 }}
                 className="text-center"
                 >
-                <Group justify="center" gap="xl" mih={160} style={{ pointerEvents: 'none' }}>
+                <Group justify="center" gap="xl" mih={20} style={{ pointerEvents: 'none' }}>
                     <Dropzone.Accept>
                         <Upload size={52} color="var(--mantine-color-blue-6)" stroke={1.5} />
                     </Dropzone.Accept>

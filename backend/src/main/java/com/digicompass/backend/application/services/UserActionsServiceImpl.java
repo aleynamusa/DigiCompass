@@ -90,7 +90,7 @@ public class UserActionsServiceImpl implements UserActionsService {
             log.debug("[SERVICE] isLikedRoute for userId={} routeId={} : {}", userId, routeId, isLiked);
             return isLiked;
         } catch (Exception e) {
-            log.error("[SERVICE] Error unliking the route for userId={} routeId={}", userId, routeId, e);//TODO change this
+            log.error("[SERVICE] Error checking if the routeId {} was liked by userId {}", routeId, userId, e);
             throw new RuntimeException("Error unliking the route.", e);
         }
     }

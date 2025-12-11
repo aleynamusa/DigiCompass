@@ -17,6 +17,7 @@ export const AuthProvider = ({ children }) => {
             setUser({
                 id: decoded.id,
                 username: decoded.username || decoded.sub,
+                role: decoded.role || "user",
             });
         } catch (err) {
             console.error("Failed to decode token", err);
