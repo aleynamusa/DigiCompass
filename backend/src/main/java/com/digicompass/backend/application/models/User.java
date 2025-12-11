@@ -22,7 +22,7 @@ public class User {
     private boolean isPublicProfile;
 
 
-    public int CalculateAge(){
+    public int calculateAge(){
         Period period = Period.between(birthDate, LocalDate.now());
 
         return period.getYears();

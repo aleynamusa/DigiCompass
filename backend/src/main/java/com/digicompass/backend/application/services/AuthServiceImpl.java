@@ -44,7 +44,7 @@ public class AuthServiceImpl implements AuthService {
                 throw new IllegalArgumentException("User cannot be null.");
             }
 
-            if (user.CalculateAge() < 14) {
+            if (user.calculateAge() < 14) {
                 throw new IllegalArgumentException("User cannot be less than 14 years old.");
             }
 

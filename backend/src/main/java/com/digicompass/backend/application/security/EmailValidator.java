@@ -1,7 +1,12 @@
 package com.digicompass.backend.application.security;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+
 import java.util.regex.Pattern;
 
+@AllArgsConstructor
+@NoArgsConstructor
 public class EmailValidator {
 
 
