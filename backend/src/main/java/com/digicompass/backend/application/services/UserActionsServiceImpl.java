@@ -82,7 +82,7 @@ public class UserActionsServiceImpl implements UserActionsService {
         }
     }
 
-    private FavouriteRoute buildFavouriteRoute(Long userId, Long routeId) {
+    protected FavouriteRoute buildFavouriteRoute(Long userId, Long routeId) {
         var userEntity = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User does not exist."));
         var routeEntity = routeRepository.findById(routeId)

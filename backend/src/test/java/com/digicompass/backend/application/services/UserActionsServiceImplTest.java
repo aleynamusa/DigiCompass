@@ -4,6 +4,8 @@ import com.digicompass.backend.application.mapper.FavouriteRouteMapper;
 import com.digicompass.backend.application.mapper.RouteMapper;
 import com.digicompass.backend.application.mapper.UserMapper;
 import com.digicompass.backend.application.models.FavouriteRoute;
+import com.digicompass.backend.application.models.Route;
+import com.digicompass.backend.application.models.User;
 import com.digicompass.backend.repository.entity.FavouriteRouteEntity;
 import com.digicompass.backend.repository.entity.RouteEntity;
 import com.digicompass.backend.repository.entity.UserEntity;
@@ -17,6 +19,7 @@ import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -46,6 +49,8 @@ public class UserActionsServiceImplTest {
 
     private UserEntity mockUser;
     private RouteEntity mockRoute;
+    private User user;
+    private Route route;
 
     @BeforeEach
     void setup() {
@@ -53,36 +58,39 @@ public class UserActionsServiceImplTest {
         mockUser = new UserEntity();
         mockUser.setId(1L);
 
+        user = new User();
+        user.setId(1L);
+
         mockRoute = new RouteEntity();
         mockRoute.setId(1L);
+
+        route = new Route();
+        route.setId(1L);
     }
 
 
     @Test
     void testFavouriteRoute_success() {
-        when(userRepository.existsById(1L)).thenReturn(true);
-        when(routeRepository.existsById(1L)).thenReturn(true);
-        when(userRepository.getById(1L)).thenReturn(mockUser);
-        when(routeRepository.getById(1L)).thenReturn(mockRoute);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(mockUser));
+        when(routeRepository.findById(1L)).thenReturn(Optional.of(mockRoute));
 
-        FavouriteRoute domain = new FavouriteRoute(null, null, LocalDateTime.now());
-        when(userMapper.toDomain(mockUser)).thenReturn(domain.getUser());
-        when(routeMapper.toDomain(mockRoute)).thenReturn(domain.getRoute());
+        when(userMapper.toDomain(mockUser)).thenReturn(user);
+        when(routeMapper.toDomain(mockRoute)).thenReturn(route);
 
-        FavouriteRouteEntity mappedEntity = new FavouriteRouteEntity();
-        when(favouriteRouteMapper.toEntity(any(FavouriteRoute.class))).thenReturn(mappedEntity);
+        FavouriteRouteEntity expectedEntity = new FavouriteRouteEntity();
+        when(favouriteRouteMapper.toEntity(any(FavouriteRoute.class)))
+                .thenReturn(expectedEntity);
 
         userActionsService.favouriteRoute(1L, 1L);
 
-        verify(favouriteRouteRepository, times(1)).save(mappedEntity);
+        verify(favouriteRouteRepository, times(1)).save(expectedEntity);
     }
+
 
     @Test
     void testUnfavouriteRoute_success() {
-        when(userRepository.existsById(1L)).thenReturn(true);
-        when(routeRepository.existsById(1L)).thenReturn(true);
-        when(userRepository.getById(1L)).thenReturn(mockUser);
-        when(routeRepository.getById(1L)).thenReturn(mockRoute);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(mockUser));
+        when(routeRepository.findById(1L)).thenReturn(Optional.of(mockRoute));
 
         FavouriteRoute domain = new FavouriteRoute(null, null, LocalDateTime.now());
         when(userMapper.toDomain(mockUser)).thenReturn(domain.getUser());
@@ -98,36 +106,34 @@ public class UserActionsServiceImplTest {
 
     @Test
     void testFavouriteRoute_userOrRouteNotFound() {
-        when(userRepository.existsById(1L)).thenReturn(false);
+        when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
                 () -> userActionsService.favouriteRoute(1L, 1L)
         );
 
-        assertEquals("User or route does not exist.", exception.getMessage());
+        assertEquals("User does not exist.", exception.getMessage());
         verify(favouriteRouteRepository, never()).save(any());
     }
 
     @Test
     void testUnfavouriteRoute_userOrRouteNotFound() {
-        when(userRepository.existsById(1L)).thenReturn(false);
+        when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
                 () -> userActionsService.unfavouriteRoute(1L, 1L)
         );
 
-        assertEquals("User or route does not exist.", exception.getMessage());
+        assertEquals("User does not exist.", exception.getMessage());
         verify(favouriteRouteRepository, never()).delete(any());
     }
 
     @Test
     void testFavouriteRoute_repositoryThrowsException() {
-        when(userRepository.existsById(1L)).thenReturn(true);
-        when(routeRepository.existsById(1L)).thenReturn(true);
-        when(userRepository.getById(1L)).thenReturn(mockUser);
-        when(routeRepository.getById(1L)).thenReturn(mockRoute);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(mockUser));
+        when(routeRepository.findById(1L)).thenReturn(Optional.of(mockRoute));
 
         when(favouriteRouteMapper.toEntity(any())).thenThrow(new RuntimeException("DB ERROR"));
 
@@ -141,10 +147,8 @@ public class UserActionsServiceImplTest {
 
     @Test
     void testUnfavouriteRoute_repositoryThrowsException() {
-        when(userRepository.existsById(1L)).thenReturn(true);
-        when(routeRepository.existsById(1L)).thenReturn(true);
-        when(userRepository.getById(1L)).thenReturn(mockUser);
-        when(routeRepository.getById(1L)).thenReturn(mockRoute);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(mockUser));
+        when(routeRepository.findById(1L)).thenReturn(Optional.of(mockRoute));
 
         when(favouriteRouteMapper.toEntity(any())).thenThrow(new RuntimeException("DB ERROR"));
 
@@ -158,8 +162,8 @@ public class UserActionsServiceImplTest {
 
     @Test
     void testIsLikedRoute_success_true() {
-        when(userRepository.existsById(1L)).thenReturn(true);
-        when(routeRepository.existsById(1L)).thenReturn(true);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(mockUser));
+        when(routeRepository.findById(1L)).thenReturn(Optional.of(mockRoute));
         when(favouriteRouteRepository.existsByIdUserIdAndIdRouteId(1L, 1L))
                 .thenReturn(true);
 
@@ -172,8 +176,8 @@ public class UserActionsServiceImplTest {
 
     @Test
     void testIsLikedRoute_success_false() {
-        when(userRepository.existsById(1L)).thenReturn(true);
-        when(routeRepository.existsById(1L)).thenReturn(true);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(mockUser));
+        when(routeRepository.findById(1L)).thenReturn(Optional.of(mockRoute));
         when(favouriteRouteRepository.existsByIdUserIdAndIdRouteId(1L, 1L))
                 .thenReturn(false);
 
@@ -186,21 +190,21 @@ public class UserActionsServiceImplTest {
 
     @Test
     void testIsLikedRoute_userOrRouteNotFound() {
-        when(userRepository.existsById(1L)).thenReturn(false);
+        when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
                 () -> userActionsService.isLikedRoute(1L, 1L)
         );
 
-        assertEquals("User or route does not exist.", exception.getMessage());
+        assertEquals("User does not exist.", exception.getMessage());
         verify(favouriteRouteRepository, never()).existsByIdUserIdAndIdRouteId(any(), any());
     }
 
     @Test
     void testIsLikedRoute_repositoryThrowsException() {
-        when(userRepository.existsById(1L)).thenReturn(true);
-        when(routeRepository.existsById(1L)).thenReturn(true);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(mockUser));
+        when(routeRepository.findById(1L)).thenReturn(Optional.of(mockRoute));
         when(favouriteRouteRepository.existsByIdUserIdAndIdRouteId(1L, 1L))
                 .thenThrow(new RuntimeException("DB ERROR"));
 
@@ -209,7 +213,7 @@ public class UserActionsServiceImplTest {
                 () -> userActionsService.isLikedRoute(1L, 1L)
         );
 
-        assertEquals("Error unliking the route.", exception.getMessage());
+        assertEquals("Error checking liked state.", exception.getMessage());
         assertNotNull(exception.getCause());
         assertEquals("DB ERROR", exception.getCause().getMessage());
     }
