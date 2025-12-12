@@ -44,7 +44,7 @@ public class UserController {
 
             return ResponseEntity.ok(user);
         }
-        catch (Exception e){
+        catch (Exception _){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }
@@ -62,7 +62,7 @@ public class UserController {
 
             return ResponseEntity.ok(response);
         }
-        catch (Exception e){
+        catch (Exception _){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }
@@ -79,7 +79,7 @@ public class UserController {
 
             return ResponseEntity.ok(response);
         }
-        catch (Exception e){
+        catch (Exception _){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }
@@ -156,7 +156,7 @@ public class UserController {
             );
             return ResponseEntity.ok(routes);
         }
-        catch (Exception e){
+        catch (Exception _){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }
