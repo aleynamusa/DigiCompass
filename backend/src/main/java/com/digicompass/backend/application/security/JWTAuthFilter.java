@@ -54,7 +54,7 @@ public class JWTAuthFilter implements Filter {
             chain.doFilter(req, res);
         }
         catch(IOException | ServletException e){
-            throw e;
+            throw new ServletException("Error processing JWT authentication", e);
         }
 
     }

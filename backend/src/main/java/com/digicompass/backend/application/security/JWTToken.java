@@ -27,7 +27,7 @@ public class JWTToken {
         try {
             byte[] decodedKey = Base64.getDecoder().decode(secret_key);
             return Keys.hmacShaKeyFor(decodedKey);
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException _) {
             return Keys.hmacShaKeyFor(secret_key.getBytes());
         }
     }

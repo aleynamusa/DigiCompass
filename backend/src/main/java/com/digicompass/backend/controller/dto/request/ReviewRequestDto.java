@@ -39,7 +39,7 @@ public class ReviewRequestDto {
             ObjectMapper mapper = new ObjectMapper();
             return mapper.readValue(existingImageUrls,
                     new TypeReference<List<String>>() {});
-        } catch (Exception e) {
+        } catch (Exception _) {
             return new ArrayList<>();
         }
     }
