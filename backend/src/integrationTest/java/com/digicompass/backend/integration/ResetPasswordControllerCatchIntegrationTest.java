@@ -16,6 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+
 public class ResetPasswordControllerCatchIntegrationTest extends BaseIntegrationTest {
 
     @Autowired

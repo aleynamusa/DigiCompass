@@ -9,6 +9,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
@@ -35,4 +36,7 @@ public class RouteControllerCatchIntegrationTest extends BaseIntegrationTest{
                         .content(invalidJson))
                 .andExpect(status().isBadRequest());
     }
+
+
+
 }

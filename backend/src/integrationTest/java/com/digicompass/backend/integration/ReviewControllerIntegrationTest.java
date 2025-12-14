@@ -5,17 +5,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
-
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-
-
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+@WithMockUser(username = "testuser", roles = "USER")
 public class ReviewControllerIntegrationTest extends BaseIntegrationTest {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
@@ -73,6 +71,7 @@ public class ReviewControllerIntegrationTest extends BaseIntegrationTest {
                         .param("review", "Nice route at first!")
                         .param("routeId", routeId.toString())
                         .param("userId.id", userId.toString())
+
                 )
                 .andExpect(status().isCreated())
                 .andReturn()
@@ -113,6 +112,7 @@ public class ReviewControllerIntegrationTest extends BaseIntegrationTest {
                         .param("review", "Great!")
                         .param("routeId", routeId.toString())
                         .param("userId.id", userId.toString())
+
                 )
                 .andExpect(status().isCreated());
 
@@ -128,6 +128,7 @@ public class ReviewControllerIntegrationTest extends BaseIntegrationTest {
                         .param("review", "Delete me!")
                         .param("routeId", routeId.toString())
                         .param("userId.id", userId.toString())
+
                 )
                 .andExpect(status().isCreated())
                 .andReturn()

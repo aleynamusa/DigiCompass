@@ -8,6 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -44,7 +45,8 @@ public class RatingControllerIntegrationTest extends BaseIntegrationTest {
     void shouldCreateRating() throws Exception {
         mockMvc.perform(post("/rating")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(ratingJson(4.0)))
+                        .content(ratingJson(4.0))
+                        .with(user("testuser").roles("USER")))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").exists())
                 .andExpect(jsonPath("$.rating").value(4.0));
@@ -54,42 +56,50 @@ public class RatingControllerIntegrationTest extends BaseIntegrationTest {
     void shouldCreatingRatingCannotCreate() throws Exception{
         mockMvc.perform(post("/rating")
                         .contentType(MediaType.APPLICATION_JSON)
-                .content(""))
+                .content("")
+                        .with(user("testuser").roles("USER")))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void shouldGetRatingsByRoute() throws Exception {
-        mockMvc.perform(get("/rating/route/" + routeId))
+        mockMvc.perform(get("/rating/route/" + routeId)
+                .with(user("testuser").roles("USER")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].rating").value(5.0));
     }
 
     @Test
     void shouldDeleteRating() throws Exception {
+
         String response = mockMvc.perform(post("/rating")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(ratingJson(3.5)))
+                        .content(ratingJson(3.5))
+                        .with(user("testuser").roles("USER")))
                 .andReturn().getResponse().getContentAsString();
 
         Long ratingId = objectMapper.readTree(response).get("id").asLong();
 
-        mockMvc.perform(delete("/rating/delete/" + ratingId))
+        mockMvc.perform(delete("/rating/delete/" + ratingId)
+                        .with(user("testuser").roles("USER")))
                 .andExpect(status().isNoContent());
     }
+
 
     @Test
     void shouldUpdateRating() throws Exception {
         String createResponse = mockMvc.perform(post("/rating")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(ratingJson(3.0)))
+                        .content(ratingJson(3.0))
+                        .with(user("testuser").roles("USER")))
                 .andReturn().getResponse().getContentAsString();
 
         Long ratingId = objectMapper.readTree(createResponse).get("id").asLong();
 
         mockMvc.perform(put("/rating/update/" + ratingId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(ratingJson(4.5)))
+                        .content(ratingJson(4.5))
+                        .with(user("testuser").roles("USER")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(ratingId))
                 .andExpect(jsonPath("$.rating").value(4.5));

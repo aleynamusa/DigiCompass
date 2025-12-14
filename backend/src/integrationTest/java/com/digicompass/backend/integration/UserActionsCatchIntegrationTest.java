@@ -9,6 +9,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -43,7 +44,8 @@ public class UserActionsCatchIntegrationTest extends BaseIntegrationTest {
 
         mockMvc.perform(post("/action/favorite")
                         .contentType(String.valueOf(MediaType.APPLICATION_JSON))
-                        .content(favoriteJson(2L, 2L)))
+                        .content(favoriteJson(2L, 2L))
+                        .with(user("testuser").roles("USER")))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("User or route does not exist."));
     }
@@ -56,7 +58,8 @@ public class UserActionsCatchIntegrationTest extends BaseIntegrationTest {
 
         mockMvc.perform(post("/action/favorite")
                         .contentType(String.valueOf(MediaType.APPLICATION_JSON))
-                        .content(favoriteJson(3L, 3L)))
+                        .content(favoriteJson(3L, 3L))
+                        .with(user("testuser").roles("USER")))
                 .andExpect(status().isInternalServerError())
                 .andExpect(content().string("Internal server error"));
     }
@@ -69,7 +72,8 @@ public class UserActionsCatchIntegrationTest extends BaseIntegrationTest {
 
         mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/action/isLiked")
                         .param("userId", "2")
-                        .param("routeId", "2"))
+                        .param("routeId", "2")
+                        .with(user("testuser").roles("USER")))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("User or route does not exist."));
     }
@@ -81,7 +85,8 @@ public class UserActionsCatchIntegrationTest extends BaseIntegrationTest {
 
         mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/action/isLiked")
                         .param("userId", "3")
-                        .param("routeId", "3"))
+                        .param("routeId", "3")
+                        .with(user("testuser").roles("USER")))
                 .andExpect(status().isInternalServerError())
                 .andExpect(content().string("Internal server error"));
     }
