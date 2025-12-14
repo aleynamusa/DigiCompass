@@ -1,14 +1,17 @@
 import axiosClient from "./axiosClient";
 
-export const getUserProfile = async (userId) => axiosClient.get(`/users/${userId}`);
+const token = localStorage.getItem("accessToken");
+
+export const getUserProfile = async (userId) => axiosClient.get(`/users/${userId}`,{
+    headers: {
+        Authorization: `Bearer ${token}`
+    },
+    withCredentials: true
+});
 
 
 export const updateProfilePicture = (id, formData) =>
-    axiosClient.post(`/users/profilePictureUpdate/${id}`, formData, {
-    headers: {
-        "Content-Type": "multipart/form-data"
-    },
-});
+    axiosClient.post(`/users/profilePictureUpdate/${id}`, formData);
 
 export const getUsersByUsername = async (username) =>
     axiosClient.get(`/users/search`, {

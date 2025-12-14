@@ -5,7 +5,7 @@ import {RouteDetails} from "@/components/routeDetails/route_details.jsx";
 import {useLogin} from "@/hooks/useLogin.jsx";
 import LoginPopup from "@/components/routeDiscovery/LoginPopUp.jsx";
 import FiltersBar from "@/components/routeDiscovery/filtersBar.jsx";
-import {getFilteredRoutes, getRouteGeometry, getRoutes, searchRoutesByKeyword} from "@/api/routeApi.jsx";
+import {getFilteredRoutes, getRouteGeometry, getRoutes, saveRoute, searchRoutesByKeyword} from "@/api/routeApi.jsx";
 import RouteTabsDiscovery from "@/components/routeDiscovery/routeTabs.jsx";
 import {AlertCircle, CheckCircle, CirclePlus} from "lucide-react";
 import CreateRoutePopup from "@/components/ceateRoutePopup/createRoutePopup.jsx";
@@ -146,7 +146,19 @@ const RouteDiscovery = () => {
         )
         : baseRoutes;
 
-
+    const handleSaveRoute = async (routeData) => {
+        try {
+            setSaveLoading(true);
+            await saveRoute(routeData);
+            setShowRoutePopup(false);
+            await fetchRoutes();
+        } catch (err) {
+            console.error(err);
+            setError("Failed to save route");
+        } finally {
+            setSaveLoading(false);
+        }
+    };
 
     // Needs to be used after every hook is defined others doesnt work
     if (loading) {
@@ -206,15 +218,13 @@ const RouteDiscovery = () => {
                 {...{ loginData, handleChange, handleSubmit, isChecked, setChecked, errors }}
             />
 
-            {/* Add the CreateRoutePopup */}
             <CreateRoutePopup
                 isOpen={showRoutePopup}
                 onClose={() => setShowRoutePopup(false)}
-                // onSave={handleSaveRoute}
+                onSave={handleSaveRoute}
                 loading={saveLoading}
             />
 
-            {/* Custom Notification Component (if you don't have one) */}
             <div className="fixed top-4 right-4 z-50 space-y-2">
                 {notifications.map((notification) => (
                     <div

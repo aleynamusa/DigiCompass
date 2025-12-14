@@ -23,11 +23,10 @@
 
 @media (max-width: 768px) {
     :root {
-        --sidebar-width: 20rem; /* Width when sidebar is open on mobile */
+        --sidebar-width: 20rem;
     }
 }
 
-/* Custom scrollbar for reviews and ratings sections */
 .reviews-ratings-scroll::-webkit-scrollbar {
     width: 8px;
 }

@@ -12,6 +12,7 @@ import java.util.List;
 public interface UserJpaRepository extends JpaRepository<UserEntity, Long> {
     UserEntity findUserDocumentByUsername(String username);
     UserEntity findByEmail(String email);
+    UserEntity findByUsername(String username);
     @Query("SELECT u.username FROM UserEntity u")
     List<String> findAllUsernames();
     @Query("SELECT u.email FROM UserEntity u")

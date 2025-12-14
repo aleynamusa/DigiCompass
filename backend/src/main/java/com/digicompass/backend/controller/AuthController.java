@@ -33,10 +33,12 @@ public class AuthController {
 
 
     @PostMapping("/signUp")
-    public ResponseEntity<UserRequestDto> signUp(@RequestBody UserRequestDto request) {
+    public ResponseEntity<Void> signUp(@RequestBody UserRequestDto request) {
         try {
+            log.info("[CONTROLLER] Attempting to sign up user: {}", request.getUsername());
             UserRequestDto saved = userMapperController.toControllerRequest(authService.signUp(userMapperController.toModel(request)));
-            return ResponseEntity.ok(saved);
+            log.debug("[CONTROLLER] Returning saved user: {}", saved);
+            return ResponseEntity.status(HttpStatus.CREATED).build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
@@ -45,6 +47,7 @@ public class AuthController {
     @PostMapping("/logIn")
     public ResponseEntity<Map<String, String>> logIn(@RequestBody LogInRequest request, HttpServletResponse response) {
         try {
+            log.info("[CONTROLLER] Attempting to log in user: {}", request.getUsername());
             Map<String, String> tokens = authService.logIn(request.getUsername(), request.getPassword());
             boolean rememberMe = request.isRememberMe();
             if (tokens == null) {
@@ -54,8 +57,8 @@ public class AuthController {
             if (rememberMe) {
                 ResponseCookie cookie = ResponseCookie.from("refreshToken", tokens.get("refreshToken"))
                         .httpOnly(true)
-                        .sameSite("Lax")
-                        .secure(false)
+                        .sameSite("Strict")
+                        .secure(true)
                         .path("/")
                         .maxAge(7 * 24 * 60 * 60l)
                         .build();
@@ -64,13 +67,15 @@ public class AuthController {
 
 
             Map<String, String> body = Map.of("accessToken", tokens.get("accessToken"));
+            log.info("[CONTROLLER] User logged in successfully.");
             return ResponseEntity.ok(body);
 
         } catch (IllegalArgumentException e) {
+            log.info("Invalid username or password");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("[CONTROLLER] Error during login: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Unexpected error while logging in"));
         }
@@ -78,47 +83,65 @@ public class AuthController {
 
     @PostMapping("/refresh")
     public ResponseEntity<Map<String, String>> refresh(HttpServletRequest request, HttpServletResponse response) {
-        String refreshToken = Arrays.stream(Optional.ofNullable(request.getCookies())
-                        .orElse(new Cookie[0]))
-                .filter(c -> "refreshToken".equals(c.getName()))
-                .findFirst()
-                .map(Cookie::getValue)
-                .orElse(null);
-        if (refreshToken == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("error", "No refresh token"));
+
+        try{
+            log.info("[CONTROLLER] Refreshing Token");
+            String refreshToken = Arrays.stream(Optional.ofNullable(request.getCookies())
+                            .orElse(new Cookie[0]))
+                    .filter(c -> "refreshToken".equals(c.getName()))
+                    .findFirst()
+                    .map(Cookie::getValue)
+                    .orElse(null);
+            if (refreshToken == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("error", "No refresh token"));
+            }
+
+            var newTokens = authService.refresh(Map.of("refreshToken", refreshToken));
+            if (newTokens == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("error", "Invalid refresh token"));
+            }
+
+            //reissue cookie
+            ResponseCookie cookie = ResponseCookie.from("refreshToken", newTokens.get("refreshToken"))
+                    .httpOnly(true)
+                    .sameSite("Strict")
+                    .secure(true)
+                    .path("/")
+                    .maxAge(7 * 24 * 60 * 60l)
+                    .build();
+            response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+            log.info("[CONTROLLER] Token refreshed successfully.");
+
+            return ResponseEntity.ok(Map.of("accessToken", newTokens.get("accessToken")));
+        } catch (Exception e){
+            log.error("[CONTROLLER] Error during token refresh: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Unexpected error while refreshing token"));
         }
 
-        var newTokens = authService.refresh(Map.of("refreshToken", refreshToken));
-        if (newTokens == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("error", "Invalid refresh token"));
-        }
-
-        //reissue cookie
-        ResponseCookie cookie = ResponseCookie.from("refreshToken", newTokens.get("refreshToken"))
-                .httpOnly(true)
-                .sameSite("Strict")
-                .secure(false)
-                .path("/")
-                .maxAge(7 * 24 * 60 * 60l)
-                .build();
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-
-        return ResponseEntity.ok(Map.of("accessToken", newTokens.get("accessToken")));
     }
 
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletResponse response) {
-        ResponseCookie cookie = ResponseCookie.from("refreshToken", "")
-                .httpOnly(true)
-                .sameSite("Strict")
-                .secure(false)
-                .path("/")
-                .maxAge(0)
-                .build();
+        try {
+            log.info("[CONTROLLER] Logging out user.");
+            ResponseCookie cookie = ResponseCookie.from("refreshToken", "")
+                    .httpOnly(true)
+                    .sameSite("Strict")
+                    .secure(true)
+                    .path("/")
+                    .maxAge(0)
+                    .build();
 
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-        return ResponseEntity.noContent().build();
+            response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+            log.info("[CONTROLLER] User logged out successfully.");
+            return ResponseEntity.noContent().build();
+
+        } catch (Exception e) {
+            log.error("[CONTROLLER] Error during logout: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }

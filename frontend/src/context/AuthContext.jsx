@@ -2,7 +2,7 @@ import React, { createContext, useState, useEffect, useContext } from "react";
 import { jwtDecode } from "jwt-decode";
 import { loginApi, logoutApi, refreshApi } from "@/api/authApi.jsx";
 
-export const AuthContext = createContext();
+export const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
@@ -10,14 +10,19 @@ export const AuthProvider = ({ children }) => {
         localStorage.getItem("accessToken") || null
     );
     const [loading, setLoading] = useState(true);
+    const roleMap = {
+        1: "ADMIN",
+        2: "USER",
+    };
 
     const setUserFromToken = (token) => {
         try {
             const decoded = jwtDecode(token);
+
             setUser({
                 id: decoded.id,
                 username: decoded.username || decoded.sub,
-                role: decoded.role || "user",
+                role: roleMap[decoded.role] || "USER",
             });
         } catch (err) {
             console.error("Failed to decode token", err);
@@ -45,7 +50,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     useEffect(() => {
-        const stored = localStorage.getItem("accessToken") || sessionStorage.getItem("accessToken");
+        const stored = localStorage.getItem("accessToken");
         if (stored) {
             setAccessToken(stored);
             setUserFromToken(stored);
@@ -74,9 +79,7 @@ export const AuthProvider = ({ children }) => {
         setAccessToken(token);
         setUserFromToken(token);
 
-
         localStorage.setItem("accessToken", token);
-
 
         return token;
     };

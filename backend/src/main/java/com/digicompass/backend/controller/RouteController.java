@@ -2,27 +2,27 @@ package com.digicompass.backend.controller;
 
 import com.digicompass.backend.application.interfaces.RouteService;
 import com.digicompass.backend.application.models.Route;
+import com.digicompass.backend.configuration.UserPrincipal;
 import com.digicompass.backend.controller.dto.GeoJsonDto;
 import com.digicompass.backend.controller.dto.RouteDto;
 import com.digicompass.backend.controller.dto.RouteGeometryDto;
 import com.digicompass.backend.controller.dto.request.RouteRequestDto;
 import com.digicompass.backend.controller.mapper.RouteMapperController;
+import com.digicompass.backend.types.RouteType;
 import lombok.extern.slf4j.Slf4j;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.LineString;
+
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-
 import java.util.List;
-import java.util.logging.Logger;
 
 @RestController
 @RequestMapping("/route")
 @Slf4j
-public class     RouteController {
+public class RouteController {
 
     private final RouteService routeService;
     private final RouteMapperController routeMapper;
@@ -103,14 +103,16 @@ public class     RouteController {
         }
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<RouteRequestDto> createRoute(@RequestBody RouteRequestDto routeDto) {
+    @PostMapping(path = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<RouteDto> createRoute(@AuthenticationPrincipal UserPrincipal principal, @ModelAttribute RouteRequestDto routeDto) {
         try {
-            routeService.saveRoute(routeMapper.toDomain(routeDto));
+//            routeService.saveRoute(routeMapper.toDomain(routeDto), routeDto.getImages());
+            routeService.saveRoute(routeMapper.toDomain(routeDto),routeDto.getImages(), principal.getId());
+
             log.info("[CONTROLLER] Created route.");
-            return ResponseEntity.status(HttpStatus.CREATED).body(routeDto);
+            return ResponseEntity.status(HttpStatus.CREATED).body(routeMapper.toControllerRouteDto(routeDto));
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error("[CONTROLLER] Failed to create route", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -130,6 +132,26 @@ public class     RouteController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Void> deleteRoute(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+        try {
+            routeService.deleteRoute(id, principal);
+            log.info("[CONTROLLER] Deleted route with id {}.", id);
+            return ResponseEntity.noContent().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        } catch (org.springframework.security.access.AccessDeniedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (Exception e) {
+            log.error("[CONTROLLER] Error deleting route with id {}: {}", id, e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
 
 
 

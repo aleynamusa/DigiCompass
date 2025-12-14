@@ -2,13 +2,20 @@ package com.digicompass.backend.application.services;
 
 import com.digicompass.backend.application.interfaces.RatingService;
 import com.digicompass.backend.application.interfaces.RouteService;
+import com.digicompass.backend.application.interfaces.S3Service;
+import com.digicompass.backend.application.mapper.CreateRouteMapper;
 import com.digicompass.backend.application.mapper.RouteMapper;
-import com.digicompass.backend.application.models.GeoJson;
-import com.digicompass.backend.application.models.Route;
-import com.digicompass.backend.application.models.RouteGeometry;
+import com.digicompass.backend.application.mapper.UserMapper;
+import com.digicompass.backend.application.models.*;
+import com.digicompass.backend.configuration.UserPrincipal;
+import com.digicompass.backend.repository.entity.ReviewEntity;
+import com.digicompass.backend.repository.entity.ReviewImageEntity;
+import com.digicompass.backend.repository.entity.RouteEntity;
+import com.digicompass.backend.repository.entity.RouteImageEntity;
 import com.digicompass.backend.repository.repositories.FavouriteRouteJpaRepository;
 import com.digicompass.backend.repository.repositories.RouteJpaRepository;
 import com.digicompass.backend.repository.repositories.UserJpaRepository;
+import com.digicompass.backend.types.RouteType;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -19,8 +26,12 @@ import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.io.geojson.GeoJsonWriter;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -33,18 +44,25 @@ public class RouteServiceImpl implements RouteService {
     private final RatingService ratingService;
     private final UserJpaRepository userRepository;
     private final FavouriteRouteJpaRepository favouriteRouteRepository;
+    private final UserMapper userMapper;
+    private final S3Service s3Service;
+    private final CreateRouteMapper createRouteMapper;
+
 
 
     public RouteServiceImpl(RouteJpaRepository routeRepository,
                             RouteMapper routeMapper,
                             ObjectMapper objectMapper,
-                            RatingService ratingService, UserJpaRepository userRepository, FavouriteRouteJpaRepository favouriteRouteRepository) {
+                            RatingService ratingService, UserJpaRepository userRepository, FavouriteRouteJpaRepository favouriteRouteRepository, UserMapper userMapper, S3Service s3Service, CreateRouteMapper createRouteMapper) {
         this.routeRepository = routeRepository;
         this.routeMapper = routeMapper;
         this.objectMapper = objectMapper;
         this.ratingService = ratingService;
         this.userRepository = userRepository;
         this.favouriteRouteRepository = favouriteRouteRepository;
+        this.userMapper = userMapper;
+        this.s3Service = s3Service;
+        this.createRouteMapper = createRouteMapper;
     }
 
     @Override
@@ -173,16 +191,42 @@ public class RouteServiceImpl implements RouteService {
     }
 
     @Override
-    public void saveRoute(Route route) {
+    @Transactional
+    public void saveRoute(Route route, List<MultipartFile> images, Long userId) throws IOException {
+
+        log.info("[SERVICE] Saving new route: {}", route.getName());
+
+        List<String> uploadedKeys = new ArrayList<>();
+
         try {
-            log.info("[SERVICE] Saving new route: {}", route.getName());
+            User user = userMapper.toDomain(
+                    userRepository.findById(userId)
+                            .orElseThrow(() -> new IllegalArgumentException("User not found"))
+            );
 
-            routeRepository.save(routeMapper.toEntity(route));
+            route.setCreatedByUserId(user);
 
-            log.info("[SERVICE] Successfully saved route: {}", route.getName());
+            RouteEntity routeEntity = createRouteMapper.toEntity(route);
+            RouteEntity savedRoute = routeRepository.save(routeEntity);
+
+            if (images != null && !images.isEmpty()) {
+                uploadedKeys = s3Service.uploadImages(savedRoute.getId(), images);
+
+                for (String key : uploadedKeys) {
+                    RouteImageEntity imageEntity = new RouteImageEntity();
+                    imageEntity.setImageUrl(key);
+                    imageEntity.setRoute(savedRoute);
+                    savedRoute.getImages().add(imageEntity);
+                }
+            }
+
+            routeRepository.save(savedRoute);
+            log.info("[SERVICE] Successfully saved route id={}", savedRoute.getId());
+
         } catch (Exception e) {
-            log.error("[SERVICE] Error occurred while saving route {}: {}", route.getName(), e.getMessage());
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to save route.", e);
+            log.error("[SERVICE] Error saving route, rolling back S3 uploads", e);
+            s3Service.rollbackS3Uploads(uploadedKeys);
+            throw e;
         }
     }
 
@@ -254,6 +298,63 @@ public class RouteServiceImpl implements RouteService {
             log.error("[SERVICE] Invalid GeoJSON provided: {}", e.getMessage());
             throw new IllegalArgumentException("Invalid GeoJSON provided.", e);
         }
+    }
+
+//    @Override
+//    public void deleteRoute(Long routeId, UserPrincipal principal) {
+//        if(!routeRepository.existsById(id)){
+//            log.error("[SERVICE] Route with id {} does not exist.", id);
+//            throw new IllegalArgumentException("Route with id " + id + " does not exist.");
+//        }
+//        try{
+//            routeRepository.deleteById(id);
+//            log.info("[SERVICE] Deleted route with id {}", id);
+//            log.info("[SERVICE] Deleting images for route id {}", id);
+//            List<RouteImageEntity> images = routeRepository.findById(id).orElseThrow().getImages();
+//            for (RouteImageEntity image : images) {
+//                s3Service.deleteImage(image.getImageUrl());
+//            }
+//        }
+//        catch (Exception e){
+//            log.error("[SERVICE] Failed to delete images from S3 for route id {}: {}", id, e.getMessage());
+//            throw new RuntimeException("Failed to delete images from S3.", e);
+//        }
+//    }
+
+    @Override
+    public void deleteRoute(Long id, UserPrincipal principal) {
+
+        RouteEntity route = routeRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Route not found"));
+
+        Long creatorId = route.getCreatedByUserId().getId();
+        Long currentUserId = principal.getId();
+
+        // use the convenience method on UserPrincipal which tolerates ROLE_ADMIN/ADMIN forms
+        boolean isAdmin = principal.hasRole("ROLE_ADMIN") || principal.hasRole("ADMIN");
+        boolean isCreator = creatorId.equals(currentUserId);
+
+        if (!isAdmin && !isCreator) {
+            log.warn("[SERVICE] User {} is not allowed to delete route {}", currentUserId, id);
+            throw new org.springframework.security.access.AccessDeniedException(
+                    "You are not allowed to delete this route"
+            );
+        }
+
+        List<RouteImageEntity> images = route.getImages();
+        for (RouteImageEntity image : images) {
+            s3Service.rollbackS3Upload(image.getImageUrl());
+        }
+
+        routeRepository.delete(route);
+
+        log.info("[SERVICE] Route {} deleted by user {}", id, currentUserId);
+    }
+
+
+    @Override
+    public void updateRoute(Route route, List<MultipartFile> images, Long id) throws IOException {
 
     }
+
 }

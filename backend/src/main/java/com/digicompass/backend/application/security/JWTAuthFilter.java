@@ -1,61 +1,96 @@
 package com.digicompass.backend.application.security;
 
+import com.digicompass.backend.configuration.UserPrincipal;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 @Component
-public class JWTAuthFilter implements Filter {
+@RequiredArgsConstructor
+public class JWTAuthFilter extends OncePerRequestFilter {
 
     private final JWTToken jwt;
 
-    public JWTAuthFilter(JWTToken jwt) {
-        this.jwt = jwt;
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        return request.getRequestURI().startsWith("/auth/");
     }
 
     @Override
-    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws ServletException, IOException {
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain
+    ) throws ServletException, IOException {
 
-        try{
-            HttpServletRequest request = (HttpServletRequest) req;
-            HttpServletResponse response = (HttpServletResponse) res;
-
-            String token = null;
-
-            String authHeader = request.getHeader("Authorization");
-            if (authHeader != null && authHeader.startsWith("Bearer ")) {
-                token = authHeader.substring(7);
-            }
-
-
-            if (token != null) {
-                try {
-                    Claims claims = jwt.extractAllClaims(token);
-                    String username = claims.getSubject();
-
-                    UsernamePasswordAuthenticationToken auth =
-                            new UsernamePasswordAuthenticationToken(username, null, List.of());
-
-                    SecurityContextHolder.getContext().setAuthentication(auth);
-
-                } catch (Exception _) {
-                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    return;
-                }
-            }
-
-
-            chain.doFilter(req, res);
-        }
-        catch(IOException | ServletException e){
-            throw new ServletException("Error processing JWT authentication", e);
+        if (SecurityContextHolder.getContext().getAuthentication() != null) {
+            filterChain.doFilter(request, response);
+            return;
         }
 
+        String authHeader = request.getHeader("Authorization");
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        String token = authHeader.substring(7);
+
+        try {
+            if (jwt.isTokenExpired(token) || !jwt.isAccessToken(token)) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                return;
+            }
+
+            Claims claims = jwt.extractAllClaims(token);
+
+            Long userId = claims.get("id", Long.class);
+            String username = claims.getSubject();
+            Long roleId = claims.get("role", Long.class);
+
+
+            String role = "";
+            if (roleId != null && roleId == 1L) {
+                role = "ROLE_ADMIN";
+            } else if (roleId != null && roleId == 2L) {
+                role = "ROLE_USER";
+            } else {
+                role = "ROLE_USER";
+            }
+
+            UserPrincipal principal = new UserPrincipal(
+                    userId,
+                    username,
+                    null,
+                    List.of(new SimpleGrantedAuthority(role))
+            );
+
+            UsernamePasswordAuthenticationToken authentication =
+                    new UsernamePasswordAuthenticationToken(
+                            principal,
+                            null,
+                            principal.getAuthorities()
+                    );
+
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        } catch (Exception e) {
+            SecurityContextHolder.clearContext();
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+
+        filterChain.doFilter(request, response);
     }
+
 }

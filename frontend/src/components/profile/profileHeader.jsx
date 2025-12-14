@@ -1,8 +1,9 @@
 import { Avatar, Group, Stack, Title, Badge, Text, Button } from "@mantine/core";
 import { Lock, LockOpen, Settings } from "lucide-react";
 import dayjs from "dayjs";
+import { ListTodo } from 'lucide-react';
 
-export default function ProfileHeader({ profileData, isOwnProfile, isPrivate, navigate }) {
+export default function ProfileHeader({ profileData, isOwnProfile, isPrivate, navigate, isAdmin }) {
     const calculateAge = (birthDate) =>
         birthDate ? dayjs().diff(dayjs(birthDate), "year") : null;
 
@@ -30,19 +31,26 @@ export default function ProfileHeader({ profileData, isOwnProfile, isPrivate, na
                         </Badge>
                     )}
 
-                    <Title order={4}>Bio</Title>
-                    <Text>{profileData.bio}</Text>
+                    <Title className="text-black" order={4}>Bio</Title>
+                    <Text c="dimmed">{profileData.bio}</Text>
                 </Stack>
             </Group>
 
             {isOwnProfile && (
-                <Button
-                    variant="light"
-                    leftSection={<Settings size={16} />}
-                    onClick={() => navigate("/edit-profile")}
-                >
-                    Edit Profile
-                </Button>
+                <>
+                    <Button
+                        variant="light"
+                        leftSection={<Settings size={16} />}
+                        onClick={() => navigate("/edit-profile")}
+                    >
+                        Edit Profile
+                    </Button>
+
+                    {isAdmin && (
+                        <ListTodo className="text-black" onClick={() => navigate("/check")}/>
+
+                    )}
+                </>
             )}
         </div>
     );

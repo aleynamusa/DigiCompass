@@ -38,6 +38,7 @@ public class JWTToken {
                 .claim("id", user.getId())
                 .claim("username", user.getUsername())
                 .claim("role", user.getRoleId())
+                .claim("type", "access")
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + accessExpirationMs))
                 .signWith(getSigningKey())
@@ -74,5 +75,11 @@ public class JWTToken {
         Claims claims = extractAllClaims(token);
         String type = claims.get("type", String.class);
         return "refresh".equals(type);
+    }
+
+    public boolean isAccessToken(String token) {
+        Claims claims = extractAllClaims(token);
+        String type = claims.get("type", String.class);
+        return "access".equals(type);
     }
 }

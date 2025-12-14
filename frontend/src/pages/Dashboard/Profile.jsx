@@ -17,6 +17,7 @@ export default function Profile() {
 
     const targetUserId = userId ? parseInt(userId) : user?.id;
     const isOwnProfile = user?.id === targetUserId;
+    const isAdmin = user?.role === 1;
 
     const [profileData, setProfileData] = useState(null);
     const [baseRoutes, setBaseRoutes] = useState([]);
@@ -69,6 +70,7 @@ export default function Profile() {
                     isOwnProfile={isOwnProfile}
                     isPrivate={profileData.isPublicProfile}
                     navigate={navigate}
+                    isAdmin={isAdmin}
                 />
 
                 <Divider />

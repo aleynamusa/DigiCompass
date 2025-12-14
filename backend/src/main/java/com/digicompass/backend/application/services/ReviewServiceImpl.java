@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -74,36 +73,43 @@ public class ReviewServiceImpl implements ReviewService {
         }
     }
 
+//    @Override
+//    public Review createReview(Review review, List<MultipartFile> images) throws IOException {
+//        validateRouteId(review.getRouteId());
+//
+//        List<String> imageKeys = uploadImages(review.getRouteId(), images);
+//
+//        try {
+//            ReviewEntity entity = reviewMapper.toEntity(review);
+//
+//            for (String key : imageKeys) {
+//                ReviewImageEntity img = new ReviewImageEntity();
+//                img.setImageUrl(key);
+//                img.setReview(entity);
+//                entity.getImages().add(img);
+//            }
+//
+//            ReviewEntity saved = reviewRepo.save(entity);
+//            return reviewMapper.toDomain(saved);
+//
+//        } catch (Exception e) {
+//            rollbackS3Uploads(imageKeys);
+//            throw new RuntimeException("Failed to create review", e);
+//        }
+//    }
+
     @Override
     public Review createReview(Review review, List<MultipartFile> images) throws IOException {
         validateRouteId(review.getRouteId());
 
-        List<String> imageKeys = uploadImages(review.getRouteId(), images);
+        List<String> imageKeys = s3Service.uploadImages(review.getRouteId(), images);
+        review.setImages(imageKeys);
 
         try {
-            ReviewEntity entity = reviewMapper.toEntity(review);
-
-            List<ReviewImageEntity> imageEntities = imageKeys.stream()
-                    .map(key -> {
-                        ReviewImageEntity img = new ReviewImageEntity();
-                        img.setImageUrl(key);
-                        img.setReview(entity);
-                        return img;
-                    })
-                    .toList();
-
-            entity.setImages(imageEntities);
-
-            ReviewEntity saved = reviewRepo.save(entity);
-            return reviewMapper.toDomain(saved);
-
-        }catch (NullPointerException e) {
-            log.warn("[Service] Validation error creating review: {}", e.getMessage());
-            throw new NullPointerException(e.getMessage());
-        }
-        catch (Exception e) {
-            rollbackS3Uploads(imageKeys);
-            throw new RuntimeException("Failed to create review", e);
+            return reviewMapper.toDomain(reviewRepo.save(reviewMapper.toEntity(review)));
+        } catch (Exception e) {
+            s3Service.rollbackS3Uploads(imageKeys);
+            throw e;
         }
     }
 
@@ -116,28 +122,6 @@ public class ReviewServiceImpl implements ReviewService {
         }
     }
 
-    protected List<String> uploadImages(Long routeId, List<MultipartFile> images) throws IOException {
-        List<String> keys = new ArrayList<>();
-        if (images != null) {
-            for (MultipartFile image : images) {
-                if (image != null && !image.isEmpty()) {
-                    String key = s3Service.uploadImage("reviews/" + routeId, image);
-                    keys.add(key);
-                }
-            }
-        }
-        return keys;
-    }
-
-    protected void rollbackS3Uploads(List<String> keys) {
-        keys.forEach(key -> {
-            try {
-                s3Service.deleteImage(key);
-            } catch (Exception ex) {
-                log.warn("Failed to delete S3 image during rollback: {}", key, ex);
-            }
-        });
-    }
 
     @Override
     public Review updateReview(Review review, List<MultipartFile> images, List<String> existingImageUrls) throws IOException {
@@ -268,7 +252,5 @@ public class ReviewServiceImpl implements ReviewService {
             throw new RuntimeException("Failed to delete review", e);
         }
     }
-
-
 
 }

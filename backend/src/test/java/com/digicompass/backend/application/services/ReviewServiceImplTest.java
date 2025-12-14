@@ -148,21 +148,20 @@ class ReviewServiceImplTest {
 
     //CREATE REVIEWS
     @Test
-    void createReview_throwsNullPointer_whenMapperReturnsNull(){
+    void createReview_returnsNull_whenMapperReturnsNull() throws IOException {
         Review review = new Review();
         review.setRouteId(1L);
 
-        List<MultipartFile> images = List.of();
-
         when(routeRepoMock.existsById(1L)).thenReturn(true);
-
         when(reviewMapperMock.toEntity(review)).thenReturn(null);
+        when(reviewRepoMock.save(null)).thenReturn(null);
+        when(reviewMapperMock.toDomain(null)).thenReturn(null);
 
-        assertThrows(NullPointerException.class,
-                () -> reviewServiceMock.createReview(review, images));
+        Review result = reviewServiceMock.createReview(review, List.of());
 
-        verify(reviewMapperMock).toEntity(review);
+        assertNull(result);
     }
+
 
 
 
@@ -434,61 +433,6 @@ class ReviewServiceImplTest {
         assertEquals("https://amazonaws.com", result);
     }
 
-    @Test
-    void rollbackS3Uploads_ShouldDeleteAllKeys() {
-        List<String> keys = List.of("img1.png", "img2.jpg");
-
-        reviewServiceMock.rollbackS3Uploads(keys);
-
-        verify(s3ServiceMock).deleteImage("img1.png");
-        verify(s3ServiceMock).deleteImage("img2.jpg");
-
-        verifyNoMoreInteractions(s3ServiceMock);
-    }
-
-    @Test
-    void rollbackS3Uploads_ShouldCatchExceptions_AndContinue() {
-        List<String> keys = List.of("img1.png", "img2.jpg");
-
-        doThrow(new RuntimeException("S3 delete failed"))
-                .when(s3ServiceMock)
-                .deleteImage("img1.png");
-
-        doNothing().when(s3ServiceMock).deleteImage("img2.jpg");
-
-        reviewServiceMock.rollbackS3Uploads(keys);
-
-        verify(s3ServiceMock).deleteImage("img1.png");
-        verify(s3ServiceMock).deleteImage("img2.jpg");
-    }
-
-
-    @Test
-    void uploadImages_ShouldReturnEmptyList_WhenImagesIsNull() throws IOException {
-        List<String> result = reviewServiceMock.uploadImages(10L, null);
-
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
-        verifyNoInteractions(s3ServiceMock);
-    }
-
-    @Test
-    void uploadImages_ShouldUploadOnlyNonEmptyFiles() throws IOException {
-        when(file1.isEmpty()).thenReturn(false);
-        when(file2.isEmpty()).thenReturn(false);
-        when(emptyFile.isEmpty()).thenReturn(true);
-
-        when(s3ServiceMock.uploadImage(eq("reviews/10"), eq(file1))).thenReturn("key1");
-        when(s3ServiceMock.uploadImage(eq("reviews/10"), eq(file2))).thenReturn("key2");
-
-        List<String> result = reviewServiceMock.uploadImages(10L, List.of(file1, emptyFile, file2));
-
-        assertEquals(List.of("key1", "key2"), result);
-
-        verify(s3ServiceMock).uploadImage("reviews/10", file1);
-        verify(s3ServiceMock).uploadImage("reviews/10", file2);
-        verify(s3ServiceMock, never()).uploadImage(anyString(), eq(emptyFile));
-    }
 
     @Test
     void validateRouteId_success_whenRouteExists() {

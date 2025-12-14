@@ -1,5 +1,4 @@
 import axiosClient from "./axiosClient";
-import axios from "axios";
 
 export const writeReview = async (data) => {
     const formData = new FormData();
@@ -100,5 +99,31 @@ export const getCalculatedDistance = async (points) => {
     return response.data;
 };
 
+export const saveRoute = async (data) => {
+    const formData = new FormData();
+
+    formData.append("name", data.name);
+    formData.append("description", data.description);
+    formData.append("routeType", data.routeType);
+    formData.append("difficulty", data.difficulty);
+    formData.append("distance", data.distance);
+    formData.append("duration", data.estimatedTime);
 
 
+    formData.append("geometry", JSON.stringify(data.geometry));
+
+
+    if (data.images?.length) {
+        data.images.forEach(file => {
+            formData.append("images", file);
+        });
+    }
+
+    return axiosClient.post("/route/create", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+    });
+};
+
+// Add delete route API call
+export const deleteRoute = (routeId) =>
+    axiosClient.delete(`/route/delete/${routeId}`);

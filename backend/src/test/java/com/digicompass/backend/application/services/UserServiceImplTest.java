@@ -296,7 +296,7 @@ class UserServiceImplTest {
         entity.setId(1L);
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(entity));
-        when(s3Service.uploadImage(anyString(), eq(file))).thenReturn("img-key");
+        when(s3Service.uploadImage(anyLong(), eq(file))).thenReturn("img-key");
 
         userService.uploadProfilePicture(1L, file);
 
@@ -325,7 +325,7 @@ class UserServiceImplTest {
         entity.setId(1L);
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(entity));
-        when(s3Service.uploadImage(anyString(), eq(file))).thenReturn("img-key");
+        when(s3Service.uploadImage(anyLong(), eq(file))).thenReturn("img-key");
 
         doThrow(new RuntimeException("DB error"))
                 .when(userRepository).save(entity);
@@ -333,7 +333,7 @@ class UserServiceImplTest {
         assertThrows(RuntimeException.class,
                 () -> userService.uploadProfilePicture(1L, file));
 
-        verify(s3Service).deleteImage("img-key");
+        verify(s3Service).rollbackS3Upload("img-key");
     }
 
 
@@ -345,7 +345,7 @@ class UserServiceImplTest {
         entity.setId(1L);
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(entity));
-        when(s3Service.uploadImage(anyString(), eq(file)))
+        when(s3Service.uploadImage(anyLong(), eq(file)))
                 .thenThrow(new IOException("IO failed"));
 
         assertThrows(IOException.class,
@@ -379,35 +379,5 @@ class UserServiceImplTest {
 
         assertEquals(1, result.size());
     }
-
-
-    @Test
-    void uploadImages_callsS3Service() throws Exception {
-        MultipartFile file = mock(MultipartFile.class);
-        when(file.isEmpty()).thenReturn(false);
-
-        when(s3Service.uploadImage(anyString(), eq(file))).thenReturn("key123");
-
-        var method = UserServiceImpl.class.getDeclaredMethod(
-                "uploadImages", Long.class, MultipartFile.class);
-        method.setAccessible(true);
-
-        String result = (String) method.invoke(userService, 10L, file);
-
-        assertEquals("key123", result);
-    }
-
-
-    @Test
-    void rollbackS3Uploads_deletesImage() throws Exception {
-        var method = UserServiceImpl.class.getDeclaredMethod(
-                "rollbackS3Uploads", String.class);
-        method.setAccessible(true);
-
-        method.invoke(userService, "key123");
-
-        verify(s3Service).deleteImage("key123");
-    }
-
 
 }

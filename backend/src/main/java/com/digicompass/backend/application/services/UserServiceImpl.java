@@ -94,7 +94,6 @@ public class UserServiceImpl implements UserService {
         }
 
         try{
-
             log.info("[SERVICE] Checking username availability: {}", username);
             return !userRepository.existsByUsername(username);
         }
@@ -126,14 +125,14 @@ public class UserServiceImpl implements UserService {
         UserEntity user = userRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException(message));
 
-        String fileName = uploadImages(id, image);
+        String fileName = s3Service.uploadImage(id, image);
 
         try {
             user.setImageUrl(fileName);
             userRepository.save(user);
         }
         catch (Exception e) {
-            rollbackS3Uploads(fileName);
+            s3Service.rollbackS3Upload(fileName);
             throw e;
         }
     }
@@ -207,25 +206,25 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    protected String uploadImages(Long userId, MultipartFile image) throws IOException {
-        String key = "";
-
-                if (image != null && !image.isEmpty()) {
-                    key = s3Service.uploadImage("users/" + userId, image);
-                }
-
-        return key;
-    }
-
-    protected void rollbackS3Uploads(String key) {
-
-            try {
-                s3Service.deleteImage(key);
-            } catch (Exception ex) {
-                log.warn("Failed to delete S3 image during rollback: {}", key, ex);
-            }
-
-    }
+//    protected String uploadImages(Long userId, MultipartFile image) throws IOException {
+//        String key = "";
+//
+//                if (image != null && !image.isEmpty()) {
+//                    key = s3Service.uploadImage("users/" + userId, image);
+//                }
+//
+//        return key;
+//    }
+//
+//    protected void rollbackS3Uploads(String key) {
+//
+//            try {
+//                s3Service.deleteImage(key);
+//            } catch (Exception ex) {
+//                log.warn("Failed to delete S3 image during rollback: {}", key, ex);
+//            }
+//
+//    }
 
     @Override
     public List<Route> getRoutesById(Long userId) {

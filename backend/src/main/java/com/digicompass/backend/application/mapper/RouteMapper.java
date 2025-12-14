@@ -59,6 +59,7 @@ public abstract class RouteMapper {
     }
 
 
+
     protected List<String> mapReviews(List<ReviewEntity> entities) {
         if (entities == null) return new ArrayList<>();
         return entities.stream()

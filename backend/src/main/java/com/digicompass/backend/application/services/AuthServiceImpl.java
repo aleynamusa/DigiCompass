@@ -136,6 +136,9 @@ public class AuthServiceImpl implements AuthService {
             user.setId(claims.get("id", Long.class));
             user.setUsername(claims.getSubject());
 
+            Long roleId = claims.get("role", Long.class);
+            user.setRoleId(roleId);
+
             String newAccessToken = jwt.generateAccessToken(user);
             String newRefreshToken = jwt.generateRefreshToken(user);
 
@@ -155,6 +158,5 @@ public class AuthServiceImpl implements AuthService {
             log.error("[SERVICE] Unexpected error during refresh token.", e);
             throw new RuntimeException("Unexpected error during refresh token.", e);
         }
-
     }
 }

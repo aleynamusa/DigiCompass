@@ -65,9 +65,9 @@ const RouteForm = ({ formData, onChange, errors, disabled }) => {
                             <SelectValue placeholder="Select difficulty" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="easy">Easy</SelectItem>
-                            <SelectItem value="medium">Medium</SelectItem>
-                            <SelectItem value="hard">Hard</SelectItem>
+                            <SelectItem value="Easy">Easy</SelectItem>
+                            <SelectItem value="Medium">Medium</SelectItem>
+                            <SelectItem value="Hard">Hard</SelectItem>
                         </SelectContent>
                     </Select>
                     {errors.difficulty && (
@@ -80,22 +80,22 @@ const RouteForm = ({ formData, onChange, errors, disabled }) => {
                         Route Type <span className="text-red-500">*</span>
                     </label>
                     <Select
-                        value={formData.type}
-                        onValueChange={(value) => handleChange('type', value)}
+                        value={formData.routeType}
+                        onValueChange={(value) => handleChange('routeType', value)}
                         disabled={disabled}
                     >
                         <SelectTrigger>
                             <SelectValue placeholder="Select route type" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="hiking">Hiking</SelectItem>
-                            <SelectItem value="cycling">Cycling</SelectItem>
-                            <SelectItem value="running">Running</SelectItem>
-                            <SelectItem value="walking">Walking</SelectItem>
+                            <SelectItem value="Hiking">Hiking</SelectItem>
+                            <SelectItem value="Cycling">Cycling</SelectItem>
+                            <SelectItem value="Running">Running</SelectItem>
+                            <SelectItem value="Walking">Walking</SelectItem>
                         </SelectContent>
                     </Select>
-                    {errors.type && (
-                        <p className="text-sm text-red-500">{errors.type}</p>
+                    {errors.routeType && (
+                        <p className="text-sm text-red-500">{errors.routeType}</p>
                     )}
                 </div>
             </div>

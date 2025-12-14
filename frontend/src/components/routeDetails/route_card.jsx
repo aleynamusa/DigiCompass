@@ -5,7 +5,7 @@ import {
     MapPinIcon,
     ShareIcon,
     StarIcon, TrendingUpIcon,
-    UsersIcon
+    UsersIcon, Trash
 } from "lucide-react";
 import {Button} from "@/components/ui/button.jsx";
 import {Badge} from "@/components/ui/badge.jsx";
@@ -14,13 +14,45 @@ import { useNavigate } from "react-router-dom";
 import classes from '@/components/card.module.css';
 import {useAuth} from "@/context/AuthContext.jsx";
 import {favouriteRoute, unfavoriteRoute} from "@/api/userApi.jsx";
+import { deleteRoute } from "@/api/routeApi.jsx";
 import React, {useEffect, useState} from "react";
 import {isLiked} from "@/api/routeApi.jsx";
 
-export function RouteCard({ route, onViewDetails, onLoginRequired }) {
+export function RouteCard({ route, onViewDetails, onLoginRequired, onDelete }) {
     const navigate = useNavigate();
     const [isFavorite, setIsFavorite] = useState(false);
     const { user } = useAuth();
+
+    // Normalize roles/authorities from different backend shapes:
+    const getRolesFromUser = (u) => {
+        if (!u) return [];
+        if (Array.isArray(u.roles) && u.roles.length) return u.roles.map(r => String(r)).filter(Boolean);
+        if (Array.isArray(u.authorities) && u.authorities.length) {
+            return u.authorities.map(a => {
+                if (!a) return "";
+                if (typeof a === "string") return a;
+                // support objects like { authority: "ROLE_ADMIN" } or {role: "ADMIN"}
+                return String(a.authority || a.role || "");
+            }).filter(Boolean);
+        }
+        if (u.role) {
+            // handle role as string or RoleEntity-like object { role: "ROLE_ADMIN" } / { name: "ADMIN" }
+            if (typeof u.role === "string") return [u.role].filter(Boolean);
+            if (typeof u.role === "object") {
+                const r = String(u.role.role || u.role.name || u.role.authority || "");
+                return r ? [r] : [];
+            }
+            return [];
+        }
+        return [];
+    };
+
+    const roles = getRolesFromUser(user);
+
+    // update isCreator/isAdmin checks to use normalized roles
+    const isCreator = user && route && (Number(user.id) === Number(route?.createdByUserId?.id));
+    const isAdmin = roles.includes("ROLE_ADMIN") || roles.includes("ADMIN");
+    const canDelete = Boolean(isCreator || isAdmin);
 
     const payload =
         user?.id && route?.id
@@ -45,7 +77,7 @@ export function RouteCard({ route, onViewDetails, onLoginRequired }) {
         try {
             if (!isFavorite) {
                 if (!user || !user.id) {
-                    onLoginRequired(); // THIS IS THE KEY LINE
+                    onLoginRequired();
                     return;
                 }
                 await favouriteRoute(payload);
@@ -56,6 +88,36 @@ export function RouteCard({ route, onViewDetails, onLoginRequired }) {
             }
         } catch (err) {
             console.error("Failed to toggle favorite:", err);
+        }
+    };
+
+
+    const handleDelete = async (e) => {
+        e.stopPropagation();
+        if (!user || !user.id) {
+            onLoginRequired?.();
+            return;
+        }
+
+        if (!canDelete) {
+            // optionally show a toast; keep silent here
+            return;
+        }
+
+        const confirmed = window.confirm("Are you sure you want to delete this route?");
+        if (!confirmed) return;
+
+        try {
+            await deleteRoute(route.id);
+            // notify parent to remove from list if provided, otherwise reload as fallback
+            if (typeof onDelete === "function") {
+                onDelete(route.id);
+            } else {
+                window.location.reload();
+            }
+        } catch (err) {
+            console.error("Failed to delete route:", err);
+            // you may want to show a user-visible error/toast here
         }
     };
 
@@ -86,9 +148,16 @@ export function RouteCard({ route, onViewDetails, onLoginRequired }) {
                                 ${isFavorite ? "fill-red-900 text-red-900" : ""}`}
                             />
                         </Button>
-                        <Button size="icon" variant="secondary" className="h-8 w-8 bg-white/80 hover:bg-white">
-                            <ShareIcon className="h-4 w-4" />
-                        </Button>
+                        {canDelete && (
+                            <Button
+                                size="icon"
+                                variant="secondary"
+                                onClick={handleDelete}
+                                className="h-8 w-8 bg-white/80 hover:bg-white"
+                            >
+                                <Trash/>
+                            </Button>
+                        )}
                     </div>
 
                     <div className="absolute top-2 left-2">
@@ -150,7 +219,9 @@ export function RouteCard({ route, onViewDetails, onLoginRequired }) {
                         <Button variant="outline" size="sm">
                             Add to Trip
                         </Button>
+
                     </div>
+
                 </CardContent>
             </Card>
 

@@ -1,4 +1,3 @@
-// components/createRoutePopup/CreateRoutePopup.jsx
 import React, { useState, useEffect } from 'react';
 import 'leaflet/dist/leaflet.css';
 import {
@@ -24,8 +23,6 @@ import ImageDropzone from "@/components/imageDropzone.jsx";
 import { getCalculatedDistance } from "@/api/routeApi.jsx";
 import { useAuth } from "@/context/AuthContext.jsx";
 import RouteMapPopup from "@/components/ceateRoutePopup/routeMapPopup.jsx";
-
-// Import separated modules
 import { startIcon, endIcon } from '../../utils/leafletIcons';
 import { calculateEstimatedTime, createGeoJSON } from '../../utils/routeCalculations';
 import { validateRouteForm } from '../../utils/routeValidation';
@@ -35,11 +32,17 @@ import RouteForm from './RouteForm';
 import RoutePointsList from './RoutePointsList';
 
 const CreateRoutePopup = ({ isOpen, onClose, onSave, loading = false }) => {
+
+    const { user } = useAuth();
     const [formData, setFormData] = useState({
         name: '',
         description: '',
-        difficulty: 'medium',
-        type: 'hiking'
+        difficulty: 'Medium',
+        routeType: 'Hiking',
+        distance: 0,
+        duration: '',
+        createdAt: new Date().toISOString().slice(0, 19),
+        updatedAt: new Date().toISOString().slice(0, 19)
     });
 
     const [points, setPoints] = useState([]);
@@ -50,14 +53,11 @@ const CreateRoutePopup = ({ isOpen, onClose, onSave, loading = false }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [files, setFiles] = useState([]);
 
-    const { user } = useAuth();
     const currentLocation = useGeolocation(isOpen);
-    const { ghRoute, distance, estimatedTime, ghError, isLoading: isLoadingRoute } = useGraphHopperRoute(points, formData.type);
+    const { ghRoute, distance, estimatedTime, ghError, isLoading: isLoadingRoute } = useGraphHopperRoute(points, formData.routeType);
 
-    // Combine geolocation and routing preview errors into a single map error message.
     useEffect(() => {
         let msg = null;
-        // Geolocation errors are highest priority
         if (currentLocation?.error) {
             msg = currentLocation.error;
         } else if (ghError) {
@@ -105,27 +105,31 @@ const CreateRoutePopup = ({ isOpen, onClose, onSave, loading = false }) => {
         }
 
         if (!user) {
+            console.log('No user');
             setSaveError('You must be logged in to create routes');
             return;
         }
 
+        console.log('Validation passed, proceeding...');
         setSaveError(null);
         setSuccessMessage(null);
         setIsSubmitting(true);
 
         try {
             const calculatedDistance = await getCalculatedDistance(points);
+
             const geometry = createGeoJSON(points);
+
             const estimatedTimeStr = calculateEstimatedTime(
                 calculatedDistance,
                 formData.difficulty,
-                formData.type
+                formData.routeType
             );
 
             const routeData = {
                 ...formData,
                 points: points.map(p => [p.lat, p.lng]),
-                geometry: JSON.stringify(geometry),
+                geometry: geometry,
                 distance: parseFloat(calculatedDistance),
                 estimatedTime: estimatedTimeStr,
                 createdBy: user.id,
@@ -133,16 +137,16 @@ const CreateRoutePopup = ({ isOpen, onClose, onSave, loading = false }) => {
                 images: files
             };
 
+
             await onSave(routeData);
 
             setSuccessMessage('Route created successfully! It is now pending admin approval.');
 
-            // Reset form
             setFormData({
                 name: '',
                 description: '',
-                difficulty: 'medium',
-                type: 'hiking'
+                difficulty: 'Medium',
+                routeType: 'Hiking'
             });
             setPoints([]);
             setFiles([]);
@@ -154,7 +158,7 @@ const CreateRoutePopup = ({ isOpen, onClose, onSave, loading = false }) => {
             }, 2000);
 
         } catch (error) {
-            console.error('Error saving route:', error);
+            console.error('Error in handleSubmit:', error);
             setSaveError(
                 error.message ||
                 'Failed to save route. Please check your connection and try again.'
@@ -189,7 +193,6 @@ const CreateRoutePopup = ({ isOpen, onClose, onSave, loading = false }) => {
 
     const handleFormChange = (newFormData) => {
         setFormData(newFormData);
-        // Clear errors for changed fields
         const changedFields = Object.keys(newFormData).filter(
             key => newFormData[key] !== formData[key]
         );
@@ -203,8 +206,8 @@ const CreateRoutePopup = ({ isOpen, onClose, onSave, loading = false }) => {
             setFormData({
                 name: '',
                 description: '',
-                difficulty: 'medium',
-                type: 'hiking'
+                difficulty: 'Medium',
+                routeType: 'Hiking'
             });
             setPoints([]);
             setFiles([]);
@@ -215,6 +218,12 @@ const CreateRoutePopup = ({ isOpen, onClose, onSave, loading = false }) => {
             setIsSubmitting(false);
         }
     }, [isOpen]);
+
+    useEffect(() => {
+        console.log("Geolocation:", currentLocation);
+    }, [currentLocation]);
+
+
 
     if (!isOpen) return null;
 
@@ -284,8 +293,18 @@ const CreateRoutePopup = ({ isOpen, onClose, onSave, loading = false }) => {
 
                                 <Card className="overflow-hidden">
                                     <div className="h-[290px]">
+                                        {/*<RouteMapPopup*/}
+                                        {/*    center={currentLocation}*/}
+                                        {/*    points={points}*/}
+                                        {/*    ghRoute={ghRoute}*/}
+                                        {/*    ghError={ghError}*/}
+                                        {/*    onMapClick={handleMapClick}*/}
+                                        {/*    startIcon={startIcon}*/}
+                                        {/*    endIcon={endIcon}*/}
+                                        {/*    isLoading={isLoadingRoute}*/}
+                                        {/*/>*/}
                                         <RouteMapPopup
-                                            center={currentLocation}
+                                            center={currentLocation.effectiveLocation}
                                             points={points}
                                             ghRoute={ghRoute}
                                             ghError={ghError}
@@ -294,6 +313,7 @@ const CreateRoutePopup = ({ isOpen, onClose, onSave, loading = false }) => {
                                             endIcon={endIcon}
                                             isLoading={isLoadingRoute}
                                         />
+
                                     </div>
                                 </Card>
 
@@ -342,3 +362,5 @@ const CreateRoutePopup = ({ isOpen, onClose, onSave, loading = false }) => {
 };
 
 export default CreateRoutePopup;
+
+

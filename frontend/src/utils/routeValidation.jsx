@@ -17,8 +17,8 @@ export const validateRouteForm = (formData, points) => {
         errors.difficulty = 'Difficulty level is required';
     }
 
-    if (!formData.type) {
-        errors.type = 'Route type is required';
+    if (!formData.routeType) {
+        errors.routeType = 'Route type is required';
     }
 
     if (points.length < 2) {

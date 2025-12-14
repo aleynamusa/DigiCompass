@@ -135,16 +135,12 @@ export function Sidebar({ activeTab, setActiveTab, isMobileMenuOpen = false, clo
                                 variant="ghost"
                                 className="w-full justify-start gap-3 p-2 hover:bg-sidebar-accent"
                             >
-                                {/*<Avatar className="h-8 w-8">*/}
-                                {/*    <AvatarFallback className="bg-primary text-primary-foreground">*/}
-                                {/*        {profilePic}*/}
-                                {/*    </AvatarFallback>*/}
-                                {/*</Avatar>*/}
+
 
                                 <Avatar
                                     src={profilePic}
                                     alt="Profile picture"
-                                    size={32}        // equivalent to h-8 w-8
+                                    size={32}
                                     radius="xl"
                                     styles={{
                                         image: { objectFit: "cover" }
@@ -169,7 +165,7 @@ export function Sidebar({ activeTab, setActiveTab, isMobileMenuOpen = false, clo
                                 if (closeMobileMenu) closeMobileMenu();
                             }}>
                                 <UserIcon className="h-4 w-4 mr-2" />
-                                Profile Settings
+                                Profile
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => {

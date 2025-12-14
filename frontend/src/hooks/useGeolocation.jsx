@@ -1,12 +1,13 @@
-import { useState, useEffect } from 'react';
-import { DEFAULT_LOCATION, GEOLOCATION_OPTIONS } from '../constants/routeConfig';
+import { useState, useEffect, useMemo } from 'react';
+import { GEOLOCATION_OPTIONS, DEFAULT_LOCATION } from '../constants/routeConfig';
 
 export const useGeolocation = (isActive = true) => {
     const [location, setLocation] = useState({
-        latitude: DEFAULT_LOCATION?.latitude ?? DEFAULT_LOCATION?.lat ?? 0,
-        longitude: DEFAULT_LOCATION?.longitude ?? DEFAULT_LOCATION?.lng ?? 0,
-        accuracy: DEFAULT_LOCATION?.accuracy ?? null,
-        error: null
+        latitude: null,
+        longitude: null,
+        accuracy: null,
+        error: null,
+        ready: false
     });
 
     useEffect(() => {
@@ -15,7 +16,10 @@ export const useGeolocation = (isActive = true) => {
         if (!isActive) return;
 
         if (!navigator.geolocation) {
-            setLocation((loc) => ({ ...loc, error: 'Geolocation is not available in this browser.' }));
+            setLocation(loc => ({
+                ...loc,
+                error: 'Geolocation is not available in this browser.'
+            }));
             return;
         }
 
@@ -24,41 +28,46 @@ export const useGeolocation = (isActive = true) => {
                 latitude: pos.coords.latitude,
                 longitude: pos.coords.longitude,
                 accuracy: pos.coords.accuracy,
-                error: null
+                error: null,
+                ready: true
             });
         };
 
         const onError = (err) => {
-            console.error("Geolocation error:", err);
+            if (err?.code === 3) return; // timeout → keep last
+
             let message = err?.message || 'Unable to retrieve location';
             if (err?.code === 1) message = 'Geolocation permission denied';
-            setLocation((loc) => ({ ...loc, error: message }));
+            if (err?.code === 2) message = 'Location unavailable';
+
+            setLocation(loc => ({
+                ...loc,
+                error: message,
+                ready: false
+            }));
         };
 
-        // Check permission state first if supported (gives faster feedback if denied)
-        if (navigator.permissions && navigator.permissions.query) {
-            navigator.permissions.query({ name: 'geolocation' }).then((perm) => {
-                if (perm.state === 'denied') {
-                    setLocation((loc) => ({ ...loc, error: 'Geolocation permission denied' }));
-                    return;
-                }
-                // Request current position then start watching
-                navigator.geolocation.getCurrentPosition(onSuccess, onError, GEOLOCATION_OPTIONS);
-                watchId = navigator.geolocation.watchPosition(onSuccess, onError, GEOLOCATION_OPTIONS);
-            }).catch(() => {
-                // Fallback if permissions API is unavailable
-                navigator.geolocation.getCurrentPosition(onSuccess, onError, GEOLOCATION_OPTIONS);
-                watchId = navigator.geolocation.watchPosition(onSuccess, onError, GEOLOCATION_OPTIONS);
-            });
-        } else {
-            navigator.geolocation.getCurrentPosition(onSuccess, onError, GEOLOCATION_OPTIONS);
-            watchId = navigator.geolocation.watchPosition(onSuccess, onError, GEOLOCATION_OPTIONS);
-        }
+        navigator.geolocation.getCurrentPosition(onSuccess, onError, GEOLOCATION_OPTIONS);
+        watchId = navigator.geolocation.watchPosition(onSuccess, onError, GEOLOCATION_OPTIONS);
 
         return () => {
             if (watchId !== undefined) navigator.geolocation.clearWatch(watchId);
         };
     }, [isActive]);
 
-    return location;
+    const effectiveLocation = useMemo(() => {
+        if (location.ready) return location;
+
+        return {
+            latitude: DEFAULT_LOCATION.latitude,
+            longitude: DEFAULT_LOCATION.longitude,
+            ready: false,
+            isFallback: true
+        };
+    }, [location]);
+
+    return {
+        ...location,
+        effectiveLocation
+    };
 };
