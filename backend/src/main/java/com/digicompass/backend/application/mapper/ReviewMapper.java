@@ -2,15 +2,22 @@ package com.digicompass.backend.application.mapper;
 
 import com.digicompass.backend.application.models.Review;
 import com.digicompass.backend.repository.entity.*;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.ReportingPolicy;
+import org.mapstruct.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses={ReviewImageMapper.class})
 public interface ReviewMapper {
+
+    @AfterMapping
+    default void linkImages(@MappingTarget ReviewEntity reviewEntity) {
+        if (reviewEntity.getImages() == null) return;
+
+        for (ReviewImageEntity image : reviewEntity.getImages()) {
+            image.setReview(reviewEntity); // 🔥 CRITICAL LINE
+        }
+    }
 
     @Mapping(source = "routeId.id", target = "routeId")
     @Mapping(source = "images", target = "images")
@@ -44,4 +51,5 @@ public interface ReviewMapper {
         }
         return entities;
     }
+
 }

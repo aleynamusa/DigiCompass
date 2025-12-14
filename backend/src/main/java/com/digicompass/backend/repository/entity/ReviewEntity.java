@@ -42,6 +42,4 @@ public class ReviewEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "route_id", nullable = false)
     private RouteEntity routeId;
-
-
 }

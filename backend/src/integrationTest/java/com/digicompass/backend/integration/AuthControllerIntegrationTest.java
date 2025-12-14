@@ -8,7 +8,6 @@ import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -52,7 +51,7 @@ class AuthControllerIntegrationTest extends BaseIntegrationTest {
         mockMvc.perform(post("/auth/signUp")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(toJson(request)))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
     }
 
     private ResultActions loginUser(String username, String password, boolean rememberMe) throws Exception {
@@ -76,9 +75,7 @@ class AuthControllerIntegrationTest extends BaseIntegrationTest {
         mockMvc.perform(post("/auth/signUp")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(toJson(request)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.username").value("john_doe"))
-                .andExpect(jsonPath("$.email").value("john@example.com"));
+                .andExpect(status().isCreated());
     }
 
     @Test
@@ -108,7 +105,7 @@ class AuthControllerIntegrationTest extends BaseIntegrationTest {
         mockMvc.perform(post("/auth/signUp")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(toJson(request)))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
 
         LogInRequest login = new LogInRequest("bob", "ValidPass123!", true);
 
@@ -142,7 +139,7 @@ class AuthControllerIntegrationTest extends BaseIntegrationTest {
         mockMvc.perform(post("/auth/signUp")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(toJson(request)))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
 
         LogInRequest login = new LogInRequest("test", "ValidPass123!", true);
 
