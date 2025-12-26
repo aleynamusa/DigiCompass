@@ -3,6 +3,7 @@ package com.digicompass.backend.controller;
 import com.digicompass.backend.application.interfaces.RatingService;
 import com.digicompass.backend.controller.dto.RatingDto;
 import com.digicompass.backend.controller.mapper.RatingMapperController;
+import jakarta.annotation.security.RolesAllowed;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +26,7 @@ public class RatingController {
         this.ratingMapper = ratingMapper;
     }
 
-
+@RolesAllowed("")
     @PostMapping
     public ResponseEntity<RatingDto> createRating(@RequestBody RatingDto rating) {
         try {

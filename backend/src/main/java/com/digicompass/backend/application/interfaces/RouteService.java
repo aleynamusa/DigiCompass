@@ -18,7 +18,7 @@ public interface RouteService {
     List<Route> searchRoutes(String keyword);
     List<Route> getLikedRoutesByUserId(Long userId);
     void saveRoute(Route route, List<MultipartFile> images, Long id) throws IOException;
-    double calculateDistanceFromGeoJson(GeoJson geoJson);
+//    double calculateDistanceFromGeoJson(GeoJson geoJson);
     void deleteRoute(Long id, UserPrincipal principal);
     void updateRoute(Route route, List<MultipartFile> images, Long id) throws IOException;
 }

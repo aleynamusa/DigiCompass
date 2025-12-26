@@ -82,22 +82,6 @@ export const getFilteredRoutes = (type, difficulty, distanceRange) => {
 };
 
 
-export const getCalculatedDistance = async (points) => {
-    const geometry = {
-        type: "LineString",
-        coordinates: points.map(p => [p.lng, p.lat])
-    };
-
-    const response = await axiosClient.post(
-        `/route/calculate-distance`,
-        {
-            type: "LineString",
-            coordinates: points.map(p => [p.lng, p.lat])
-        }
-    );
-
-    return response.data;
-};
 
 export const saveRoute = async (data) => {
     const formData = new FormData();
@@ -127,3 +111,8 @@ export const saveRoute = async (data) => {
 // Add delete route API call
 export const deleteRoute = (routeId) =>
     axiosClient.delete(`/route/delete/${routeId}`);
+
+
+export const mapRoute = (data) => {
+    return axiosClient.post("/map", data);
+};

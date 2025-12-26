@@ -15,7 +15,7 @@ public interface ReviewMapper {
         if (reviewEntity.getImages() == null) return;
 
         for (ReviewImageEntity image : reviewEntity.getImages()) {
-            image.setReview(reviewEntity); // 🔥 CRITICAL LINE
+            image.setReview(reviewEntity);
         }
     }
 

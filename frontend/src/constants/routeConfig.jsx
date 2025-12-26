@@ -23,7 +23,7 @@ export const DEFAULT_LOCATION = {
 };
 
 export const GEOLOCATION_OPTIONS = {
-    enableHighAccuracy: true,
+    enableHighAccuracy: false,
     timeout: 20000,
     maximumAge: 60000 //allow 1 minute cache
 

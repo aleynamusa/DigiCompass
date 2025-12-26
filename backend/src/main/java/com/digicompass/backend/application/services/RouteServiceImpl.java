@@ -230,96 +230,6 @@ public class RouteServiceImpl implements RouteService {
         }
     }
 
-    private double calculateDistance(Geometry geometry) {
-        if (geometry == null) return 0;
-
-        Coordinate[] coords = geometry.getCoordinates();
-        if (coords.length < 2) return 0;
-
-        double total = 0;
-
-        for (int i = 1; i < coords.length; i++) {
-            double lat1 = coords[i - 1].y;
-            double lon1 = coords[i - 1].x;
-            double lat2 = coords[i].y;
-            double lon2 = coords[i].x;
-
-            total += haversine(lat1, lon1, lat2, lon2);
-        }
-
-        return total; // km
-    }
-
-    private double haversine(double lat1, double lon1, double lat2, double lon2) {
-        final double R = 6371; // km
-
-        double dLat = Math.toRadians(lat2 - lat1);
-        double dLon = Math.toRadians(lon2 - lon1);
-
-        lat1 = Math.toRadians(lat1);
-        lat2 = Math.toRadians(lat2);
-
-        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                Math.cos(lat1) * Math.cos(lat2) *
-                        Math.sin(dLon / 2) * Math.sin(dLon / 2);
-
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-        return R * c;
-    }
-
-
-    private LineString buildLineStringFromGeoJson(GeoJson geoJson) {
-        List<List<Double>> coordsList = geoJson.getCoordinates();
-
-        if (coordsList == null || coordsList.size() < 2) {
-            throw new IllegalArgumentException("LineString requires at least two points.");
-        }
-
-        GeometryFactory factory = new GeometryFactory();
-
-        Coordinate[] coords = coordsList.stream()
-                .map(c -> new Coordinate(c.get(0), c.get(1)))
-                .toArray(Coordinate[]::new);
-
-        return factory.createLineString(coords);
-    }
-
-    @Override
-    public double calculateDistanceFromGeoJson(GeoJson geoJson) {
-        try{
-            if (geoJson == null || !"LineString".equals(geoJson.getType())) {
-                throw new IllegalArgumentException("Invalid GeoJSON: Expected LineString type.");
-            }
-            LineString lineString = buildLineStringFromGeoJson(geoJson);
-            return calculateDistance(lineString);
-        }
-        catch (Exception e){
-            log.error("[SERVICE] Invalid GeoJSON provided: {}", e.getMessage());
-            throw new IllegalArgumentException("Invalid GeoJSON provided.", e);
-        }
-    }
-
-//    @Override
-//    public void deleteRoute(Long routeId, UserPrincipal principal) {
-//        if(!routeRepository.existsById(id)){
-//            log.error("[SERVICE] Route with id {} does not exist.", id);
-//            throw new IllegalArgumentException("Route with id " + id + " does not exist.");
-//        }
-//        try{
-//            routeRepository.deleteById(id);
-//            log.info("[SERVICE] Deleted route with id {}", id);
-//            log.info("[SERVICE] Deleting images for route id {}", id);
-//            List<RouteImageEntity> images = routeRepository.findById(id).orElseThrow().getImages();
-//            for (RouteImageEntity image : images) {
-//                s3Service.deleteImage(image.getImageUrl());
-//            }
-//        }
-//        catch (Exception e){
-//            log.error("[SERVICE] Failed to delete images from S3 for route id {}: {}", id, e.getMessage());
-//            throw new RuntimeException("Failed to delete images from S3.", e);
-//        }
-//    }
 
     @Override
     public void deleteRoute(Long id, UserPrincipal principal) {
@@ -330,7 +240,6 @@ public class RouteServiceImpl implements RouteService {
         Long creatorId = route.getCreatedByUserId().getId();
         Long currentUserId = principal.getId();
 
-        // use the convenience method on UserPrincipal which tolerates ROLE_ADMIN/ADMIN forms
         boolean isAdmin = principal.hasRole("ROLE_ADMIN") || principal.hasRole("ADMIN");
         boolean isCreator = creatorId.equals(currentUserId);
 

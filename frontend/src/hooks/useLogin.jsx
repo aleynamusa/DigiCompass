@@ -20,11 +20,9 @@ export function useLogin(onSuccess) {
         try {
             await login(loginData.username, loginData.password, isChecked);
 
-            // If onSuccess callback is provided, call it (for modal usage)
             if (onSuccess) {
                 onSuccess();
             } else {
-                // Otherwise, navigate to home (for normal login page usage)
                 navigate("/");
             }
         } catch (err) {

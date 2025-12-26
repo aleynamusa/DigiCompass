@@ -32,7 +32,6 @@ export default function Layout({ user, onLogout }) {
 
     return (
         <div className="flex relative">
-            {/* Mobile Menu Button */}
             {isMobile && (
                 <Button
                     variant="ghost"
@@ -44,7 +43,6 @@ export default function Layout({ user, onLogout }) {
                 </Button>
             )}
 
-            {/* Overlay for mobile */}
             {isMobile && isMobileMenuOpen && (
                 <div
                     className="fixed inset-0 bg-black/50 z-[55] lg:hidden"

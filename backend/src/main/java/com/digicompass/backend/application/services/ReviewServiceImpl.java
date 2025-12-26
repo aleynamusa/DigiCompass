@@ -73,31 +73,6 @@ public class ReviewServiceImpl implements ReviewService {
         }
     }
 
-//    @Override
-//    public Review createReview(Review review, List<MultipartFile> images) throws IOException {
-//        validateRouteId(review.getRouteId());
-//
-//        List<String> imageKeys = uploadImages(review.getRouteId(), images);
-//
-//        try {
-//            ReviewEntity entity = reviewMapper.toEntity(review);
-//
-//            for (String key : imageKeys) {
-//                ReviewImageEntity img = new ReviewImageEntity();
-//                img.setImageUrl(key);
-//                img.setReview(entity);
-//                entity.getImages().add(img);
-//            }
-//
-//            ReviewEntity saved = reviewRepo.save(entity);
-//            return reviewMapper.toDomain(saved);
-//
-//        } catch (Exception e) {
-//            rollbackS3Uploads(imageKeys);
-//            throw new RuntimeException("Failed to create review", e);
-//        }
-//    }
-
     @Override
     public Review createReview(Review review, List<MultipartFile> images) throws IOException {
         validateRouteId(review.getRouteId());

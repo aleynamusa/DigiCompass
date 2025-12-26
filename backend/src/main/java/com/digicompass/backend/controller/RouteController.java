@@ -117,21 +117,6 @@ public class RouteController {
         }
     }
 
-    @PostMapping("/calculate-distance")
-    public ResponseEntity<Double> calculateDistance(@RequestBody GeoJsonDto geoJson) {
-        try {
-            log.info("[CONTROLLER] Calculating distance.");
-            double distance = routeService.calculateDistanceFromGeoJson(routeMapper.toDomainJson(geoJson));
-            log.debug("[CONTROLLER] Calculated distance: {}", distance);
-            return ResponseEntity.ok(distance);
-        } catch (IllegalArgumentException e) {
-            log.error("[CONTROLLER] " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        } catch (Exception e) {
-            log.error("[CONTROLLER] Unexpected error: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
-    }
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteRoute(

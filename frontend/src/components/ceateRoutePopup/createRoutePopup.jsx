@@ -20,7 +20,6 @@ import {
 } from 'lucide-react';
 import { Alert } from "@mantine/core";
 import ImageDropzone from "@/components/imageDropzone.jsx";
-import { getCalculatedDistance } from "@/api/routeApi.jsx";
 import { useAuth } from "@/context/AuthContext.jsx";
 import RouteMapPopup from "@/components/ceateRoutePopup/routeMapPopup.jsx";
 import { startIcon, endIcon } from '../../utils/leafletIcons';
@@ -116,12 +115,11 @@ const CreateRoutePopup = ({ isOpen, onClose, onSave, loading = false }) => {
         setIsSubmitting(true);
 
         try {
-            const calculatedDistance = await getCalculatedDistance(points);
 
             const geometry = createGeoJSON(points);
 
             const estimatedTimeStr = calculateEstimatedTime(
-                calculatedDistance,
+                distance,
                 formData.difficulty,
                 formData.routeType
             );
@@ -130,7 +128,7 @@ const CreateRoutePopup = ({ isOpen, onClose, onSave, loading = false }) => {
                 ...formData,
                 points: points.map(p => [p.lat, p.lng]),
                 geometry: geometry,
-                distance: parseFloat(calculatedDistance),
+                distance: parseFloat(distance.toFixed(2)),
                 estimatedTime: estimatedTimeStr,
                 createdBy: user.id,
                 status: 'pending',
@@ -293,16 +291,7 @@ const CreateRoutePopup = ({ isOpen, onClose, onSave, loading = false }) => {
 
                                 <Card className="overflow-hidden">
                                     <div className="h-[290px]">
-                                        {/*<RouteMapPopup*/}
-                                        {/*    center={currentLocation}*/}
-                                        {/*    points={points}*/}
-                                        {/*    ghRoute={ghRoute}*/}
-                                        {/*    ghError={ghError}*/}
-                                        {/*    onMapClick={handleMapClick}*/}
-                                        {/*    startIcon={startIcon}*/}
-                                        {/*    endIcon={endIcon}*/}
-                                        {/*    isLoading={isLoadingRoute}*/}
-                                        {/*/>*/}
+
                                         <RouteMapPopup
                                             center={currentLocation.effectiveLocation}
                                             points={points}

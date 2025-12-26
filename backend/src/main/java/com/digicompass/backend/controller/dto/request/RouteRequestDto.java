@@ -1,8 +1,6 @@
 package com.digicompass.backend.controller.dto.request;
 
-import com.digicompass.backend.controller.dto.UserDto;
-import com.digicompass.backend.types.Difficulty;
-import com.digicompass.backend.types.RouteType;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

@@ -34,7 +34,7 @@ export const useGeolocation = (isActive = true) => {
         };
 
         const onError = (err) => {
-            if (err?.code === 3) return; // timeout → keep last
+            if (err?.code === 3) return; // timeout keeps last
 
             let message = err?.message || 'Unable to retrieve location';
             if (err?.code === 1) message = 'Geolocation permission denied';
