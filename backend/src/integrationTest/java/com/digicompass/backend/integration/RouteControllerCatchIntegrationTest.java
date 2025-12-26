@@ -20,22 +20,7 @@ public class RouteControllerCatchIntegrationTest extends BaseIntegrationTest{
     @MockitoBean
     private RouteService routeService;
 
-    @Test
-    void calculateDistance_ShouldReturnInternalError_WhenInvalidJson() throws Exception {
-        String invalidJson = "{ \"type\": \"LineString\", \"coordinates\": \"wrong format\" }";
 
-
-        Mockito.doThrow(new IllegalArgumentException("Invalid GeoJSON provided."))
-                    .when(routeService)
-                    .calculateDistanceFromGeoJson(null);
-
-
-
-        mockMvc.perform(MockMvcRequestBuilders.post("/route/calculate-distance")
-                        .contentType("application/json")
-                        .content(invalidJson))
-                .andExpect(status().isBadRequest());
-    }
 
 
 

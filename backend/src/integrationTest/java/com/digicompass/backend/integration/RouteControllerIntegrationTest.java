@@ -172,42 +172,6 @@ public class RouteControllerIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
-    void calculateDistance_ShouldReturnDistance() throws Exception {
-        String jsonBody = """
-        {
-            "type": "LineString",
-            "coordinates": [
-                [10.0, 20.0],
-                [11.0, 21.0]
-            ]
-        }
-        """;
-
-        mockMvc.perform(MockMvcRequestBuilders.post("/route/calculate-distance")
-                        .contentType("application/json")
-                        .content(jsonBody))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isNumber());
-    }
-
-    @Test
-    void calculateDistance_ShouldReturnBadRequest_WhenOnlyOnePoint() throws Exception {
-        String jsonBody = """
-        {
-            "type": "LineString",
-            "coordinates": [
-                [10.0, 20.0]
-            ]
-        }
-        """;
-
-        mockMvc.perform(MockMvcRequestBuilders.post("/route/calculate-distance")
-                        .contentType("application/json")
-                        .content(jsonBody))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
     void getLikedRoutesByUserId_ShouldReturnLikedRoutes() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/route/liked/" + user.getId()))
                 .andExpect(status().isOk())

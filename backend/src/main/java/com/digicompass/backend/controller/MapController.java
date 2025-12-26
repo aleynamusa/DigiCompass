@@ -6,7 +6,6 @@ import com.digicompass.backend.controller.dto.response.RouteResponseMapDto;
 import com.digicompass.backend.controller.mapper.MapMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;

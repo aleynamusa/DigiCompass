@@ -1,4 +1,3 @@
-// components/createRoutePopup/routeForm.jsx
 import React from 'react';
 import { Input } from "@/components/ui/input.jsx";
 import { Textarea } from "@mantine/core";
