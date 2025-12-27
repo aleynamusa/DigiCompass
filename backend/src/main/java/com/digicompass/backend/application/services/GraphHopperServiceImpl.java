@@ -85,6 +85,10 @@ public class GraphHopperServiceImpl implements GraphHopperService {
             );
 
         }
+        catch(IllegalArgumentException e){
+            log.error("Error calculating route", e);
+            throw new IllegalArgumentException("Error calculating route");
+        }
         catch(Exception e){
             log.error("Calculating Route distance and time.", e);
             throw new RuntimeException("Error calculating route: " + e.getMessage());
@@ -166,7 +170,6 @@ public class GraphHopperServiceImpl implements GraphHopperService {
             log.error("Error decoding polyline", e);
             throw new RuntimeException("Error decoding polyline: " + e.getMessage());
         }
-
     }
 
 }

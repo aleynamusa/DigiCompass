@@ -20,7 +20,6 @@ const RoutePointsList = ({
                              points,
                              distance,
                              estimatedTime,
-                             errors,
                              onRemovePoint,
                              onClearAll,
                              disabled,
@@ -39,12 +38,6 @@ const RoutePointsList = ({
                     </Badge>
                 </div>
 
-                {errors.points && (
-                    <Alert className="mb-4 bg-red-50 text-red-800 border-red-200">
-                        <AlertCircle className="h-4 w-4" />
-                        {errors.points}
-                    </Alert>
-                )}
 
                 {points.length > 0 ? (
                     <>

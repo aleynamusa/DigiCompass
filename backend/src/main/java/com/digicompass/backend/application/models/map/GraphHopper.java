@@ -1,10 +1,11 @@
 package com.digicompass.backend.application.models.map;
 
-import lombok.Getter;
+import lombok.Data;
+
 
 import java.util.List;
 
-@Getter
+@Data
 public class GraphHopper {
     private List<GraphHopperPath> paths;
 }

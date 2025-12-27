@@ -29,9 +29,12 @@ import { useGeolocation } from '../../hooks/useGeolocation';
 import { useGraphHopperRoute } from '../../hooks/useGraphHopperRoute';
 import RouteForm from './RouteForm';
 import RoutePointsList from './RoutePointsList';
+import { Info } from 'lucide-react';
 
 const CreateRoutePopup = ({ isOpen, onClose, onSave, loading = false }) => {
 
+    const MAX_POINTS = 5;
+    const icon = <Info />;
     const { user } = useAuth();
     const [formData, setFormData] = useState({
         name: '',
@@ -75,6 +78,15 @@ const CreateRoutePopup = ({ isOpen, onClose, onSave, loading = false }) => {
     }, [isOpen, user, onClose]);
 
     const handleMapClick = (e) => {
+        if (points.length >= MAX_POINTS) {
+            setErrors(prev => ({
+                ...prev,
+                points: 'Maximum number of points reached (max 5)'
+            }));
+
+            return;
+        }
+
         const { lat, lng } = e.latlng;
         const newPoint = {
             lat,
@@ -92,6 +104,7 @@ const CreateRoutePopup = ({ isOpen, onClose, onSave, loading = false }) => {
         newPoint.isEnd = true;
         setPoints([...updatedPoints, newPoint]);
     };
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -238,23 +251,32 @@ const CreateRoutePopup = ({ isOpen, onClose, onSave, loading = false }) => {
                 <form onSubmit={handleSubmit} className="flex flex-col h-full">
                     <div className="flex-1 overflow-auto">
                         {successMessage && (
-                            <Alert className="mb-4 bg-green-50 text-green-800 border-green-200">
-                                <CheckCircle className="h-4 w-4" />
+                            <Alert variant="light" color="green" radius="md" title="Alert title" icon={icon}>
                                 {successMessage}
                             </Alert>
                         )}
 
                         {saveError && (
-                            <Alert className="mb-4 bg-red-50 text-red-800 border-red-200">
-                                <AlertCircle className="h-4 w-4" />
+                            <Alert variant="light" color="red" radius="md" title="Alert title" icon={icon}>
                                 {saveError}
                             </Alert>
                         )}
 
                         {mapError && (
-                            <Alert className="mb-4 bg-yellow-50 text-yellow-800 border-yellow-200">
-                                <AlertCircle className="h-4 w-4" />
+                            <Alert variant="light" color="red" radius="md" title="Alert title" icon={icon}>
                                 {mapError}
+                            </Alert>
+                        )}
+
+                        {errors.points && (
+                            <Alert variant="light" color="red" radius="md" title="Alert title" icon={icon}>
+                                {errors.points}
+                            </Alert>
+                        )}
+
+                        {errors.form && (
+                            <Alert variant="light" color="red" radius="md" title="Alert title" icon={icon}>
+                                {errors.form}
                             </Alert>
                         )}
 
@@ -272,7 +294,6 @@ const CreateRoutePopup = ({ isOpen, onClose, onSave, loading = false }) => {
                                     points={points}
                                     distance={distance}
                                     estimatedTime={estimatedTime}
-                                    errors={errors}
                                     onRemovePoint={handleRemovePoint}
                                     onClearAll={handleClearPoints}
                                     disabled={isSubmitting}

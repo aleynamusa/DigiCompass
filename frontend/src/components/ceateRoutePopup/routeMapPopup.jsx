@@ -8,6 +8,7 @@ import {DEFAULT_LOCATION} from "@/constants/routeConfig.jsx";
 function FitBoundsToPoints({ points }) {
     const map = useMap();
 
+
     useEffect(() => {
         if (points.length === 0) return;
 
@@ -71,8 +72,6 @@ const RouteMapPopup = ({ center, points, ghRoute, ghError, onMapClick, startIcon
     }, [lat, lng, initialCenter, center]);
 
 
-
-
     const mapCenter = center?.ready
         ? [center.latitude, center.longitude]
         : [DEFAULT_LOCATION.latitude, DEFAULT_LOCATION.longitude];
@@ -87,7 +86,7 @@ const RouteMapPopup = ({ center, points, ghRoute, ghError, onMapClick, startIcon
         >
             <TileLayer
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                attribution="&copy; OpenStreetMap contributors"
+                // attribution="&copy; OpenStreetMap contributors"
             />
 
             <ReenterOnRealLocation location={center} />
