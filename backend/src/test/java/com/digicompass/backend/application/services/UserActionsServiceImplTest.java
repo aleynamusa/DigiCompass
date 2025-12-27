@@ -126,7 +126,7 @@ public class UserActionsServiceImplTest {
                 () -> userActionsService.unfavouriteRoute(1L, 1L)
         );
 
-        assertEquals("User does not exist.", exception.getMessage());
+        assertEquals("User or route does not exist.", exception.getMessage());
         verify(favouriteRouteRepository, never()).delete(any());
     }
 

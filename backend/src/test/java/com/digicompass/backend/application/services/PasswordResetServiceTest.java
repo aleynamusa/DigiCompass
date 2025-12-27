@@ -91,7 +91,7 @@ class PasswordResetServiceTest {
     void testResetPassword_Success() {
         String token = UUID.randomUUID().toString();
         String email = "user@example.com";
-        String newPassword = "newPass123";
+        String newPassword = "newPass123@";
 
         UserEntity entity = new UserEntity();
         entity.setEmail(email);
@@ -213,7 +213,7 @@ class PasswordResetServiceTest {
 
         RuntimeException ex = assertThrows(
                 RuntimeException.class,
-                () -> passwordResetService.resetPassword(token, "newPass123")
+                () -> passwordResetService.resetPassword(token, "newPass123@")
         );
 
         assertTrue(ex.getMessage().contains("Redis connection error"));
@@ -234,7 +234,7 @@ class PasswordResetServiceTest {
 
         RuntimeException ex = assertThrows(
                 RuntimeException.class,
-                () -> passwordResetService.resetPassword(token, "newPass123")
+                () -> passwordResetService.resetPassword(token, "newPass123@")
         );
 
         assertTrue(ex.getMessage().contains("Database error"));
@@ -274,14 +274,14 @@ class PasswordResetServiceTest {
     @Test
     void resetPassword_ShouldThrowIllegalArgumentException_WhenNewTokenIsNull() {
         assertThrows(IllegalArgumentException.class, () -> {
-            passwordResetService.resetPassword(null, "newPassword");
+            passwordResetService.resetPassword(null, "newPassword1@");
         });
     }
 
     @Test
     void resetPassword_ShouldThrowIllegalArgumentException_WhenNewTokenIsBlank() {
         assertThrows(IllegalArgumentException.class, () -> {
-            passwordResetService.resetPassword("", "newPassword");
+            passwordResetService.resetPassword("", "newPassword1@");
         });
     }
 
