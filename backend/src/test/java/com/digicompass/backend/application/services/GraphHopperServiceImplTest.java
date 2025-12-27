@@ -6,6 +6,7 @@ import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -17,6 +18,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class GraphHopperServiceImplTest {
 
     private MockWebServer mockWebServer;
+
+    @Spy
     private GraphHopperServiceImpl service;
 
 

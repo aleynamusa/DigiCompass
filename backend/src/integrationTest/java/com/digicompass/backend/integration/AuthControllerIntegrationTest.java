@@ -27,7 +27,6 @@ class AuthControllerIntegrationTest extends BaseIntegrationTest {
     @Autowired
     private RoleJpaRepository roleRepository;
 
-
     @Autowired
     private ObjectMapper objectMapper;
 
