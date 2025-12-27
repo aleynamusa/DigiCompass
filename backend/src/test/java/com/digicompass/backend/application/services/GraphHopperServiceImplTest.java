@@ -19,7 +19,7 @@ class GraphHopperServiceImplTest {
 
     private MockWebServer mockWebServer;
 
-    @Spy
+
     private GraphHopperServiceImpl service;
 
 
@@ -74,7 +74,7 @@ class GraphHopperServiceImplTest {
     }
 
     @Test
-    void calculateRoute_throwsIllegalArgumentException_whenThan5Points() {
+    void calculateRoute_throwsIllegalArgumentException_whenMoreThanThan5Points() {
         List<Point> points = List.of(
                 new Point(48.8566, 2.3522),
                 new Point(48.8570, 2.3530),
