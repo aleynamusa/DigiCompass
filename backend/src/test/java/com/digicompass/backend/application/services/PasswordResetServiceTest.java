@@ -257,5 +257,54 @@ class PasswordResetServiceTest {
         assertTrue(ex.getMessage().contains("Unexpected error"));
     }
 
+    @Test
+    void createResetPasswordToken_ShouldThrowIllegalArgumentException_WhenEmailIsNull() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            passwordResetService.createPasswordResetToken(null);
+        });
+    }
+
+    @Test
+    void resetResetPasswordToken_ShouldThrowIllegalArgumentException_WhenEmailIsBlank() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            passwordResetService.createPasswordResetToken("");
+        });
+    }
+
+    @Test
+    void resetPassword_ShouldThrowIllegalArgumentException_WhenNewTokenIsNull() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            passwordResetService.resetPassword(null, "newPassword");
+        });
+    }
+
+    @Test
+    void resetPassword_ShouldThrowIllegalArgumentException_WhenNewTokenIsBlank() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            passwordResetService.resetPassword("", "newPassword");
+        });
+    }
+
+    @Test
+    void resetPassword_ShouldThrowIllegalArgumentException_WhenPasswordIsNull() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            passwordResetService.resetPassword("valid-token", null);
+        });
+    }
+
+    @Test
+    void resetPassword_ShouldThrowIllegalArgumentException_WhenNewPasswordIsBlank() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            passwordResetService.resetPassword("valid-token", "");
+        });
+    }
+
+    @Test
+    void resetPassword_ShouldThrowIllegalArgumentException_WhenPasswordIsTooWeak() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            passwordResetService.resetPassword("valid-token", "aaaa");
+        });
+    }
+
 
 }

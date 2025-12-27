@@ -3,6 +3,7 @@ package com.digicompass.backend.application.services;
 import com.digicompass.backend.application.interfaces.EmailService;
 import com.digicompass.backend.application.interfaces.PasswordResetService;
 import com.digicompass.backend.application.mapper.UserMapper;
+import com.digicompass.backend.application.security.PasswordValidator;
 import com.digicompass.backend.application.services.helpers.PasswordHasher;
 import com.digicompass.backend.application.models.User;
 import com.digicompass.backend.repository.repositories.UserJpaRepository;
@@ -104,6 +105,9 @@ public class PasswordResetServiceImpl implements PasswordResetService {
                 log.warn("[SERVICE] User not found for token associated with email: {}", email);
                 throw new IllegalArgumentException("User not found.");
             }
+
+            String pwError = PasswordValidator.getValidationError(newPassword);
+            if (pwError != null) throw new IllegalArgumentException(pwError);
 
             user.setPassword(PasswordHasher.hash(newPassword));
             userRepository.save(userMapper.toEntity(user));

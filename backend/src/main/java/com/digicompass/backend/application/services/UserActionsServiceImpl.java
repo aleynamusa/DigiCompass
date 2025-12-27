@@ -59,7 +59,7 @@ public class UserActionsServiceImpl implements UserActionsService {
             log.debug("[SERVICE] Deleted favourite route for userId={} routeId={}", userId, routeId);
         } catch (IllegalArgumentException e) {
             log.warn("[SERVICE] User or route does not exist. userId={} routeId={}, reason={}", userId, routeId, e.getMessage());
-            throw e;
+            throw new IllegalArgumentException("User or route does not exist.", e);
         } catch (Exception e) {
             log.error("[SERVICE] Error unliking the route for userId={} routeId={}", userId, routeId, e);
             throw new RuntimeException("Error unliking the route.", e);
