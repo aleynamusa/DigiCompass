@@ -8,7 +8,6 @@ import com.digicompass.backend.repository.repositories.UserJpaRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDate;
@@ -86,7 +85,7 @@ public class ResetPasswordControllerIntegrationTest extends BaseIntegrationTest 
 
         mockMvc.perform(post("/password/reset")
                         .param("token", token)
-                        .param("password", "newSecret123"))
+                        .param("password", "newSecret123@"))
                 .andExpect(status().isOk());
 
         UserEntity updatedUser = userRepo.findByEmail("test@mail.com");
