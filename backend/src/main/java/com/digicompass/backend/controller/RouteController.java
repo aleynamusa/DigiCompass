@@ -10,6 +10,7 @@ import com.digicompass.backend.controller.dto.request.RouteRequestDto;
 import com.digicompass.backend.controller.mapper.RouteMapperController;
 import com.digicompass.backend.types.RouteType;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,10 +1,7 @@
 package com.digicompass.backend.integration;
 
-import com.digicompass.backend.application.interfaces.GraphHopperService;
-import com.digicompass.backend.application.models.map.RouteMap;
 import com.digicompass.backend.controller.dto.PointDto;
 import com.digicompass.backend.controller.dto.request.RouteRequestMapDto;
-import com.digicompass.backend.controller.dto.response.RouteResponseMapDto;
 import com.digicompass.backend.controller.mapper.MapMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +39,7 @@ public class MapControllerIntegrationTest extends BaseIntegrationTest {
                         .content(toJson(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.distanceKm").value(0.245477))
-                .andExpect(jsonPath("$.durationMin").value(3))
+                .andExpect(jsonPath("$.durationHour").value("3m"))
                 .andExpect(jsonPath("$.route").isArray());
     }
 

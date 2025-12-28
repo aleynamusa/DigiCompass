@@ -1,10 +1,10 @@
 package com.digicompass.backend.controller;
 
 import com.digicompass.backend.application.interfaces.ReviewService;
-import com.digicompass.backend.application.models.Review;
 import com.digicompass.backend.controller.dto.request.ReviewRequestDto;
 import com.digicompass.backend.controller.dto.response.ReviewResponseDto;
 import com.digicompass.backend.controller.mapper.ReviewMapperController;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,7 +29,7 @@ public class  ReviewController {
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ReviewResponseDto> createReview(@ModelAttribute ReviewRequestDto reviewRequestDto) {
+    public ResponseEntity<ReviewResponseDto> createReview(@Valid @ModelAttribute ReviewRequestDto reviewRequestDto) {
         try {
             ReviewResponseDto response = reviewMapper.toDtoResponse(reviewService.createReview(
                     reviewMapper.toModel(reviewRequestDto),
@@ -76,7 +76,7 @@ public class  ReviewController {
     @PutMapping(value = "/update/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ReviewResponseDto> updateReview(
             @PathVariable Long id,
-            @ModelAttribute ReviewRequestDto reviewRequestDto
+            @Valid @ModelAttribute ReviewRequestDto reviewRequestDto
     ) {
         try {
 

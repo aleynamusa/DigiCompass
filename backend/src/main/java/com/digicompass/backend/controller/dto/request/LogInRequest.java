@@ -1,5 +1,6 @@
 package com.digicompass.backend.controller.dto.request;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,7 +9,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class LogInRequest {
+    @NotBlank(message = "Username cannot be blank")
     private String username;
+
+    @NotBlank(message = "Password cannot be blank")
     private String password;
+
     private boolean rememberMe;
 }

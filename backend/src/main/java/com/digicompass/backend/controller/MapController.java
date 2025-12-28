@@ -4,6 +4,7 @@ import com.digicompass.backend.application.interfaces.GraphHopperService;
 import com.digicompass.backend.controller.dto.request.RouteRequestMapDto;
 import com.digicompass.backend.controller.dto.response.RouteResponseMapDto;
 import com.digicompass.backend.controller.mapper.MapMapper;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -33,7 +34,7 @@ public class MapController {
     }
 
     @PostMapping
-    public ResponseEntity<RouteResponseMapDto> routeInfo(@RequestBody RouteRequestMapDto request){
+    public ResponseEntity<RouteResponseMapDto> routeInfo(@Valid @RequestBody RouteRequestMapDto request){
         if (request.getPoints() == null || request.getPoints().size() < 2) {
             log.error("[CONTROLLER] At least two points required for route calculation.");
 //            throw new ResponseStatusException(

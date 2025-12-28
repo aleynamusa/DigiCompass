@@ -39,6 +39,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/route/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/route/calculate-distance").permitAll()
                         .requestMatchers(HttpMethod.POST, "/map").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/password/**").permitAll()
 
                         //PROTECTED ENDPOINTS
                         .requestMatchers(HttpMethod.DELETE, "/route/delete/**")

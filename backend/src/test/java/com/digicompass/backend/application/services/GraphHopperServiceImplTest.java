@@ -69,7 +69,7 @@ class GraphHopperServiceImplTest {
 
         assertNotNull(route);
         assertEquals(1.2, route.getDistanceKm(), 0.01);
-        assertEquals(5, route.getDurationMin());
+        assertEquals("5m", route.getDurationHour());
     }
 
     @Test

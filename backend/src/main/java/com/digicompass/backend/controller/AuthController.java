@@ -7,6 +7,7 @@ import com.digicompass.backend.controller.mapper.UserMapperController;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -35,7 +36,7 @@ public class AuthController {
 
 
     @PostMapping("/signUp")
-    public ResponseEntity<Void> signUp(@RequestBody UserRequestDto request) {
+    public ResponseEntity<Void> signUp(@Valid @RequestBody UserRequestDto request) {
         try {
             log.info("[CONTROLLER] Attempting to sign up user: {}", request.getUsername());
             UserRequestDto saved = userMapperController.toControllerRequest(authService.signUp(userMapperController.toModel(request)));
@@ -47,7 +48,7 @@ public class AuthController {
     }
 
     @PostMapping("/logIn")
-    public ResponseEntity<Map<String, String>> logIn(@RequestBody LogInRequest request, HttpServletResponse response) {
+    public ResponseEntity<Map<String, String>> logIn(@Valid @RequestBody LogInRequest request, HttpServletResponse response) {
         try {
             log.info("[CONTROLLER] Attempting to log in user: {}", request.getUsername());
             Map<String, String> tokens = authService.logIn(request.getUsername(), request.getPassword());

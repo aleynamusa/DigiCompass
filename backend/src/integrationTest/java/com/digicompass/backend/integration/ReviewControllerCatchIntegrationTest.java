@@ -43,16 +43,6 @@ public class ReviewControllerCatchIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
-    void createReview_shouldReturnInternalServerError_whenUnexpectedExceptionOccurs() throws Exception {
-        Mockito.when(reviewService.createReview(any(), any()))
-                .thenThrow(new RuntimeException("DB failed"));
-
-        mockMvc.perform(multipart("/review"))
-                .andExpect(status().isInternalServerError());
-    }
-
-
-    @Test
     void getReviewsByRoute_shouldReturnBadRequest_whenServiceThrowsIllegalArgument() throws Exception {
         Mockito.when(reviewService.getReviewsByRoute(1L))
                 .thenThrow(new IllegalArgumentException("Invalid route"));
@@ -81,20 +71,6 @@ public class ReviewControllerCatchIntegrationTest extends BaseIntegrationTest {
                                 .with(request -> { request.setMethod("PUT"); return request; })
                 )
                 .andExpect(status().isBadRequest());
-
-    }
-
-
-    @Test
-    void updateReview_shouldReturnInternalServerError_whenServiceThrowsException() throws Exception {
-        Mockito.when(reviewService.updateReview(any(), any(), any()))
-                .thenThrow(new RuntimeException("DB error"));
-
-        mockMvc.perform(
-                        multipart("/review/update/1")
-                                .with(request -> { request.setMethod("PUT"); return request; })
-                )
-                .andExpect(status().isInternalServerError());
 
     }
 

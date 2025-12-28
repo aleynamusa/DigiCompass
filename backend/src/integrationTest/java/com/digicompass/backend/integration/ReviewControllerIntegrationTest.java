@@ -23,6 +23,7 @@ public class ReviewControllerIntegrationTest extends BaseIntegrationTest {
 
     private Long routeId = 1L;
     private Long userId = 1L;
+    private String username = "testUser";
 
     private MockMultipartFile mockImage;
 
@@ -53,6 +54,7 @@ public class ReviewControllerIntegrationTest extends BaseIntegrationTest {
                         .param("review", "Amazing trail!")
                         .param("routeId", routeId.toString())
                         .param("userId.id", userId.toString())
+                        .param("userId.username", username)
                         .contentType(MediaType.MULTIPART_FORM_DATA)
                 )
                 .andExpect(status().isCreated())

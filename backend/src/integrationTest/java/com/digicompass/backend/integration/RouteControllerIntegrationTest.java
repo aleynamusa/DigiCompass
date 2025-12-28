@@ -28,7 +28,6 @@ import java.util.List;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertFalse;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -253,7 +252,7 @@ public class RouteControllerIntegrationTest extends BaseIntegrationTest {
                                 .param("routeType", "Cycling")
                                 .param("difficulty", "Easy")
                                 .param("distance", "12.5")
-                                .param("duration", "01:15")
+                                .param("duration", "1h 15")
                                 .param("routeGeometry", "POINT (10 20)")
                                 .with(authentication(
                                         new UsernamePasswordAuthenticationToken(
