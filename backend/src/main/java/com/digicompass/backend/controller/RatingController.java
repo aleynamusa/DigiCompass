@@ -5,6 +5,7 @@ import com.digicompass.backend.controller.dto.RatingDto;
 import com.digicompass.backend.controller.mapper.RatingMapperController;
 import jakarta.annotation.security.RolesAllowed;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -21,6 +22,7 @@ public class RatingController {
     private final RatingService ratingService;
     private final RatingMapperController ratingMapper;
 
+    @Autowired
     public RatingController(RatingService ratingService, RatingMapperController ratingMapper) {
         this.ratingService = ratingService;
         this.ratingMapper = ratingMapper;

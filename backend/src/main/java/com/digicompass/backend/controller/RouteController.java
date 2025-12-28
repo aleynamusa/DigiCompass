@@ -9,8 +9,10 @@ import com.digicompass.backend.controller.dto.RouteGeometryDto;
 import com.digicompass.backend.controller.dto.request.RouteRequestDto;
 import com.digicompass.backend.controller.mapper.RouteMapperController;
 import com.digicompass.backend.types.RouteType;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +29,7 @@ public class RouteController {
     private final RouteService routeService;
     private final RouteMapperController routeMapper;
 
-
+    @Autowired
     public RouteController(RouteService routeService, RouteMapperController userMapper) {
         this.routeService = routeService;
         this.routeMapper = userMapper;
@@ -46,7 +48,7 @@ public class RouteController {
     }
 
     @GetMapping("/{id}/geometry")
-    public ResponseEntity<RouteGeometryDto> getRouteGeometry(@PathVariable Long id) {
+    public ResponseEntity<RouteGeometryDto> getRouteGeometry(@PathVariable Long id) throws JsonMappingException {
         RouteGeometryDto route = routeMapper.toControllerGeometry(routeService.getRouteById(id));
 
         try {

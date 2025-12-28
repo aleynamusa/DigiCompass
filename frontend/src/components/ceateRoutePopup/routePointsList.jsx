@@ -1,17 +1,14 @@
-// components/createRoutePopup/RoutePointsList.jsx
 import React from 'react';
 import { Badge } from "@/components/ui/badge.jsx";
 import { Button } from "@/components/ui/button.jsx";
 import { Card, CardContent } from "@/components/ui/card.jsx";
 import { ScrollArea } from "@mantine/core";
-import { Alert } from "@mantine/core";
 import { Separator } from "@radix-ui/react-select";
 import {
     MapPin,
     Trash2,
     Flag,
     Target,
-    AlertCircle,
     Navigation,
     Clock
 } from 'lucide-react';
@@ -73,9 +70,9 @@ const RoutePointsList = ({
                                     >
                                         <div className="flex items-center gap-2">
                                             {point.isStart ? (
-                                                <Flag className="h-4 w-4 text-green-600" />
+                                                <Flag className="h-4 w-4 text-green-600" data-cy="point-start"/>
                                             ) : point.isEnd ? (
-                                                <Target className="h-4 w-4 text-red-600" />
+                                                <Target className="h-4 w-4 text-red-600" data-cy="point-end"/>
                                             ) : (
                                                 <MapPin className="h-4 w-4 text-gray-400" />
                                             )}
@@ -90,6 +87,7 @@ const RoutePointsList = ({
                                             onClick={() => onRemovePoint(point.id)}
                                             disabled={disabled}
                                             className="h-8 w-8 p-0"
+                                            data-cy="remove-point"
                                         >
                                             <Trash2 className="h-4 w-4" />
                                         </Button>

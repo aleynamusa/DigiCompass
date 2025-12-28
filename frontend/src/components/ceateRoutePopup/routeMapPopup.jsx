@@ -1,8 +1,8 @@
 import {useEffect, useRef, useState} from "react";
 import { MapContainer, TileLayer, Polyline, useMap, useMapEvents } from "react-leaflet";
-import UserLocationMarker from "./UserLocationMarker";
-import RoutePolyline from "./RoutePolyline";
-import RoutePointMarkers from "./RoutePointMarkers";
+import UserLocationMarker from "@/components/ceateRoutePopup/userLocationMarker.jsx";
+import RoutePolyline from "@/components/ceateRoutePopup/routePolyline.jsx";
+import RoutePointMarkers from "@/components/ceateRoutePopup/routePointMarkers.jsx";
 import {DEFAULT_LOCATION} from "@/constants/routeConfig.jsx";
 
 function FitBoundsToPoints({ points }) {

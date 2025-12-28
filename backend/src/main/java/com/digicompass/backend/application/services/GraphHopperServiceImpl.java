@@ -43,11 +43,11 @@ public class GraphHopperServiceImpl implements GraphHopperService {
     ) {
         try{
             if (points.size() > 5) {
-                log.error("Not enough points for calculating route");
+                log.error("[SERVICE] Not enough points for calculating route");
                 throw new IllegalArgumentException("You have to select maximum 5 points");
             }
 
-            log.info("Calculating Route distance and time.");
+            log.info("[SERVICE] Calculating Route distance and time.");
 
             List<List<Point>> segments = segmentPoints(points, 5);
 
@@ -70,18 +70,18 @@ public class GraphHopperServiceImpl implements GraphHopperService {
 
                 allCoords.addAll(decoded);
                 totalDistance += path.getDistance();
-                log.debug("Segment {} distance: {} meters", i + 1, path.getDistance());
+                log.debug("[SERVICE] Segment {} distance: {} meters", i + 1, path.getDistance());
                 totalTime += path.getTime();
-                log.debug("Segment {} time: {} meters", i + 1, path.getTime());
+                log.debug("[SERVICE] Segment {} time: {} meters", i + 1, path.getTime());
             }
 
-            log.info("Total distance {} meters", totalDistance);
-            log.info("Total time {} ms", totalTime);
+            log.info("[SERVICE] Total distance {} meters", totalDistance);
+            log.info("[SERVICE] Total time {} ms", totalTime);
 
             return new RouteMap(
                     allCoords,
                     totalDistance / 1000.0,
-                    totalTime / 60000
+                    getDurationHour(totalTime)
             );
 
         }
@@ -90,10 +90,25 @@ public class GraphHopperServiceImpl implements GraphHopperService {
             throw new IllegalArgumentException("Error calculating route");
         }
         catch(Exception e){
-            log.error("Calculating Route distance and time.", e);
+            log.error("[SERVICE] Calculating Route distance and time.", e);
             throw new RuntimeException("Error calculating route: " + e.getMessage());
         }
 
+    }
+
+    private String getDurationHour(long durationMin) {
+        long totalHours = durationMin / 3_600_000;
+        long remainingMs = durationMin % 3_600_000;
+        long totalMinutes = remainingMs / 60000;
+
+        if (totalHours == 0){
+            log.info("[SERVICE] Total Mins: {}", totalMinutes);
+            return totalMinutes + "m";
+        }
+        else{
+            log.info("[SERVICE] Total Hours: {} and Total Mins: {}", totalHours, totalMinutes);
+            return totalHours + "h " + totalMinutes + "m";
+        }
     }
 
     private GraphHopperPath fetchSegment(
@@ -127,7 +142,7 @@ public class GraphHopperServiceImpl implements GraphHopperService {
 
         }
         catch(Exception e){
-            log.error("Error logging profile information", e);
+            log.error("[SERVICE] Error logging profile information", e);
             throw new RuntimeException("Error logging profile information: " + e.getMessage());
         }
 
@@ -135,7 +150,7 @@ public class GraphHopperServiceImpl implements GraphHopperService {
 
     private List<List<Point>> segmentPoints(List<Point> points, int max) {
         try{
-            log.info("Segmenting points into chunks of maximum size: {}", max);
+            log.info("[SERVICE] Segmenting points into chunks of maximum size: {}", max);
             if (points.size() <= max) return List.of(points);
 
             List<List<Point>> segments = new ArrayList<>();
@@ -143,11 +158,11 @@ public class GraphHopperServiceImpl implements GraphHopperService {
                 segments.add(points.subList(i, Math.min(i + max, points.size())));
             }
 
-            log.debug("Total segments created: {}", segments.size());
+            log.debug("[SERVICE] Total segments created: {}", segments.size());
             return segments;
         }
         catch(Exception e){
-            log.error("Error segmenting points", e);
+            log.error("[SERVICE] Error segmenting points", e);
             throw new RuntimeException("Error segmenting points: " + e.getMessage());
         }
 
@@ -155,9 +170,9 @@ public class GraphHopperServiceImpl implements GraphHopperService {
 
     private List<Point> decodePolyline(String encoded) {
         try{
-            log.info("Decoding polyline");
+            log.info("[SERVICE] Decoding polyline");
             if (encoded == null || encoded.isEmpty()) {
-                log.warn("Encoded polyline is null or empty");
+                log.warn("[SERVICE] Encoded polyline is null or empty");
                 return new ArrayList<>();
             }
 
@@ -167,7 +182,7 @@ public class GraphHopperServiceImpl implements GraphHopperService {
                     .toList();
         }
         catch(Exception e){
-            log.error("Error decoding polyline", e);
+            log.error("[SERVICE] Error decoding polyline", e);
             throw new RuntimeException("Error decoding polyline: " + e.getMessage());
         }
     }

@@ -1,5 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs.jsx";
-import RouteGrid from "./RouteGrid.jsx";
+import RouteGrid from "@/components/routeDiscovery/routeGrid.jsx";
 
 export default function RouteTabsDiscovery({ displayRoutes, onViewDetails, onLoginRequired }) {
     return (

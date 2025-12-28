@@ -2,6 +2,7 @@ package com.digicompass.backend.application.security;
 
 import org.junit.jupiter.api.Test;
 
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class EmailValidatorTest {
@@ -30,4 +31,22 @@ class EmailValidatorTest {
     void testEmptyEmail() {
         assertFalse(EmailValidator.isValid(""));
     }
+
+    @Test
+    void testNullEmail() {
+        assertFalse(EmailValidator.isValid(null));
+    }
+
+    @Test
+    void getVaValidationError_WhenNull(){
+        String error = EmailValidator.getValidationError(null);
+        assertEquals("Email cannot be empty.", error);
+    }
+
+    @Test
+    void getVaValidationError_WhenBlank(){
+        String error = EmailValidator.getValidationError("");
+        assertEquals("Email cannot be empty.", error);
+    }
+
 }

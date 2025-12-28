@@ -5,6 +5,7 @@ import com.digicompass.backend.controller.dto.request.RouteRequestMapDto;
 import com.digicompass.backend.controller.dto.response.RouteResponseMapDto;
 import com.digicompass.backend.controller.mapper.MapMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,6 +22,7 @@ public class MapController {
         private final GraphHopperService service;
         private final MapMapper mapMapper;
 
+        @Autowired
     public MapController(
                 GraphHopperService service,
                  MapMapper mapMapper
@@ -33,7 +35,7 @@ public class MapController {
     @PostMapping
     public ResponseEntity<RouteResponseMapDto> routeInfo(@RequestBody RouteRequestMapDto request){
         if (request.getPoints() == null || request.getPoints().size() < 2) {
-            log.error("At least two points required for route calculation.");
+            log.error("[CONTROLLER] At least two points required for route calculation.");
 //            throw new ResponseStatusException(
 //                    HttpStatus.BAD_REQUEST,
 //                    "At least two points required"
@@ -41,7 +43,7 @@ public class MapController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
         try{
-            log.info("Received route calculation request with {} points.", request.getPoints().size());
+            log.info("[CONTROLLER] Received route calculation request with {} points.", request.getPoints().size());
             RouteResponseMapDto routeInfo =  mapMapper.toRouteResponseDto(service.calculateRoute(
                     mapMapper.toModel(request.getPoints()),
                     request.getRouteType()));
@@ -52,7 +54,7 @@ public class MapController {
 
 
         }catch (Exception e){
-            log.error("Error calculating route: {}", e.getMessage());
+            log.error("[CONTROLLER] Error calculating route: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 //            throw new ResponseStatusException(
 //                    HttpStatus.INTERNAL_SERVER_ERROR,

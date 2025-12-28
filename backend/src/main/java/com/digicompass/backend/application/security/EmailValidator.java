@@ -7,7 +7,6 @@ import java.util.regex.Pattern;
 @AllArgsConstructor
 public class EmailValidator {
 
-
     private static final Pattern EMAIL_PATTERN = Pattern.compile(
             "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
     );
@@ -22,4 +21,6 @@ public class EmailValidator {
         if (!EMAIL_PATTERN.matcher(email).matches()) return "Email is not valid.";
         return null;
     }
+
+
 }

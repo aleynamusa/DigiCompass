@@ -10,5 +10,7 @@ import java.util.List;
 public class RouteMap {
     private List<Point> route;
     private double distanceKm;
-    private long durationMin;
+    private String durationHour;
+
+
 }

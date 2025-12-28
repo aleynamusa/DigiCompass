@@ -11,14 +11,12 @@ import { Button } from "@/components/ui/button.jsx";
 import { Card } from "@/components/ui/card.jsx";
 import {
     MapPin,
-    CheckCircle,
-    AlertCircle,
     Plus,
     X,
     Navigation,
     Loader2
 } from 'lucide-react';
-import { Alert } from "@mantine/core";
+import {Alert, ScrollArea} from "@mantine/core";
 import ImageDropzone from "@/components/imageDropzone.jsx";
 import { useAuth } from "@/context/AuthContext.jsx";
 import RouteMapPopup from "@/components/ceateRoutePopup/routeMapPopup.jsx";
@@ -27,9 +25,9 @@ import { calculateEstimatedTime, createGeoJSON } from '../../utils/routeCalculat
 import { validateRouteForm } from '../../utils/routeValidation';
 import { useGeolocation } from '../../hooks/useGeolocation';
 import { useGraphHopperRoute } from '../../hooks/useGraphHopperRoute';
-import RouteForm from './RouteForm';
-import RoutePointsList from './RoutePointsList';
+import RoutePointsList from '@/components/ceateRoutePopup/routePointsList.jsx';
 import { Info } from 'lucide-react';
+import RouteForm from "@/components/ceateRoutePopup/routeForm.jsx";
 
 const CreateRoutePopup = ({ isOpen, onClose, onSave, loading = false }) => {
 
@@ -39,8 +37,8 @@ const CreateRoutePopup = ({ isOpen, onClose, onSave, loading = false }) => {
     const [formData, setFormData] = useState({
         name: '',
         description: '',
-        difficulty: 'Medium',
-        routeType: 'Hiking',
+        difficulty: '',
+        routeType: '',
         distance: 0,
         duration: '',
         createdAt: new Date().toISOString().slice(0, 19),
@@ -240,24 +238,24 @@ const CreateRoutePopup = ({ isOpen, onClose, onSave, loading = false }) => {
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="sm:max-w-[1200px] max-h-[90vh] overflow-hidden">
+            <DialogContent className="sm:max-w-[1200px] max-h-[90vh] flex flex-col">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
                         <Navigation className="h-5 w-5" />
                         Create New Route
                     </DialogTitle>
                 </DialogHeader>
-
+                <div className="flex-1 overflow-y-auto pr-2">
                 <form onSubmit={handleSubmit} className="flex flex-col h-full">
                     <div className="flex-1 overflow-auto">
                         {successMessage && (
-                            <Alert variant="light" color="green" radius="md" title="Alert title" icon={icon}>
+                            <Alert variant="light" color="green" radius="md" title="Saved Successfully" icon={icon}>
                                 {successMessage}
                             </Alert>
                         )}
 
                         {saveError && (
-                            <Alert variant="light" color="red" radius="md" title="Alert title" icon={icon}>
+                            <Alert variant="light" color="red" radius="md" title="Error While Saving" icon={icon}>
                                 {saveError}
                             </Alert>
                         )}
@@ -269,7 +267,7 @@ const CreateRoutePopup = ({ isOpen, onClose, onSave, loading = false }) => {
                         )}
 
                         {errors.points && (
-                            <Alert variant="light" color="red" radius="md" title="Alert title" icon={icon}>
+                            <Alert variant="light" color="red" radius="md" title="Maximum points" icon={icon}>
                                 {errors.points}
                             </Alert>
                         )}
@@ -360,12 +358,13 @@ const CreateRoutePopup = ({ isOpen, onClose, onSave, loading = false }) => {
                             ) : (
                                 <>
                                     <Plus className="h-4 w-4 mr-2" />
-                                    Create Route
+                                    Save Route
                                 </>
                             )}
                         </Button>
                     </DialogFooter>
                 </form>
+                </div>
             </DialogContent>
         </Dialog>
     );

@@ -8,6 +8,7 @@ import com.digicompass.backend.controller.mapper.RouteMapperController;
 import com.digicompass.backend.controller.mapper.UserMapperController;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,6 +28,7 @@ public class UserController {
 
     private final RouteMapperController routeMapperController;
 
+    @Autowired
     public UserController(UserService userService, UserMapperController userMapperController, RouteMapperController routeMapperController) {
         this.userService = userService;
         this.userMapperController = userMapperController;

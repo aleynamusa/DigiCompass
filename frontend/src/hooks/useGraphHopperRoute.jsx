@@ -27,10 +27,12 @@ export const useGraphHopperRoute = (points, routeType) => {
                 // axios response
                 const data = res.data;
 
+                console.log(data);
+
                 setGhRoute(data.route ?? []);
                 setDistance(data.distanceKm ?? 0);
                 setEstimatedTime(
-                    data.durationMin != null ? `${data.durationMin} min` : ""
+                    data.durationHour != null ? `${data.durationHour}` : ""
                 );
             } catch (e) {
                 setGhError(e.message || "Route failed");
@@ -41,6 +43,7 @@ export const useGraphHopperRoute = (points, routeType) => {
 
         fetchRoute();
     }, [points, routeType]);
+
 
     return {
         ghRoute,

@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/context/AuthContext.jsx";
 import { useParams, useNavigate } from "react-router-dom";
-import { getUserProfile, routesCreatedByUserId } from "@/api/userApi";
+import { getUserProfile, routesCreatedByUserId } from "@/api/userApi.jsx";
 import { getLikedRoutesByUser } from "@/api/routeApi";
 import { Alert, Divider, Stack } from "@mantine/core";
 import { AlertCircle } from "lucide-react";
-import ProfileHeader from "@/components/profile/ProfileHeader";
-import ProfileInfo from "@/components/profile/ProfileInfo";
-import ProfileTabs from "@/components/profile/ProfileTabs";
-import { RouteDetails } from "@/components/routeDetails/route_details";
+import ProfileHeader from "@/components/profile/profileTabs.jsx";
+import ProfileInfo from "@/components/profile/profileInfo.jsx";
+import ProfileTabs from "@/components/profile/profileTabs.jsx";
+import {RouteDetails} from "@/components/routeDetails/route_details.jsx";
+
 
 export default function Profile() {
     const { user } = useAuth();

@@ -1,7 +1,7 @@
 import { Tabs } from "@mantine/core";
 import { Heart, Share2, MapPin } from "lucide-react";
-import ProfileSharedRoutes from "./profileSharedRoutes.jsx";
-import ProfileLikedRoutes from "./ProfileLikedRoutes";
+import ProfileSharedRoutes from "@/components/profile/profileSharedRoutes.jsx";
+import ProfileLikedRoutes from "@/components/profile/profileLikedRoutes.jsx";
 
 export default function ProfileTabs({
   isOwnProfile,

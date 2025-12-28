@@ -56,11 +56,12 @@ const RouteForm = ({ formData, onChange, errors, disabled }) => {
                         Difficulty <span className="text-red-500">*</span>
                     </label>
                     <Select
+
                         value={formData.difficulty}
                         onValueChange={(value) => handleChange('difficulty', value)}
                         disabled={disabled}
                     >
-                        <SelectTrigger>
+                        <SelectTrigger data-cy="difficulty-select">
                             <SelectValue placeholder="Select difficulty" />
                         </SelectTrigger>
                         <SelectContent>
@@ -83,7 +84,7 @@ const RouteForm = ({ formData, onChange, errors, disabled }) => {
                         onValueChange={(value) => handleChange('routeType', value)}
                         disabled={disabled}
                     >
-                        <SelectTrigger>
+                        <SelectTrigger data-cy="type-select">
                             <SelectValue placeholder="Select route type" />
                         </SelectTrigger>
                         <SelectContent>

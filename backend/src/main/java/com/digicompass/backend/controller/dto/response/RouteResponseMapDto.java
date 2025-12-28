@@ -11,7 +11,7 @@ import java.util.List;
 public class RouteResponseMapDto {
     private List<PointDto> route;
     private double distanceKm;
-    private long durationMin;
+    private String durationHour;
 
 }
 

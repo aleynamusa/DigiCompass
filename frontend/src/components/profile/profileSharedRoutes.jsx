@@ -1,6 +1,6 @@
 import { Text } from "@mantine/core";
 import { Share2 } from "lucide-react";
-import { RouteCard } from "@/components/routeDetails/route_card";
+import { RouteCard } from "@/components/routeDetails/route_card.jsx";
 
 export default function ProfileSharedRoutes({ routes, onViewDetails, isOwnProfile }) {
     return (

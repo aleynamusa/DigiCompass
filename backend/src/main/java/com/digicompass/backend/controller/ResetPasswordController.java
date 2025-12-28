@@ -2,6 +2,7 @@ package com.digicompass.backend.controller;
 
 import com.digicompass.backend.application.interfaces.PasswordResetService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,6 +18,7 @@ public class ResetPasswordController {
 
     private final PasswordResetService passwordResetService;
 
+    @Autowired
     public ResetPasswordController(PasswordResetService passwordResetService) {
         this.passwordResetService = passwordResetService;
     }
