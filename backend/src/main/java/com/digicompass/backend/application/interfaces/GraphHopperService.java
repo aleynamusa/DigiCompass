@@ -12,4 +12,5 @@ public interface GraphHopperService {
             List<Point> points,
             String routeType
     );
+    String getCurrentLocationAsCity(double latitude, double longitude);
 }

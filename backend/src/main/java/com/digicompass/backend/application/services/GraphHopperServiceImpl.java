@@ -5,8 +5,11 @@ import com.digicompass.backend.application.models.map.GraphHopper;
 import com.digicompass.backend.application.models.map.GraphHopperPath;
 import com.digicompass.backend.application.models.map.Point;
 import com.digicompass.backend.application.models.map.RouteMap;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.maps.internal.PolylineEncoding;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -20,6 +23,8 @@ import java.util.Map;
 @Slf4j
 public class GraphHopperServiceImpl implements GraphHopperService {
     private final WebClient webClient;
+    private final WebClient webClientReverse;
+    private final ObjectMapper objectMapper;
     @Value("${graphhopper.api-key}")
     private String apiKey;
 
@@ -29,10 +34,14 @@ public class GraphHopperServiceImpl implements GraphHopperService {
             "car", "car"
     );
 
+    @Autowired
     public GraphHopperServiceImpl(
             WebClient.Builder builder,
-            @Value("${graphhopper.base-url}") String baseUrl
+            @Value("${graphhopper.base-url}") String baseUrl,
+            @Value("${graphhopper.reverse.base-url}") String reverseUrl, ObjectMapper objectMapper
     ) {
+        this.objectMapper = objectMapper;
+        this.webClientReverse = builder.baseUrl(reverseUrl).build();
         this.webClient = builder.baseUrl(baseUrl).build();
     }
 
@@ -94,6 +103,42 @@ public class GraphHopperServiceImpl implements GraphHopperService {
             throw new RuntimeException("Error calculating route: " + e.getMessage());
         }
 
+    }
+
+    @Override
+    public String getCurrentLocationAsCity(double latitude, double longitude){
+        try {
+            log.info("[SERVICE] Fetching Current City");
+
+            UriComponentsBuilder uri = UriComponentsBuilder.newInstance()
+                    .queryParam("point", latitude + "," + longitude)
+                    .queryParam("reverse", true)
+                    .queryParam("key", apiKey);
+
+            String response = webClientReverse.get()
+                    .uri(uri.build().toUriString())
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .block();
+
+            JsonNode root = objectMapper.readTree(response);
+            JsonNode hits = root.path("hits");
+
+            if (hits.isArray() && hits.size() > 0) {
+                for (JsonNode hit : hits) {
+                    JsonNode cityNode = hit.get("city");
+                    if (cityNode != null && !cityNode.isNull()) {
+                        return cityNode.asText();
+                    }
+                }
+            }
+
+            return "Unknown city";
+
+        } catch (Exception e) {
+            log.error("[SERVICE] Error fetching current city information", e);
+            throw new RuntimeException("Error fetching current city information: " + e.getMessage());
+        }
     }
 
     private String getDurationHour(long durationMin) {

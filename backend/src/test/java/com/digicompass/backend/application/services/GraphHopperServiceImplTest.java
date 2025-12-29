@@ -28,11 +28,12 @@ class GraphHopperServiceImplTest {
         mockWebServer.start();
 
         String baseUrl = mockWebServer.url("/").toString();
+        String reverseUrl = mockWebServer.url("/").toString();
 
         WebClient.Builder builder = WebClient.builder()
                 .baseUrl(baseUrl);
 
-        service = new GraphHopperServiceImpl(builder, baseUrl);
+        service = new GraphHopperServiceImpl(builder, baseUrl, reverseUrl);
 
         ReflectionTestUtils.setField(service, "apiKey", "test-key");
     }

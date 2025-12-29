@@ -5,14 +5,13 @@ import com.digicompass.backend.controller.dto.request.RouteRequestMapDto;
 import com.digicompass.backend.controller.dto.response.RouteResponseMapDto;
 import com.digicompass.backend.controller.mapper.MapMapper;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
 
 
 @RestController
@@ -37,10 +36,6 @@ public class MapController {
     public ResponseEntity<RouteResponseMapDto> routeInfo(@Valid @RequestBody RouteRequestMapDto request){
         if (request.getPoints() == null || request.getPoints().size() < 2) {
             log.error("[CONTROLLER] At least two points required for route calculation.");
-//            throw new ResponseStatusException(
-//                    HttpStatus.BAD_REQUEST,
-//                    "At least two points required"
-//            );
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
         try{
@@ -57,11 +52,20 @@ public class MapController {
         }catch (Exception e){
             log.error("[CONTROLLER] Error calculating route: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-//            throw new ResponseStatusException(
-//                    HttpStatus.INTERNAL_SERVER_ERROR,
-//                    "Error calculating route: " + e.getMessage()
-//            );
         }
+    }
+
+    @GetMapping("/coords")
+    public ResponseEntity<String> getCurrentLocation(@RequestParam(required = true) double latitude,
+                                                     @RequestParam(required = true) double longitude){
+            try{
+                return ResponseEntity.status(HttpStatus.OK).body(service.getCurrentLocationAsCity(latitude, longitude));
+            }
+            catch (Exception e){
+                log.error("[CONTROLLER] Error getting current location: {}", e.getMessage());
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            }
+
     }
 
 
