@@ -11,3 +11,16 @@ export const getCurrentWeather = async (latitude, longitude) => {
         params: { latitude, longitude }
     });
 }
+
+export const getHourlyWeather = async (latitude, longitude) => {
+    return axiosClient.get('/weather/hourly', {
+        params: { latitude, longitude }
+    });
+}
+
+export const getDailyWeather = async (latitude, longitude) => {
+    return axiosClient.get('/weather/daily', {
+        params: { latitude, longitude }
+    });
+}
+

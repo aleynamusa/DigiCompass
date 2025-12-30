@@ -3,6 +3,7 @@ package com.digicompass.backend.controller;
 import com.digicompass.backend.application.interfaces.WeatherService;
 import com.digicompass.backend.controller.dto.GeoLocationResponseDto;
 import com.digicompass.backend.controller.dto.response.CurrentWeatherResponseDto;
+import com.digicompass.backend.controller.dto.response.HourlyWeatherResponseDto;
 import com.digicompass.backend.controller.mapper.WeatherMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.validation.constraints.NotBlank;
@@ -45,6 +46,29 @@ public class WeatherController {
             log.error("[CONTROLLER] Error fetching current weather info.");
             return ResponseEntity.internalServerError().build();
         }
+    }
 
+    @GetMapping(value = "/hourly", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<HourlyWeatherResponseDto> getHourlyWeather(@RequestParam(required = true) double latitude,
+                                                                     @RequestParam(required = true) double longitude) throws JsonProcessingException{
+        try{
+            log.info("[CONTROLLER] Fetching hourly weather info.");
+            return ResponseEntity.ok(weatherMapper.toHourlyDto(weatherService.fetchWeatherHourly(latitude, longitude)));
+        }catch(Exception ex){
+            log.error("[CONTROLLER] Error fetching hourly weather info.");
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @GetMapping(value = "/daily", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getDailyWeather(@RequestParam(required = true) double latitude,
+                                                                     @RequestParam(required = true) double longitude) throws JsonProcessingException{
+        try{
+            log.info("[CONTROLLER] Fetching daily weather info.");
+            return ResponseEntity.ok(weatherMapper.toDailyDto(weatherService.fetchWeatherDaily(latitude, longitude)));
+        }catch(Exception ex){
+            log.error("[CONTROLLER] Error fetching daily weather info.");
+            return ResponseEntity.internalServerError().build();
+        }
     }
 }

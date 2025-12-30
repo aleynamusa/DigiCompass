@@ -4,6 +4,7 @@ import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/compo
 import {CloudIcon, CompassIcon, DropletIcon, EyeIcon, MapPinIcon, SunIcon, WindIcon} from "lucide-react";
 import {useEffect, useState} from "react";
 import { Badge } from '@mantine/core';
+import {getWeatherIcon} from "@/utils/weatherLogic.jsx";
 
 
 const CurrentInfo = () => {
@@ -28,36 +29,6 @@ const CurrentInfo = () => {
                 .catch(err => console.error(err));
     }, [currentLoc.effectiveLocation]);
 
-    useEffect(() => {
-
-    })
-
-    const conditionToIcon = (condition) => {
-        switch (condition) {
-            case "Clear":
-            case "Mostly Clear":
-                return <SunIcon className="h-16 w-16 text-yellow-400" />;
-            case "Cloudy":
-                return <CloudIcon className="h-16 w-16 text-gray-500" />;
-            case "Fog":
-                return <CloudFog className="h-16 w-16 text-gray-400" />;
-            case "Drizzle":
-            case "Rain":
-            case "Rain Showers":
-                return <DropletIcon className="h-16 w-16 text-blue-500" />;
-            case "Freezing Rain":
-                return <DropletIcon className="h-16 w-16 text-blue-300" />;
-            case "Snow":
-            case "Snow Grains":
-            case "Snow Showers":
-                return <Snowflake className="h-16 w-16 text-blue-200" />;
-            case "Thunderstorm":
-            case "Thunderstorm with Hail":
-                return <WindIcon className="h-16 w-16 text-purple-600" />;
-            default:
-                return <CloudIcon className="h-16 w-16 text-gray-500" />;
-        }
-    };
 
     if (!weather) {
         return (
@@ -82,10 +53,10 @@ const CurrentInfo = () => {
                         <div>
                             <div className="text-4xl font-bold">{weather.temperature}°C</div>
                             <p className="text-muted-foreground">{weather.condition}</p>
-                            {/*<p className="text-sm text-primary font-medium">aaaa</p>     WHAT ID GOOD FOR HIKING\WALING]RUNNING ETC    */}
+                            {/*<p className="text-sm text-primary font-medium">aaaa</p>     WHAT ID GOOD FOR HIKING\WALING\RUNNING ETC    */}
                         </div>
                         <div >
-                            <div>{conditionToIcon(weather.condition)}</div>
+                            <div className="h-16 w-16">{getWeatherIcon(weather.condition, 64)}</div>
                             <p className="text-sm text-muted-foreground">Feels like {weather.feelsLike}°C</p>
                         </div>
                     </div>

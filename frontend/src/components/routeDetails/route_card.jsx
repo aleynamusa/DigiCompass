@@ -100,7 +100,6 @@ export function RouteCard({ route, onViewDetails, onLoginRequired, onDelete }) {
         }
 
         if (!canDelete) {
-            // optionally show a toast; keep silent here
             return;
         }
 
@@ -117,7 +116,6 @@ export function RouteCard({ route, onViewDetails, onLoginRequired, onDelete }) {
             }
         } catch (err) {
             console.error("Failed to delete route:", err);
-            // you may want to show a user-visible error/toast here
         }
     };
 
@@ -213,18 +211,19 @@ export function RouteCard({ route, onViewDetails, onLoginRequired, onDelete }) {
                     </div>
 
                     <div className="flex gap-2 pt-2">
-                        <Button className="flex-1" size="sm" onClick={() => onViewDetails(route)}>
+                        <Button className="w-1/2" size="xs" onClick={() => onViewDetails(route)}>
                             View Details
                         </Button>
-                        <Button variant="outline" size="sm">
-                            Add to Trip
+                        <Button className="w-1/2 bg-gray-100" variant="outline" size="xs">
+                            Check Weather
                         </Button>
-
                     </div>
+
+                    <Button variant="outline" size="sm" className="w-full bg-cyan-950 text-white">
+                        Add to Trip
+                    </Button>
 
                 </CardContent>
             </Card>
-
-
     );
 }
