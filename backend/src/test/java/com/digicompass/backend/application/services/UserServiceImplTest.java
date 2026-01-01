@@ -4,7 +4,7 @@ import com.digicompass.backend.application.interfaces.RatingService;
 import com.digicompass.backend.application.interfaces.S3Service;
 import com.digicompass.backend.application.mapper.RouteMapper;
 import com.digicompass.backend.application.mapper.UserMapper;
-import com.digicompass.backend.application.models.Route;
+import com.digicompass.backend.application.models.route.Route;
 import com.digicompass.backend.application.models.User;
 import com.digicompass.backend.repository.entity.RoleEntity;
 import com.digicompass.backend.repository.entity.RouteEntity;

@@ -1,6 +1,6 @@
 package com.digicompass.backend.controller.mapper;
 
-import com.digicompass.backend.application.models.Rating;
+import com.digicompass.backend.application.models.route.Rating;
 import com.digicompass.backend.controller.dto.RatingDto;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;

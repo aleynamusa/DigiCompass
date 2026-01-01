@@ -4,7 +4,6 @@ import {getRatingsByRoute, getReviewByRoute, writeReview, addRating} from "@/api
 import {useAuth} from "@/context/AuthContext.jsx";
 import RouteMap from "@/components/routeDetails/routeMap.jsx";
 import RouteReviewForm from "@/components/routeDetails/routeReviewForm.jsx";
-import RouteTabs from "@/components/routeDetails/routeTabs.jsx";
 import RouteTabsReviewRating from "@/components/routeDetails/routeTabs.jsx";
 
 export function RouteDetails({selectedRoute, onOpenChange}) {

@@ -7,7 +7,6 @@ import com.digicompass.backend.controller.dto.response.HourlyWeatherResponseDto;
 import com.digicompass.backend.controller.mapper.WeatherMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -36,39 +35,32 @@ public class WeatherController {
         return ResponseEntity.ok(weatherMapper.toDto(weatherService.fetchLocation(name)));
     }
 
+
     @GetMapping(value = "/current", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CurrentWeatherResponseDto> getCurrentWeather(@RequestParam(required = true) double latitude,
-                                                                       @RequestParam(required = true) double longitude) throws JsonProcessingException {
-        try{
-            log.info("[CONTROLLER] Fetching current weather info.");
-            return ResponseEntity.ok(weatherMapper.toCurrentDto(weatherService.fetchWeatherCurrent(latitude, longitude)));
-        }catch(Exception ex){
-            log.error("[CONTROLLER] Error fetching current weather info.");
-            return ResponseEntity.internalServerError().build();
-        }
+    public ResponseEntity<CurrentWeatherResponseDto> getCurrentWeather(
+            @RequestParam double latitude,
+            @RequestParam double longitude) throws JsonProcessingException {
+
+        log.info("[CONTROLLER] Fetching current weather info.");
+        return ResponseEntity.ok(weatherMapper.toCurrentDto(weatherService.fetchWeatherCurrent(latitude, longitude)));
     }
+
 
     @GetMapping(value = "/hourly", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<HourlyWeatherResponseDto> getHourlyWeather(@RequestParam(required = true) double latitude,
                                                                      @RequestParam(required = true) double longitude) throws JsonProcessingException{
-        try{
-            log.info("[CONTROLLER] Fetching hourly weather info.");
-            return ResponseEntity.ok(weatherMapper.toHourlyDto(weatherService.fetchWeatherHourly(latitude, longitude)));
-        }catch(Exception ex){
-            log.error("[CONTROLLER] Error fetching hourly weather info.");
-            return ResponseEntity.internalServerError().build();
-        }
+
+        log.info("[CONTROLLER] Fetching hourly weather info.");
+        return ResponseEntity.ok(weatherMapper.toHourlyDto(weatherService.fetchWeatherHourly(latitude, longitude)));
+
     }
 
     @GetMapping(value = "/daily", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getDailyWeather(@RequestParam(required = true) double latitude,
                                                                      @RequestParam(required = true) double longitude) throws JsonProcessingException{
-        try{
-            log.info("[CONTROLLER] Fetching daily weather info.");
-            return ResponseEntity.ok(weatherMapper.toDailyDto(weatherService.fetchWeatherDaily(latitude, longitude)));
-        }catch(Exception ex){
-            log.error("[CONTROLLER] Error fetching daily weather info.");
-            return ResponseEntity.internalServerError().build();
-        }
+
+        log.info("[CONTROLLER] Fetching daily weather info.");
+        return ResponseEntity.ok(weatherMapper.toDailyDto(weatherService.fetchWeatherDaily(latitude, longitude)));
+
     }
 }

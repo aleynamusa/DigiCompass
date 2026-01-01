@@ -31,12 +31,10 @@ export function RouteCard({ route, onViewDetails, onLoginRequired, onDelete }) {
             return u.authorities.map(a => {
                 if (!a) return "";
                 if (typeof a === "string") return a;
-                // support objects like { authority: "ROLE_ADMIN" } or {role: "ADMIN"}
                 return String(a.authority || a.role || "");
             }).filter(Boolean);
         }
         if (u.role) {
-            // handle role as string or RoleEntity-like object { role: "ROLE_ADMIN" } / { name: "ADMIN" }
             if (typeof u.role === "string") return [u.role].filter(Boolean);
             if (typeof u.role === "object") {
                 const r = String(u.role.role || u.role.name || u.role.authority || "");
@@ -118,6 +116,13 @@ export function RouteCard({ route, onViewDetails, onLoginRequired, onDelete }) {
             console.error("Failed to delete route:", err);
         }
     };
+
+
+    const handleCheckWeather = () => {
+        navigate(
+            `/weather?lat=${route.startLatitude}&lon=${route.startLongitude}&name=${encodeURIComponent(route.name)}`
+        )
+    }
 
     return (
         <Card className="overflow-hidden hover:shadow-lg transition-shadow">
@@ -214,7 +219,15 @@ export function RouteCard({ route, onViewDetails, onLoginRequired, onDelete }) {
                         <Button className="w-1/2" size="xs" onClick={() => onViewDetails(route)}>
                             View Details
                         </Button>
-                        <Button className="w-1/2 bg-gray-100" variant="outline" size="xs">
+                        {/*<Button className="w-1/2 bg-gray-100" variant="outline" size="xs">*/}
+                        {/*    Check Weather*/}
+                        {/*</Button>*/}
+                        <Button
+                            className="w-1/2 bg-gray-100"
+                            variant="outline"
+                            size="xs"
+                            onClick={handleCheckWeather}
+                        >
                             Check Weather
                         </Button>
                     </div>

@@ -1,6 +1,6 @@
 package com.digicompass.backend.application.mapper;
 
-import com.digicompass.backend.application.models.Review;
+import com.digicompass.backend.application.models.route.Review;
 import com.digicompass.backend.repository.entity.*;
 import org.mapstruct.*;
 

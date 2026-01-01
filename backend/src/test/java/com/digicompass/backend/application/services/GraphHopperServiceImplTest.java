@@ -2,10 +2,12 @@ package com.digicompass.backend.application.services;
 
 import com.digicompass.backend.application.models.map.Point;
 import com.digicompass.backend.application.models.map.RouteMap;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -17,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class GraphHopperServiceImplTest {
 
     private MockWebServer mockWebServer;
-
+    private ObjectMapper objectMapper;
 
     private GraphHopperServiceImpl service;
 
@@ -30,10 +32,12 @@ class GraphHopperServiceImplTest {
         String baseUrl = mockWebServer.url("/").toString();
         String reverseUrl = mockWebServer.url("/").toString();
 
+        objectMapper = new ObjectMapper();
+
         WebClient.Builder builder = WebClient.builder()
                 .baseUrl(baseUrl);
 
-        service = new GraphHopperServiceImpl(builder, baseUrl, reverseUrl);
+        service = new GraphHopperServiceImpl(builder, baseUrl, reverseUrl, objectMapper);
 
         ReflectionTestUtils.setField(service, "apiKey", "test-key");
     }

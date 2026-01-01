@@ -4,7 +4,7 @@ import com.digicompass.backend.application.mapper.FavouriteRouteMapper;
 import com.digicompass.backend.application.mapper.RouteMapper;
 import com.digicompass.backend.application.mapper.UserMapper;
 import com.digicompass.backend.application.models.FavouriteRoute;
-import com.digicompass.backend.application.models.Route;
+import com.digicompass.backend.application.models.route.Route;
 import com.digicompass.backend.application.models.User;
 import com.digicompass.backend.repository.entity.FavouriteRouteEntity;
 import com.digicompass.backend.repository.entity.RouteEntity;

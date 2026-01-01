@@ -24,4 +24,7 @@ public class RouteDto {
     private LocalDateTime updatedAt;
     private List<String> images;
 
+    private Double startLatitude;
+    private Double startLongitude;
+
 }

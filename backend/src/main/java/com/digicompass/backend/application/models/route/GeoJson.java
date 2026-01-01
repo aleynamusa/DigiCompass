@@ -1,4 +1,4 @@
-package com.digicompass.backend.application.models;
+package com.digicompass.backend.application.models.route;
 
 import lombok.Data;
 

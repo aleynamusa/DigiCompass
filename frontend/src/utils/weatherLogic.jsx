@@ -3,11 +3,10 @@ import {
     CloudIcon,
     CloudRainIcon,
     SnowflakeIcon,
-    SunMoonIcon, CloudFogIcon,
+    SunMoonIcon, CloudFogIcon, CloudLightningIcon,
 } from "lucide-react"
 
 export const getWeatherIcon = (condition, size = 24) => {
-    const className = "text-gray-500"
 
     switch (condition) {
         case "Sunny":
@@ -34,7 +33,7 @@ export const getWeatherIcon = (condition, size = 24) => {
 
         case "Thunderstorm":
         case "Thunderstorm with Hail":
-            return <CloudLightning size={size} className="text-gray-500" />
+            return <CloudLightningIcon size={size} className="text-gray-500" />
 
         case "Fog":
             return <CloudFogIcon size={size} className="text-gray-400" />
@@ -55,4 +54,11 @@ export const getConditionRecommendation = (precipitation, uvIndex) => {
         return { text: "UV Caution", color: "bg-orange-100 text-orange-800" }
 
     return { text: "Good", color: "bg-green-100 text-green-800" }
+}
+
+export const BADGE_COLORS = {
+    Perfect: "green",
+    Good: "blue",
+    Caution: "yellow",
+    Avoid: "red",
 }

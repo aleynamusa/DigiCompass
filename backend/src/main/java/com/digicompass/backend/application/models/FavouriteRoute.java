@@ -1,5 +1,6 @@
 package com.digicompass.backend.application.models;
 
+import com.digicompass.backend.application.models.route.Route;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

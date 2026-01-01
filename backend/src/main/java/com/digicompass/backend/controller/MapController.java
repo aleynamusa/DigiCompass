@@ -5,7 +5,6 @@ import com.digicompass.backend.controller.dto.request.RouteRequestMapDto;
 import com.digicompass.backend.controller.dto.response.RouteResponseMapDto;
 import com.digicompass.backend.controller.mapper.MapMapper;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

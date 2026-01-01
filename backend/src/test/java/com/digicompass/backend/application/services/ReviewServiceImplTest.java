@@ -5,7 +5,7 @@ import com.digicompass.backend.repository.entity.ReviewImageEntity;
 import com.digicompass.backend.repository.repositories.RouteJpaRepository;
 import com.digicompass.backend.application.mapper.ReviewMapper;
 import com.digicompass.backend.repository.entity.ReviewEntity;
-import com.digicompass.backend.application.models.Review;
+import com.digicompass.backend.application.models.route.Review;
 import com.digicompass.backend.repository.repositories.ReviewJpaRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;

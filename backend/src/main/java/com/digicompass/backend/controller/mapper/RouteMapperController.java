@@ -1,8 +1,8 @@
 package com.digicompass.backend.controller.mapper;
 
-import com.digicompass.backend.application.models.GeoJson;
-import com.digicompass.backend.application.models.Route;
-import com.digicompass.backend.application.models.RouteGeometry;
+import com.digicompass.backend.application.models.route.GeoJson;
+import com.digicompass.backend.application.models.route.Route;
+import com.digicompass.backend.application.models.route.RouteGeometry;
 import com.digicompass.backend.controller.dto.GeoJsonDto;
 import com.digicompass.backend.controller.dto.RouteDto;
 import com.digicompass.backend.controller.dto.RouteGeometryDto;
@@ -11,7 +11,6 @@ import com.digicompass.backend.types.Difficulty;
 import com.digicompass.backend.types.RouteType;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.geojson.GeoJsonReader;
-import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;

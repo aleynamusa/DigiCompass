@@ -1,5 +1,6 @@
-package com.digicompass.backend.application.models;
+package com.digicompass.backend.application.models.route;
 
+import com.digicompass.backend.application.models.User;
 import com.digicompass.backend.types.Difficulty;
 import com.digicompass.backend.types.RouteType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -32,8 +33,10 @@ public class Route {
 
     private List<String> images = new ArrayList<>();
 
-
     private String averageRating;
+
+    private Double startLatitude;
+    private Double startLongitude;
 }
 
 

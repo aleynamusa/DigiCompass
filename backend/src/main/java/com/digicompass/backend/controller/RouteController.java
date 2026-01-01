@@ -1,16 +1,13 @@
 package com.digicompass.backend.controller;
 
 import com.digicompass.backend.application.interfaces.RouteService;
-import com.digicompass.backend.application.models.Route;
+import com.digicompass.backend.application.models.route.Route;
 import com.digicompass.backend.configuration.UserPrincipal;
-import com.digicompass.backend.controller.dto.GeoJsonDto;
 import com.digicompass.backend.controller.dto.RouteDto;
 import com.digicompass.backend.controller.dto.RouteGeometryDto;
 import com.digicompass.backend.controller.dto.request.RouteRequestDto;
 import com.digicompass.backend.controller.mapper.RouteMapperController;
-import com.digicompass.backend.types.RouteType;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;

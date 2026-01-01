@@ -1,7 +1,6 @@
 package com.digicompass.backend.controller;
 
 import com.digicompass.backend.application.interfaces.UserService;
-import com.digicompass.backend.application.models.Route;
 import com.digicompass.backend.controller.dto.RouteDto;
 import com.digicompass.backend.controller.dto.response.UserResponseDto;
 import com.digicompass.backend.controller.mapper.RouteMapperController;

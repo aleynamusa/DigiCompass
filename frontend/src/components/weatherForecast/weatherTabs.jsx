@@ -5,13 +5,16 @@ import { useHourlyWeather } from "@/hooks/useHourlyWeather"
 import { useGeolocation } from "@/hooks/useGeolocation"
 import {useDailyWeather} from "@/hooks/useDailyWeather.jsx";
 
-const WeatherTabs = () => {
-    const { effectiveLocation } = useGeolocation(true)
-    const { hourlyWeather, hourlyLoading } = useHourlyWeather(effectiveLocation)
-    const {dailyWeather, dailyLoading} = useDailyWeather(effectiveLocation)
+const WeatherTabs = ({ overrideLocation }) => {
+    const geo = useGeolocation(!overrideLocation)
+    const location = overrideLocation ?? geo.effectiveLocation
 
-    if (hourlyLoading) return <div>Loading forecast...</div>
-    if (dailyLoading) return <div>Loading forecast...</div>
+    const { hourlyWeather, hourlyLoading } = useHourlyWeather(location)
+    const { dailyWeather, dailyLoading } = useDailyWeather(location)
+
+
+    if (hourlyLoading || dailyLoading) return <div>Loading forecast...</div>
+
 
     return (
         <Tabs defaultValue="hourly">
@@ -43,9 +46,7 @@ const WeatherTabs = () => {
                                     </p>
 
 
-                                    <Badge className={`${rec.color} border-0`}>
-                                        {rec.text}
-                                    </Badge>
+
                                 </div>
                             )
                         })}
@@ -70,7 +71,7 @@ const WeatherTabs = () => {
                                                 <p className="font-medium">{day.time}</p>
                                             </div>
                                             <div className="flex items-center gap-2">
-                                                {getWeatherIcon(day.condition, 32)}
+                                                {getWeatherIcon(day.weatherCode, 32)}
                                                 <span className="text-sm text-muted-foreground capitalize">
                             {day.weatherCode}
                           </span>
@@ -83,7 +84,6 @@ const WeatherTabs = () => {
                                                 </p>
                                                 <p className="text-xs text-muted-foreground">{day.precipitation}% rain</p>
                                             </div>
-                                            <Badge className={`${recommendation.color} border-0`}>{recommendation.text}</Badge>
                                         </div>
                                     </div>
                                 )

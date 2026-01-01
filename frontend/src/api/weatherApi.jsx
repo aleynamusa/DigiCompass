@@ -24,3 +24,13 @@ export const getDailyWeather = async (latitude, longitude) => {
     });
 }
 
+export const getRecommendedDays = async (lat, lon) => {
+    if (!lat || !lon) return []
+
+    const res = await axiosClient.get(
+        "/weather/recommendations",
+        { params: { lat, lon } }
+    )
+
+    return res.data
+}

@@ -1,11 +1,13 @@
 package com.digicompass.backend.application.mapper;
 
 import com.digicompass.backend.application.interfaces.S3Service;
-import com.digicompass.backend.application.models.Route;
+import com.digicompass.backend.application.models.route.Route;
 import com.digicompass.backend.repository.entity.RatingEntity;
 import com.digicompass.backend.repository.entity.ReviewEntity;
 import com.digicompass.backend.repository.entity.RouteEntity;
 import com.digicompass.backend.repository.entity.RouteImageEntity;
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.Point;
 import org.mapstruct.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -17,9 +19,12 @@ public abstract class RouteMapper {
 
     @Autowired
     protected S3Service s3Service;
+
     @Mapping(source = "createdByUserId", target = "createdByUserId")
     @Mapping(target = "images", ignore = true)
     @Mapping(target = "averageRating", ignore = true)
+    @Mapping(target = "startLatitude", expression = "java(extractStartLat(entity))")
+    @Mapping(target = "startLongitude", expression = "java(extractStartLon(entity))")
     public abstract Route toDomain(RouteEntity entity);
 
 
@@ -56,6 +61,29 @@ public abstract class RouteMapper {
                     .toList();
             entity.setImages(imageEntities);
         }
+    }
+
+
+    protected Double extractStartLat(RouteEntity entity) {
+        if (entity == null || entity.getRouteGeometry() == null) return null;
+
+        if (entity.getRouteGeometry() instanceof LineString line) {
+            Point start = line.getStartPoint();
+            return start != null ? start.getY() : null; // latitude
+        }
+
+        return null;
+    }
+
+    protected Double extractStartLon(RouteEntity entity) {
+        if (entity == null || entity.getRouteGeometry() == null) return null;
+
+        if (entity.getRouteGeometry() instanceof LineString line) {
+            Point start = line.getStartPoint();
+            return start != null ? start.getX() : null; // longitude
+        }
+
+        return null;
     }
 
 

@@ -1,6 +1,6 @@
 package com.digicompass.backend.application.interfaces;
 
-import com.digicompass.backend.application.models.Route;
+import com.digicompass.backend.application.models.route.Route;
 import com.digicompass.backend.application.models.User;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;

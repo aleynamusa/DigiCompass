@@ -5,7 +5,7 @@ import com.digicompass.backend.repository.repositories.RouteJpaRepository;
 import com.digicompass.backend.application.mapper.RatingMapper;
 import com.digicompass.backend.application.mapper.RouteMapper;
 import com.digicompass.backend.repository.entity.RatingEntity;
-import com.digicompass.backend.application.models.Rating;
+import com.digicompass.backend.application.models.route.Rating;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
