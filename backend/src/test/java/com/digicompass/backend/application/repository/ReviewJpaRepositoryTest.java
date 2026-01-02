@@ -110,4 +110,18 @@ class ReviewJpaRepositoryTest {
             assertThat(r.getUserId()).isNotNull();
         });
     }
+
+    @Test
+    void shouldReturnEmptyListIfNoReviewsForRoute() {
+        List<ReviewEntity> reviews = reviewRepo.getReviewsByRoute(999L);
+        assertThat(reviews).isEmpty();
+    }
+
+    @Test
+    void shouldSetTimestampsOnSave() {
+        assertThat(firstSaved.getCreatedAt()).isNotNull();
+        assertThat(firstSaved.getUpdatedAt()).isNotNull();
+    }
+
+
 }
