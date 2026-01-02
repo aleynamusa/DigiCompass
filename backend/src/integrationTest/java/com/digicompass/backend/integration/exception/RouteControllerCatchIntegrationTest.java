@@ -1,17 +1,15 @@
-package com.digicompass.backend.integration;
+package com.digicompass.backend.integration.exception;
 
 import com.digicompass.backend.application.interfaces.RouteService;
 
 import com.digicompass.backend.controller.mapper.RouteMapperController;
+import com.digicompass.backend.integration.BaseIntegrationTest;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.server.ResponseStatusException;
 
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -19,7 +17,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
-public class RouteControllerCatchIntegrationTest extends BaseIntegrationTest{
+public class RouteControllerCatchIntegrationTest extends BaseIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
 

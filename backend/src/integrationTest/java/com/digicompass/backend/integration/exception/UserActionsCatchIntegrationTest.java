@@ -1,6 +1,7 @@
-package com.digicompass.backend.integration;
+package com.digicompass.backend.integration.exception;
 
 import com.digicompass.backend.application.interfaces.UserActionsService;
+import com.digicompass.backend.integration.BaseIntegrationTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.MediaType;
 import org.mockito.Mockito;

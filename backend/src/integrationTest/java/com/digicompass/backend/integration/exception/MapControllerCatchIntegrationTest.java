@@ -1,9 +1,10 @@
-package com.digicompass.backend.integration;
+package com.digicompass.backend.integration.exception;
 
 import com.digicompass.backend.application.interfaces.GraphHopperService;
 import com.digicompass.backend.controller.dto.PointDto;
 import com.digicompass.backend.controller.dto.request.RouteRequestMapDto;
 import com.digicompass.backend.controller.mapper.MapMapper;
+import com.digicompass.backend.integration.BaseIntegrationTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -18,7 +19,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
-public class MapControllerCatchIntegrationTest extends BaseIntegrationTest{
+public class MapControllerCatchIntegrationTest extends BaseIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
 

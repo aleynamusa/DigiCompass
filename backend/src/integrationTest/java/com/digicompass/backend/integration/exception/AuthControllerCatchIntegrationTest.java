@@ -1,9 +1,10 @@
-package com.digicompass.backend.integration;
+package com.digicompass.backend.integration.exception;
 
 import com.digicompass.backend.application.interfaces.AuthService;
 import com.digicompass.backend.application.models.User;
 import com.digicompass.backend.controller.dto.request.UserRequestDto;
 import com.digicompass.backend.controller.mapper.UserMapperController;
+import com.digicompass.backend.integration.BaseIntegrationTest;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

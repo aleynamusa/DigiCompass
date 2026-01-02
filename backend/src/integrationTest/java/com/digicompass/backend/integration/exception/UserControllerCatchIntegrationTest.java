@@ -1,6 +1,7 @@
-package com.digicompass.backend.integration;
+package com.digicompass.backend.integration.exception;
 
 import com.digicompass.backend.application.interfaces.UserService;
+import com.digicompass.backend.integration.BaseIntegrationTest;
 import com.digicompass.backend.repository.entity.RoleEntity;
 import com.digicompass.backend.repository.entity.UserEntity;
 import com.digicompass.backend.repository.repositories.RoleJpaRepository;
@@ -28,7 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
-public class UserControllerCatchIntegrationTest extends BaseIntegrationTest{
+public class UserControllerCatchIntegrationTest extends BaseIntegrationTest {
 
     @MockitoBean
     private UserService userService;

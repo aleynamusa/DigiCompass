@@ -1,9 +1,10 @@
-package com.digicompass.backend.integration;
+package com.digicompass.backend.integration.exception;
 
 import com.digicompass.backend.application.interfaces.RatingService;
 import com.digicompass.backend.application.models.route.Rating;
 import com.digicompass.backend.controller.dto.RatingDto;
 import com.digicompass.backend.controller.mapper.RatingMapperController;
+import com.digicompass.backend.integration.BaseIntegrationTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;

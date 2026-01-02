@@ -1,7 +1,8 @@
-package com.digicompass.backend.integration;
+package com.digicompass.backend.integration.exception;
 
 import com.digicompass.backend.application.interfaces.ReviewService;
 import com.digicompass.backend.controller.mapper.ReviewMapperController;
+import com.digicompass.backend.integration.BaseIntegrationTest;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
