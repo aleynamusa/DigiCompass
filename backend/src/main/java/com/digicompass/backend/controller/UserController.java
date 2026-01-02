@@ -36,7 +36,7 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<UserResponseDto> getUser(@PathVariable Long id) {
-        try{
+
             UserResponseDto user = userMapperController.toControllerResponse(userService.getUserById(id));
 
 //            if (!user.isPublicProfile()) {
@@ -44,16 +44,13 @@ public class UserController {
 //            }
 
             return ResponseEntity.ok(user);
-        }
-        catch (Exception _){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        }
+
     }
 
 
     @GetMapping("/usernames")
     public ResponseEntity<Map<String, Object>> getUsernames(@RequestParam String username) {
-        try{
+
             boolean available = userService.checkUsernameAvailability(username);
             Map<String, Object> response = new HashMap<>();
             response.put("available", available);
@@ -62,15 +59,12 @@ public class UserController {
             : "Username is taken");
 
             return ResponseEntity.ok(response);
-        }
-        catch (Exception _){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        }
+
     }
 
     @GetMapping("/emails")
     public ResponseEntity<Map<String, Object>> getEmails( @RequestParam String email) {
-        try{
+
             boolean available = userService.checkEmailAvailability(email);
             Map<String, Object> response = new HashMap<>();
             response.put("available", available);
@@ -79,10 +73,7 @@ public class UserController {
                     : "Email is already registered");
 
             return ResponseEntity.ok(response);
-        }
-        catch (Exception _){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        }
+
     }
 
     @PostMapping(value = "/profilePictureUpdate/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -116,11 +107,6 @@ public class UserController {
             log.error("[CONTROLLER] I/O error while updating profile picture for user ID {}: {}", id, e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error processing file");
-
-        } catch (Exception e) {
-            log.error("[CONTROLLER] Unexpected error updating profile picture for user ID {}: {}", id, e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Unexpected error occurred");
         }
     }
 
@@ -151,15 +137,12 @@ public class UserController {
 
     @GetMapping("/{id}/routes")
     public ResponseEntity<?> getRoutesByUserId(@PathVariable Long id) {
-        try {
+
             List<RouteDto> routes = routeMapperController.toControllerRoute(
                     userService.getRoutesById(id)
             );
             return ResponseEntity.ok(routes);
-        }
-        catch (Exception _){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        }
+
     }
 
 }

@@ -31,7 +31,7 @@ public class RatingController {
 @RolesAllowed("")
     @PostMapping
     public ResponseEntity<RatingDto> createRating(@RequestBody RatingDto rating) {
-        try {
+
             log.info("[CONTROLLER] Creating rating {}", rating);
             RatingDto response = ratingMapper.toDto(ratingService.addRating(ratingMapper.toModel(rating)));
 
@@ -48,17 +48,13 @@ public class RatingController {
 
             }
 
-        }
-        catch (Exception ex) {
-            log.error(ex.getMessage(), ex);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
+
     }
 
     @GetMapping("/route/{id}")
     public ResponseEntity<List<RatingDto>> getRatingsByRoute(@PathVariable Long id) {
         log.info("[CONTROLLER] Getting ratings by routeId {}", id);
-        try{
+
             List<RatingDto> ratings = ratingMapper.toDto(ratingService.getRatingsByRouteId(id));
 
             log.debug("[CONTROLLER] Fetched {} ratings of route with id: {}", ratings.size(), id);
@@ -72,16 +68,13 @@ public class RatingController {
                 log.info("[CONTROLLER] Found {} ratings for route with id: {}", ratings.size(), id);
                 return ResponseEntity.ok(ratings);
             }
-        }
-        catch (Exception _) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
+
     }
 
     @PutMapping("/update/{id}")
     public ResponseEntity<RatingDto> updateRating(@PathVariable Long id, @RequestBody RatingDto rating) {
         log.info("Updating rating {}", rating);
-        try {
+
             rating.setId(id);
             RatingDto updatedRating = ratingMapper.toDto(ratingService.updateRating(ratingMapper.toModel(rating)));
             log.debug("Updated rating {}", updatedRating);
@@ -96,10 +89,7 @@ public class RatingController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
             }
 
-        }catch (Exception ex){
-            log.error(ex.getMessage(), ex);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
-        }
+
     }
 
     @DeleteMapping("/delete/{id}")
@@ -112,21 +102,10 @@ public class RatingController {
                     .status(HttpStatus.NO_CONTENT)
                     .build();
 
-        } catch (IllegalArgumentException _) {
-            log.warn("[CONTROLLER] Review not found: {}", id);
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND).body(null);
-
         } catch (AccessDeniedException _) {
             log.warn("[CONTROLLER] Access denied deleting review {}", id);
             return ResponseEntity
                     .status(HttpStatus.FORBIDDEN)
-                    .body(null);
-
-        } catch (Exception ex) {
-            log.error("[CONTROLLER] Error deleting review {}", id, ex);
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(null);
         }
     }

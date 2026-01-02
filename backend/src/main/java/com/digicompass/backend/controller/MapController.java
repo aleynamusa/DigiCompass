@@ -33,11 +33,8 @@ public class MapController {
 
     @PostMapping
     public ResponseEntity<RouteResponseMapDto> routeInfo(@Valid @RequestBody RouteRequestMapDto request){
-        if (request.getPoints() == null || request.getPoints().size() < 2) {
-            log.error("[CONTROLLER] At least two points required for route calculation.");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
-        try{
+
+
             log.info("[CONTROLLER] Received route calculation request with {} points.", request.getPoints().size());
             RouteResponseMapDto routeInfo =  mapMapper.toRouteResponseDto(service.calculateRoute(
                     mapMapper.toModel(request.getPoints()),
@@ -48,22 +45,15 @@ public class MapController {
                     .body(routeInfo);
 
 
-        }catch (Exception e){
-            log.error("[CONTROLLER] Error calculating route: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+
     }
 
     @GetMapping("/coords")
-    public ResponseEntity<String> getCurrentLocation(@RequestParam(required = true) double latitude,
-                                                     @RequestParam(required = true) double longitude){
-            try{
-                return ResponseEntity.status(HttpStatus.OK).body(service.getCurrentLocationAsCity(latitude, longitude));
-            }
-            catch (Exception e){
-                log.error("[CONTROLLER] Error getting current location: {}", e.getMessage());
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-            }
+    public ResponseEntity<String> getCurrentLocation(@RequestParam double latitude,
+                                                     @RequestParam double longitude){
+
+            return ResponseEntity.status(HttpStatus.OK).body(service.getCurrentLocationAsCity(latitude, longitude));
+
 
     }
 

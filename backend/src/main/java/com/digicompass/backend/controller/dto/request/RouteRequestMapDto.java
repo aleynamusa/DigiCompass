@@ -12,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 public class RouteRequestMapDto {
     @NotEmpty(message = "Please select points on the map")
-    @Size(max = 5, message = "You cannot select more than 5 points.")
+    @Size(max = 5, min = 2, message = "You cannot select more than 5 points.")
     private List<PointDto> points;
 
     private String routeType;
