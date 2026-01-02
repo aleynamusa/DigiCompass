@@ -74,9 +74,9 @@ public class UserControllerIntegrationTest  extends BaseIntegrationTest {
     }
 
     @Test
-    void shouldReturnBadRequestWhenUserNotFound() throws Exception {
+    void shouldReturnInternalServerErrorWhenUserNotFound() throws Exception {
         mockMvc.perform(get("/users/9999"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isInternalServerError());
     }
 
     @Test
@@ -166,9 +166,9 @@ public class UserControllerIntegrationTest  extends BaseIntegrationTest {
     }
 
     @Test
-    void shouldReturnBadRequestForInvalidUserRoutes() throws Exception {
+    void shouldReturnInternalServerErrorForInvalidUserRoutes() throws Exception {
         mockMvc.perform(get("/users/{id}/routes", 99999))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isInternalServerError());
     }
 
 

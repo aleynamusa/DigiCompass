@@ -18,8 +18,6 @@ public class GlobalExceptionHandler {
                 .body("Error processing weather data");
     }
 
-
-
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleException(Exception ex) {
         log.error("[CONTROLLER] Unexpected error: ", ex);

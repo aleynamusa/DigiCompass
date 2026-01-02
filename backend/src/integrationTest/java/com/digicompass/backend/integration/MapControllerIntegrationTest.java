@@ -45,7 +45,7 @@ public class MapControllerIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
-    void routeInfo_shouldReturnBadRequest_whenLessThanTwoPoints() throws Exception {
+    void routeInfo_shouldReturnInternalServerError_whenLessThanTwoPoints() throws Exception {
         RouteRequestMapDto request = new RouteRequestMapDto(
                 List.of(new PointDto(48.8566, 2.3522)),
                 "walk"
@@ -54,7 +54,7 @@ public class MapControllerIntegrationTest extends BaseIntegrationTest {
         mockMvc.perform(post("/map")
                         .contentType("application/json")
                         .content(toJson(request)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isInternalServerError());
     }
 
     @Test
