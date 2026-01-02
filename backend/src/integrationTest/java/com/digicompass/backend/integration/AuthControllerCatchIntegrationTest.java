@@ -2,22 +2,13 @@ package com.digicompass.backend.integration;
 
 import com.digicompass.backend.application.interfaces.AuthService;
 import com.digicompass.backend.application.models.User;
-import com.digicompass.backend.controller.dto.request.LogInRequest;
 import com.digicompass.backend.controller.dto.request.UserRequestDto;
 import com.digicompass.backend.controller.mapper.UserMapperController;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
-
-import java.time.LocalDate;
-
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -53,7 +44,7 @@ public class AuthControllerCatchIntegrationTest extends BaseIntegrationTest {
                                 
                             }
                         """))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isInternalServerError());
     }
 
     @Test
@@ -71,7 +62,7 @@ public class AuthControllerCatchIntegrationTest extends BaseIntegrationTest {
                             "password": ""
                         }
                     """))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isInternalServerError());
     }
 
     @Test

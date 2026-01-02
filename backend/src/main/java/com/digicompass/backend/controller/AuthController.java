@@ -37,14 +37,12 @@ public class AuthController {
 
     @PostMapping("/signUp")
     public ResponseEntity<Void> signUp(@Valid @RequestBody UserRequestDto request) {
-        try {
+
             log.info("[CONTROLLER] Attempting to sign up user: {}", request.getUsername());
             UserRequestDto saved = userMapperController.toControllerRequest(authService.signUp(userMapperController.toModel(request)));
             log.debug("[CONTROLLER] Returning saved user: {}", saved);
             return ResponseEntity.status(HttpStatus.CREATED).build();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        }
+
     }
 
     @PostMapping("/logIn")
@@ -77,17 +75,12 @@ public class AuthController {
             log.info("Invalid username or password");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("error", e.getMessage()));
-        } catch (Exception e) {
-            log.error("[CONTROLLER] Error during login: {}", e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Unexpected error while logging in"));
         }
     }
 
     @PostMapping("/refresh")
     public ResponseEntity<Map<String, String>> refresh(HttpServletRequest request, HttpServletResponse response) {
 
-        try{
             log.info("[CONTROLLER] Refreshing Token");
             String refreshToken = Arrays.stream(Optional.ofNullable(request.getCookies())
                             .orElse(new Cookie[0]))
@@ -118,17 +111,12 @@ public class AuthController {
             log.info("[CONTROLLER] Token refreshed successfully.");
 
             return ResponseEntity.ok(Map.of("accessToken", newTokens.get("accessToken")));
-        } catch (Exception e){
-            log.error("[CONTROLLER] Error during token refresh: {}", e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Unexpected error while refreshing token"));
-        }
+
 
     }
 
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletResponse response) {
-        try {
             log.info("[CONTROLLER] Logging out user.");
             ResponseCookie cookie = ResponseCookie.from("refreshToken", "")
                     .httpOnly(true)
@@ -142,9 +130,6 @@ public class AuthController {
             log.info("[CONTROLLER] User logged out successfully.");
             return ResponseEntity.noContent().build();
 
-        } catch (Exception e) {
-            log.error("[CONTROLLER] Error during logout: {}", e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+
     }
 }

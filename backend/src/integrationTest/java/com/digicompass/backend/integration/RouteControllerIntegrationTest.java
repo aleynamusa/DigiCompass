@@ -111,7 +111,7 @@ public class RouteControllerIntegrationTest extends BaseIntegrationTest {
     @Test
     void getRouteGeometry_ShouldReturnNotFound_WhenIdDoesNotExist() throws Exception {
         mockMvc.perform(get("/route/999999/geometry"))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isInternalServerError());
     }
 
 

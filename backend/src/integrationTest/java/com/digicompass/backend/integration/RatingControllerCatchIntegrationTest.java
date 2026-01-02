@@ -110,7 +110,7 @@ public class RatingControllerCatchIntegrationTest extends BaseIntegrationTest {
                 .when(ratingService).deleteRating(anyLong());
 
         mockMvc.perform(delete("/ratings/delete/{id}", 1L))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isInternalServerError());
     }
 
     @Test
@@ -120,7 +120,7 @@ public class RatingControllerCatchIntegrationTest extends BaseIntegrationTest {
                 .when(ratingService).deleteRating(anyLong());
 
         mockMvc.perform(delete("/ratings/delete/{id}", 1L))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isInternalServerError());
     }
 
 

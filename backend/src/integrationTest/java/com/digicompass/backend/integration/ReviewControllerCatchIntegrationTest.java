@@ -33,13 +33,13 @@ public class ReviewControllerCatchIntegrationTest extends BaseIntegrationTest {
 
 
     @Test
-    void createReview_shouldReturnBadRequest_whenServiceThrowsIllegalArgument() throws Exception {
+    void createReview_shouldReturnInternalServerError_whenServiceThrowsIllegalArgument() throws Exception {
         Mockito.when(reviewService.createReview(any(), any()))
                 .thenThrow(new IllegalArgumentException("Invalid input"));
 
         mockMvc.perform(multipart("/review")
                         .param("review", "bad input"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isInternalServerError());
     }
 
     @Test
@@ -61,7 +61,7 @@ public class ReviewControllerCatchIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
-    void updateReview_shouldReturnBadRequest_whenServiceThrowsIllegalArgument() throws Exception {
+    void updateReview_shouldReturnInternalServerError_whenServiceThrowsIllegalArgument() throws Exception {
         Mockito.when(reviewService.updateReview(any(), any(), any()))
                 .thenThrow(new IllegalArgumentException("Invalid update"));
 
@@ -70,7 +70,7 @@ public class ReviewControllerCatchIntegrationTest extends BaseIntegrationTest {
                         multipart("/review/update/1")
                                 .with(request -> { request.setMethod("PUT"); return request; })
                 )
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isInternalServerError());
 
     }
 

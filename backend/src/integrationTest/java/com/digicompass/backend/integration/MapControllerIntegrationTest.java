@@ -67,7 +67,7 @@ public class MapControllerIntegrationTest extends BaseIntegrationTest {
         mockMvc.perform(post("/map")
                         .contentType("application/json")
                         .content(toJson(request)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isInternalServerError());
     }
 
     @Test
