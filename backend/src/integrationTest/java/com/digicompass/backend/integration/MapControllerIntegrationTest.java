@@ -9,6 +9,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.flywaydb.core.internal.util.JsonUtils.toJson;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
@@ -69,6 +70,17 @@ public class MapControllerIntegrationTest extends BaseIntegrationTest {
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    void getCurrentLocation_ShouldReturnCityName() throws Exception {
+        double latitude = 48.8566;
+        double longitude = 2.3522;
+
+        mockMvc.perform(get("/map/coords")
+                        .param("latitude", String.valueOf(latitude))
+                        .param("longitude", String.valueOf(longitude)))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Paris"));
+    }
 
 
 

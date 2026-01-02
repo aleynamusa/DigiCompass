@@ -3,6 +3,7 @@ package com.digicompass.backend.controller;
 import com.digicompass.backend.application.interfaces.WeatherService;
 import com.digicompass.backend.controller.dto.GeoLocationResponseDto;
 import com.digicompass.backend.controller.dto.response.CurrentWeatherResponseDto;
+import com.digicompass.backend.controller.dto.response.DailyWeatherResponseDto;
 import com.digicompass.backend.controller.dto.response.HourlyWeatherResponseDto;
 import com.digicompass.backend.controller.mapper.WeatherMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -56,8 +57,8 @@ public class WeatherController {
     }
 
     @GetMapping(value = "/daily", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getDailyWeather(@RequestParam(required = true) double latitude,
-                                                                     @RequestParam(required = true) double longitude) throws JsonProcessingException{
+    public ResponseEntity<DailyWeatherResponseDto> getDailyWeather(@RequestParam(required = true) double latitude,
+                                                                   @RequestParam(required = true) double longitude) throws JsonProcessingException{
 
         log.info("[CONTROLLER] Fetching daily weather info.");
         return ResponseEntity.ok(weatherMapper.toDailyDto(weatherService.fetchWeatherDaily(latitude, longitude)));

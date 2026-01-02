@@ -19,7 +19,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class GraphHopperServiceImplTest {
 
     private MockWebServer mockWebServer;
-    private ObjectMapper objectMapper;
 
     private GraphHopperServiceImpl service;
 
@@ -32,7 +31,7 @@ class GraphHopperServiceImplTest {
         String baseUrl = mockWebServer.url("/").toString();
         String reverseUrl = mockWebServer.url("/").toString();
 
-        objectMapper = new ObjectMapper();
+        ObjectMapper objectMapper = new ObjectMapper();
 
         WebClient.Builder builder = WebClient.builder()
                 .baseUrl(baseUrl);
