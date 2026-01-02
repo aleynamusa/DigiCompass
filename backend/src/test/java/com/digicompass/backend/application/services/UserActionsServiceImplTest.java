@@ -12,6 +12,7 @@ import com.digicompass.backend.repository.entity.UserEntity;
 import com.digicompass.backend.repository.repositories.FavouriteRouteJpaRepository;
 import com.digicompass.backend.repository.repositories.RouteJpaRepository;
 import com.digicompass.backend.repository.repositories.UserJpaRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -200,6 +201,7 @@ public class UserActionsServiceImplTest {
         assertEquals("User does not exist.", exception.getMessage());
         verify(favouriteRouteRepository, never()).existsByIdUserIdAndIdRouteId(any(), any());
     }
+
 
     @Test
     void testIsLikedRoute_repositoryThrowsException() {

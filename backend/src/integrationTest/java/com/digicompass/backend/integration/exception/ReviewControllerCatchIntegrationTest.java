@@ -90,6 +90,8 @@ public class ReviewControllerCatchIntegrationTest extends BaseIntegrationTest {
         mockMvc.perform(delete("/review/delete/1"))
                 .andExpect(status().isForbidden());
     }
+
+
     @Test
     void deleteReview_shouldReturnInternalServerError_whenUnexpectedErrorOccurs() throws Exception {
         Mockito.doThrow(new RuntimeException("Unexpected"))

@@ -17,6 +17,7 @@
       <module name="backend" options="-parameters" />
       <module name="backend.integrationTest" options="-parameters" />
       <module name="backend.main" options="-parameters" />
+      <module name="backend.repoTest" options="-parameters" />
       <module name="backend.test" options="-parameters" />
     </option>
   </component>

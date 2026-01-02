@@ -1,4 +1,4 @@
-package com.digicompass.backend.application.repository;
+package com.digicompass.backend.repository;
 
 import com.digicompass.backend.repository.entity.*;
 import com.digicompass.backend.repository.repositories.RatingJpaRepository;
@@ -23,6 +23,7 @@ import java.util.List;
         "spring.flyway.enabled=false",
         "spring.jpa.hibernate.ddl-auto=create"
 })
+@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 
 class RatingJpaRepositoryTest {
     @Autowired

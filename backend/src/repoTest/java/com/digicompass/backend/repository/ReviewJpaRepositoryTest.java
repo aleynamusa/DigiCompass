@@ -1,4 +1,4 @@
-package com.digicompass.backend.application.repository;
+package com.digicompass.backend.repository;
 
 import com.digicompass.backend.repository.entity.ReviewEntity;
 import com.digicompass.backend.repository.entity.RoleEntity;
@@ -27,6 +27,8 @@ import static org.assertj.core.api.Assertions.assertThat;
         "spring.flyway.enabled=false",
         "spring.jpa.hibernate.ddl-auto=create"
 })
+@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+
 class ReviewJpaRepositoryTest {
 
     @Autowired

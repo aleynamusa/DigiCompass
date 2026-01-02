@@ -1,4 +1,4 @@
-package com.digicompass.backend.application.repository;
+package com.digicompass.backend.repository;
 
 import com.digicompass.backend.repository.entity.*;
 import com.digicompass.backend.repository.repositories.FavouriteRouteJpaRepository;
@@ -25,6 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
         "spring.flyway.enabled=false",
         "spring.jpa.hibernate.ddl-auto=create"
 })
+@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 class FavouriteRouteJpaRepositoryTest {
 
     @Autowired

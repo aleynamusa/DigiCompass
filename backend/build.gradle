@@ -22,9 +22,15 @@ sourceSets {
         compileClasspath += sourceSets.main.output + configurations.testRuntimeClasspath
         runtimeClasspath += output + compileClasspath
     }
+
+    repoTest {
+        java.srcDirs = ["src/repoTest/java"]
+        resources.srcDirs = ["src/repoTest/resources"]
+        compileClasspath += sourceSets.main.output + configurations.testRuntimeClasspath
+        runtimeClasspath += output + compileClasspath
+    }
+
 }
-
-
 
 group = 'com.DigiCompass'
 version = '0.0.1-SNAPSHOT'
@@ -146,17 +152,31 @@ sonar {
 configurations {
     integrationTestImplementation.extendsFrom testImplementation
     integrationTestRuntimeOnly.extendsFrom testRuntimeOnly
+    repoTestImplementation.extendsFrom testImplementation
+    repoTestRuntimeOnly.extendsFrom testRuntimeOnly
 }
 
-//tasks.register("integrationTest", Test) {
-//    description = "Runs integration tests."
-//    group = "verification"
-//
-//    testClassesDirs = sourceSets.integrationTest.output.classesDirs
-//    classpath = sourceSets.integrationTest.runtimeClasspath
-//    useJUnitPlatform()
-//    shouldRunAfter(tasks.test)
-//}
+
+tasks.register("repoTest", Test) {
+    description = "Runs repository tests."
+    group = "verification"
+
+    testClassesDirs = sourceSets.repoTest.output.classesDirs
+    classpath = sourceSets.repoTest.runtimeClasspath
+    useJUnitPlatform()
+
+    maxParallelForks = 1
+    forkEvery = 0
+
+    shouldRunAfter(tasks.test)
+
+    // Add test logging directly here
+    testLogging {
+        events "started", "passed", "skipped", "failed"
+        exceptionFormat "full"
+        showStandardStreams = true
+    }
+}
 
 tasks.register("integrationTest", Test) {
     description = "Runs integration tests."
@@ -174,7 +194,7 @@ tasks.register("integrationTest", Test) {
 }
 
 jacocoTestReport {
-    dependsOn(tasks.test, tasks.named("integrationTest"))
+    dependsOn(tasks.test, tasks.named("integrationTest"), tasks.named("repoTest"))
 
     reports {
         xml.required = true
@@ -185,13 +205,14 @@ jacocoTestReport {
             dir: layout.buildDirectory.get().asFile,
             includes: [
                     "jacoco/test.exec",
-                    "jacoco/integrationTest.exec"
+                    "jacoco/integrationTest.exec",
+                    "jacoco/repoTest.exec"
             ]
     ))
 }
 
 tasks.named("check") {
-    dependsOn("integrationTest")
+    dependsOn("integrationTest", "repoTest")
 }
 
 tasks.named('test', Test) {
@@ -206,3 +227,4 @@ tasks.named('test', Test) {
         showStandardStreams = true
     }
 }
+

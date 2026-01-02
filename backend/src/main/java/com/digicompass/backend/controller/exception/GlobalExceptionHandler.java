@@ -52,12 +52,12 @@ public class GlobalExceptionHandler {
     }
 
 
-    @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<String> handleEntityNotFoundException(NoSuchElementException ex) {
-        log.error("[CONTROLLER] Entity not found error: ", ex);
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body("Entity not found error");
-    }
+//    @ExceptionHandler(EntityNotFoundException.class)
+//    public ResponseEntity<String> handleEntityNotFoundException(NoSuchElementException ex) {
+//        log.error("[CONTROLLER] Entity not found error: ", ex);
+//        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+//                .body("Entity not found error");
+//    }
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<String> handleAccessDeniedException(AccessDeniedException ex) {
