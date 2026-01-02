@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 @Slf4j
@@ -29,8 +30,7 @@ public class  ReviewController {
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ReviewResponseDto> createReview(@Valid @ModelAttribute ReviewRequestDto reviewRequestDto) {
-        try {
+    public ResponseEntity<ReviewResponseDto> createReview(@Valid @ModelAttribute ReviewRequestDto reviewRequestDto) throws IOException {
             ReviewResponseDto response = reviewMapper.toDtoResponse(reviewService.createReview(
                     reviewMapper.toModel(reviewRequestDto),
                     reviewRequestDto.getImages()));
@@ -39,46 +39,23 @@ public class  ReviewController {
                     .status(HttpStatus.CREATED)
                     .body(response);
 
-        } catch (IllegalArgumentException ex) {
-            log.warn("[CONTROLLER] Validation error creating review: {}", ex.getMessage());
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body(null);
 
-        } catch (Exception ex) {
-            log.error("[CONTROLLER] Error creating review", ex);
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
-        }
     }
 
     @GetMapping("/route/{routeId}")
     public ResponseEntity<List<ReviewResponseDto>> getReviewsByRoute(@PathVariable Long routeId) {
-        try {
+
             List<ReviewResponseDto> response = reviewMapper.toDtosResponse(reviewService.getReviewsByRoute(routeId));
             return ResponseEntity.ok(response);
 
-        } catch (IllegalArgumentException _) {
-            log.warn("[CONTROLLER] Invalid route ID: {}", routeId);
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body(null);
 
-        } catch (Exception ex) {
-            log.error("[CONTROLLER] Error fetching reviews for route {}", routeId, ex);
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
-        }
     }
 
     @PutMapping(value = "/update/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ReviewResponseDto> updateReview(
             @PathVariable Long id,
             @Valid @ModelAttribute ReviewRequestDto reviewRequestDto
-    ) {
-        try {
+    ) throws IOException {
 
             List<String> existingImageUrls = reviewRequestDto.getExistingImageUrlsList();
 
@@ -88,46 +65,17 @@ public class  ReviewController {
                     existingImageUrls));
             return ResponseEntity.ok(response);
 
-        } catch (IllegalArgumentException ex) {
-            log.warn("[CONTROLLER] Validation error updating review {}: {}", id, ex.getMessage());
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body(null);
 
-        } catch (Exception ex) {
-            log.error("[CONTROLLER] Error updating review {}", id, ex);
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
-        }
     }
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteReview(@PathVariable Long id) {
-        try {
             reviewService.deleteReview(id);
 
             return ResponseEntity
                     .noContent()
                     .build();
 
-        } catch (IllegalArgumentException _) {
-            log.warn("[CONTROLLER] Review not found: {}", id);
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body(null);
 
-        } catch (AccessDeniedException _) {
-            log.warn("[CONTROLLER] Access denied deleting review {}", id);
-            return ResponseEntity
-                    .status(HttpStatus.FORBIDDEN)
-                    .body(null);
-
-        } catch (Exception ex) {
-            log.error("[CONTROLLER] Error deleting review {}", id, ex);
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
-        }
     }
 }

@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
         "spring.flyway.enabled=false",
         "spring.jpa.hibernate.ddl-auto=create"
 })
-public class ReviewJpaRepositoryTest {
+class ReviewJpaRepositoryTest {
 
     @Autowired
     private EntityManager entityManager;

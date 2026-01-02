@@ -28,28 +28,19 @@ public class ResetPasswordController {
 
         log.info("Typed email: {}", email);
 
-        try{
             passwordResetService.createPasswordResetToken(email);
             return ResponseEntity.ok("Password reset link sent");
-        }
-        catch(Exception e){
-            log.error("Error while sending password reset link", e);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
-        }
+
 
     }
 
     @PostMapping("/reset")
     public ResponseEntity<String> resetPassword(@RequestParam String token,
                                                 @RequestParam String password) {
-        try{
             passwordResetService.resetPassword(token, password);
             log.info("Password reset successfully");
             return ResponseEntity.ok("Password successfully reset");
-        }catch(Exception e){
-            log.error("Error while sending password reset link", e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
-        }
+
 
     }
 }

@@ -162,13 +162,13 @@ public class UserControllerIntegrationTest  extends BaseIntegrationTest {
                         .file(file)
                         .contentType(MediaType.MULTIPART_FORM_DATA))
                 .andExpect(status().isNotFound())
-                .andExpect(content().string("User not found"));
+                .andExpect(content().string("No such element server error"));
     }
 
     @Test
     void shouldReturnInternalServerErrorForInvalidUserRoutes() throws Exception {
         mockMvc.perform(get("/users/{id}/routes", 99999))
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isNotFound());
     }
 
 

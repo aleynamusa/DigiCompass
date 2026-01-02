@@ -9,7 +9,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -88,7 +87,7 @@ public class UserControllerCatchIntegrationTest extends BaseIntegrationTest{
                         .file(file)
                         .contentType(MediaType.MULTIPART_FORM_DATA))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string("Invalid image"));
+                .andExpect(content().string("Internal server error"));
     }
 
     @Test
@@ -104,7 +103,7 @@ public class UserControllerCatchIntegrationTest extends BaseIntegrationTest{
                         .file(file)
                         .contentType(MediaType.MULTIPART_FORM_DATA))
                 .andExpect(status().isInternalServerError())
-                .andExpect(content().string("Error processing file"));
+                .andExpect(content().string("Internal server error"));
     }
 
 

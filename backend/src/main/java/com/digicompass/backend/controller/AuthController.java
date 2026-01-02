@@ -47,7 +47,6 @@ public class AuthController {
 
     @PostMapping("/logIn")
     public ResponseEntity<Map<String, String>> logIn(@Valid @RequestBody LogInRequest request, HttpServletResponse response) {
-        try {
             log.info("[CONTROLLER] Attempting to log in user: {}", request.getUsername());
             Map<String, String> tokens = authService.logIn(request.getUsername(), request.getPassword());
             boolean rememberMe = request.isRememberMe();
@@ -71,11 +70,7 @@ public class AuthController {
             log.info("[CONTROLLER] User logged in successfully.");
             return ResponseEntity.ok(body);
 
-        } catch (IllegalArgumentException e) {
-            log.info("Invalid username or password");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("error", e.getMessage()));
-        }
+
     }
 
     @PostMapping("/refresh")

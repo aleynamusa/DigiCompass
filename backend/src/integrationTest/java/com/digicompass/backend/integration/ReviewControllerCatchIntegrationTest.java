@@ -5,8 +5,6 @@ import com.digicompass.backend.controller.mapper.ReviewMapperController;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -81,7 +79,7 @@ public class ReviewControllerCatchIntegrationTest extends BaseIntegrationTest {
                 .when(reviewService).deleteReview(1L);
 
         mockMvc.perform(delete("/review/delete/1"))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isBadRequest());
     }
     @Test
     void deleteReview_shouldReturnForbidden_whenAccessDenied() throws Exception {

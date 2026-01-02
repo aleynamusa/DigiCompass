@@ -489,5 +489,29 @@ class ReviewServiceImplTest {
         assertDoesNotThrow(() -> reviewServiceMock.validateRouteId(1L));
     }
 
+    @Test
+    void createReview_rollsBackAndThrows_WhenSaveThrowsException() throws IOException {
+        Review review = new Review();
+        review.setRouteId(validRouteId);
+
+        List<MultipartFile> images = List.of(file1, file2);
+        List<String> uploadedKeys = List.of("key1", "key2");
+
+        when(routeRepoMock.existsById(validRouteId)).thenReturn(true);
+        when(s3ServiceMock.uploadImages(validRouteId, images)).thenReturn(uploadedKeys);
+        when(reviewMapperMock.toEntity(review)).thenReturn(new ReviewEntity());
+
+        when(reviewRepoMock.save(any(ReviewEntity.class)))
+                .thenThrow(new RuntimeException("DB failure"));
+
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
+            reviewServiceMock.createReview(review, images);
+        });
+
+        verify(s3ServiceMock).rollbackS3Uploads(uploadedKeys);
+
+        assertTrue(thrown.getMessage().contains("DB failure"));
+    }
+
 
 }

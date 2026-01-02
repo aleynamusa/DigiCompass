@@ -85,7 +85,6 @@ public class UserController {
             return ResponseEntity.badRequest().body("File must not be empty");
         }
 
-        try {
             userService.uploadProfilePicture(id, file);
             log.info("[CONTROLLER] Profile picture updated successfully for user ID {}", id);
 
@@ -95,19 +94,6 @@ public class UserController {
 
             return ResponseEntity.ok(response);
 
-        } catch (NoSuchElementException | EntityNotFoundException e) {
-            log.error("[CONTROLLER] User ID {} not found: {}", id, e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
-
-        } catch (IllegalArgumentException e) {
-            log.error("[CONTROLLER] Invalid image for user ID {}: {}", id, e.getMessage());
-            return ResponseEntity.badRequest().body(e.getMessage());
-
-        } catch (IOException e) {
-            log.error("[CONTROLLER] I/O error while updating profile picture for user ID {}: {}", id, e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error processing file");
-        }
     }
 
     @GetMapping("/search")

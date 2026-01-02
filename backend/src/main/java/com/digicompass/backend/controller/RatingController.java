@@ -28,7 +28,7 @@ public class RatingController {
         this.ratingMapper = ratingMapper;
     }
 
-@RolesAllowed("")
+    @RolesAllowed("")
     @PostMapping
     public ResponseEntity<RatingDto> createRating(@RequestBody RatingDto rating) {
 
@@ -95,18 +95,12 @@ public class RatingController {
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteRating(@PathVariable Long id) {
         log.info("Deleting rating {}", id);
-        try{
             ratingService.deleteRating(id);
 
             return ResponseEntity
                     .status(HttpStatus.NO_CONTENT)
                     .build();
 
-        } catch (AccessDeniedException _) {
-            log.warn("[CONTROLLER] Access denied deleting review {}", id);
-            return ResponseEntity
-                    .status(HttpStatus.FORBIDDEN)
-                    .body(null);
-        }
+
     }
 }

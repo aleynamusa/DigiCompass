@@ -46,7 +46,7 @@ public class UserActionsCatchIntegrationTest extends BaseIntegrationTest {
                         .content(favoriteJson(2L, 2L))
                         .with(user("testuser").roles("USER")))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string("User or route does not exist."));
+                .andExpect(content().string("Internal server error"));
     }
 
     @Test
@@ -74,7 +74,7 @@ public class UserActionsCatchIntegrationTest extends BaseIntegrationTest {
                         .param("routeId", "2")
                         .with(user("testuser").roles("USER")))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string("User or route does not exist."));
+                .andExpect(content().string("Internal server error"));
     }
     @Test
     void isLikedRoute_ShouldInternalServerError_WhenUnexpectedException() throws Exception {
@@ -101,7 +101,7 @@ public class UserActionsCatchIntegrationTest extends BaseIntegrationTest {
                         .content(favoriteJson(any(), any()))
                         .with(user("testuser").roles("USER")))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string("User or route does not exist."));
+                .andExpect(content().string("Internal server error"));
     }
 
     @Test
