@@ -133,15 +133,7 @@ public class RouteControllerIntegrationTest extends BaseIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(0)));
     }
-//
-//    @Test
-//    void getRoutesFiltered_ShouldReturnByType() throws Exception {
-//        mockMvc.perform(get("/route/filter")
-//                        .param("type", "Hiking"))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$", hasSize(1)))
-//                .andExpect(jsonPath("$[0].routeType").value("Hiking"));
-//    } TODO fix this test
+
 
     @Test
     void getRoutesFiltered_ShouldReturnByDifficulty() throws Exception {

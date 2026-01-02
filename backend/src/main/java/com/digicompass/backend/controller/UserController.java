@@ -77,12 +77,12 @@ public class UserController {
     }
 
     @PostMapping(value = "/profilePictureUpdate/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> updateUserProfilePicture(@PathVariable Long id, @RequestParam("file") MultipartFile file) throws IOException {
+    public ResponseEntity<Map<String, Object>> updateUserProfilePicture(@PathVariable Long id, @RequestParam("file") MultipartFile file) throws IOException {
         log.info("[CONTROLLER] Request to update profile picture for user ID {}", id);
 
         if (file == null || file.isEmpty()) {
             log.warn("[CONTROLLER] Profile picture update failed: empty file for user ID {}", id);
-            return ResponseEntity.badRequest().body("File must not be empty");
+            return ResponseEntity.badRequest().build();
         }
 
             userService.uploadProfilePicture(id, file);
@@ -102,7 +102,7 @@ public class UserController {
     }
 
     @PostMapping("/{id}/bio")
-    public ResponseEntity<?> updateBio(
+    public ResponseEntity<Map<String, String>> updateBio(
             @PathVariable Long id,
             @RequestBody Map<String, String> request) {
 
@@ -112,7 +112,7 @@ public class UserController {
 
 
     @PostMapping("/{id}/visibility")
-    public ResponseEntity<?> updateProfileVisibility(
+    public ResponseEntity<Map<String, String>> updateProfileVisibility(
             @PathVariable Long id,
             @RequestBody Map<String, Boolean> request) {
 
@@ -122,7 +122,7 @@ public class UserController {
 
 
     @GetMapping("/{id}/routes")
-    public ResponseEntity<?> getRoutesByUserId(@PathVariable Long id) {
+    public ResponseEntity<List<RouteDto>> getRoutesByUserId(@PathVariable Long id) {
 
             List<RouteDto> routes = routeMapperController.toControllerRoute(
                     userService.getRoutesById(id)

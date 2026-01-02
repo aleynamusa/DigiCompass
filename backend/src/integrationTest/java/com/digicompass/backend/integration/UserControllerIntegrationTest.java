@@ -146,8 +146,7 @@ public class UserControllerIntegrationTest  extends BaseIntegrationTest {
         mockMvc.perform(multipart("/users/profilePictureUpdate/{id}", user.getId())
                         .file(emptyFile)
                         .contentType(MediaType.MULTIPART_FORM_DATA))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string("File must not be empty"));
+                .andExpect(status().isBadRequest());
     }
 
     @Test

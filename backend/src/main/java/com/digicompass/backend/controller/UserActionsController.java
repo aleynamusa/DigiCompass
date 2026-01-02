@@ -44,6 +44,7 @@ public class UserActionsController {
         log.info("[CONTROLLER] IsLikedRoute called. userId={}, routeId={}", userId, routeId);
             boolean isLiked = userActionsService.isLikedRoute(userId, routeId);
             log.info("[CONTROLLER] IsLikedRoute succeeded. userId={}, routeId={}, isLiked={}", userId, routeId, isLiked);
+
             return ResponseEntity.ok(isLiked);
 
     }
