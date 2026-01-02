@@ -12,6 +12,7 @@ const CurrentInfo = ({ overrideLocation, trailName }) => {
 
     const [city, setCity] = useState("Loading...");
     const [weather, setWeather] = useState(null);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         if (!location) return
@@ -20,13 +21,32 @@ const CurrentInfo = ({ overrideLocation, trailName }) => {
 
         getCurrentCity(latitude, longitude)
             .then(res => setCity(res.data))
-            .catch(() => setCity("Unknown location"))
+            .catch((err) => {
+                console.error("Failed to fetch city:", err)
+                setCity("Unknown location")
+            })
 
         getCurrentWeather(latitude, longitude)
             .then(res => setWeather(res.data))
+            .catch((err) => {
+                console.error("Failed to fetch weather:", err)
+                setError("Failed to load weather data")
+            })
     }, [location]);
 
 
+    if (error) {
+        return (
+            <Card className="p-4">
+                <CardContent>
+                    <p className="text-red-500">{error}</p>
+                    <p className="text-sm text-muted-foreground mt-2">
+                        Please try again later.
+                    </p>
+                </CardContent>
+            </Card>
+        );
+    }
 
     if (!weather) {
         return (

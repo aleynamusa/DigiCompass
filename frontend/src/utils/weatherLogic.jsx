@@ -10,36 +10,36 @@ export const getWeatherIcon = (condition, size = 24) => {
 
     switch (condition) {
         case "Sunny":
-            return <SunIcon size={size} className="text-yellow-500" />
+            return <SunIcon data-testid="weather-icon-sunny" size={size} className="text-yellow-500" />
 
         case "Clear":
         case "Mostly Clear":
-            return <SunMoonIcon size={size} className="text-gray-500" />
+            return <SunMoonIcon data-testid="weather-icon-sunMoon" size={size} className="text-gray-500" />
 
         case "Rain":
         case "Drizzle":
         case "Rain Showers":
         case "Freezing Rain":
-            return <CloudRainIcon size={size} className="text-blue-500" />
+            return <CloudRainIcon data-testid="weather-icon-cloudRain" size={size} className="text-blue-500" />
 
         case "Snow":
         case "Snow Grains":
         case "Snow Showers":
-            return <SnowflakeIcon size={size} className="text-blue-300" />
+            return <SnowflakeIcon data-testid="weather-icon-snowflake" size={size} className="text-blue-300" />
 
         case "Cloudy":
         case "Partly-Cloudy":
-            return <CloudIcon size={size} className="text-gray-500" />
+            return <CloudIcon data-testid="weather-icon-cloudy" size={size} className="text-gray-500" />
 
         case "Thunderstorm":
         case "Thunderstorm with Hail":
-            return <CloudLightningIcon size={size} className="text-gray-500" />
+            return <CloudLightningIcon data-testid="weather-icon-lightning" size={size} className="text-gray-500" />
 
         case "Fog":
-            return <CloudFogIcon size={size} className="text-gray-400" />
+            return <CloudFogIcon data-testid="weather-icon-fog" size={size} className="text-gray-400" />
 
         default:
-            return <CloudIcon size={size} className="text-gray-400" />
+            return <CloudIcon data-testid="weather-icon-cloudy" size={size} className="text-gray-400" />
     }
 }
 

@@ -34,24 +34,23 @@ public class MapController {
     @PostMapping
     public ResponseEntity<RouteResponseMapDto> routeInfo(@Valid @RequestBody RouteRequestMapDto request){
 
-
             log.info("[CONTROLLER] Received route calculation request with {} points.", request.getPoints().size());
             RouteResponseMapDto routeInfo =  mapMapper.toRouteResponseDto(service.calculateRoute(
                     mapMapper.toModel(request.getPoints()),
                     request.getRouteType()));
 
+            log.info("[CONTROLLER] Calculated distance {} and duration {}", routeInfo.getDistanceKm(), routeInfo.getDurationHour());
+
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(routeInfo);
-
-
 
     }
 
     @GetMapping("/coords")
     public ResponseEntity<String> getCurrentLocation(@RequestParam double latitude,
                                                      @RequestParam double longitude){
-
+            log.info("[CONTROLLER] Received request to get current location");
             return ResponseEntity.status(HttpStatus.OK).body(service.getCurrentLocationAsCity(latitude, longitude));
 
 

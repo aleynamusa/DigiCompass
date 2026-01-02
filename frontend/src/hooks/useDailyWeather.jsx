@@ -5,9 +5,9 @@ const formatWeekdayDayMonth = (isoDate) => {
     if (!isoDate) return "";
 
     return new Intl.DateTimeFormat("en-US", {
-        weekday: "short",  // Mon, Tue, Wed
-        day: "numeric",    // 30
-        month: "short"     // Dec
+        weekday: "short",
+        day: "numeric",
+        month: "short"
     }).format(new Date(isoDate));
 };
 
@@ -18,11 +18,13 @@ const DAYS = 16
 export const useDailyWeather = (location) => {
     const [dailyWeather, setDailyWeather] = useState([])
     const [dailyLoading, setDailyLoading] = useState(true)
+    const [error, setError] = useState(null)
 
     useEffect(() => {
         if (!location) return
 
         setDailyLoading(true)
+        setError(null)
 
         getDailyWeather(location.latitude, location.longitude)
             .then(res => {
@@ -39,8 +41,13 @@ export const useDailyWeather = (location) => {
 
                 setDailyWeather(normalized)
             })
+            .catch(err => {
+                console.error("Failed to fetch daily weather:", err)
+                setError("Failed to load daily weather data")
+                setDailyWeather([])
+            })
             .finally(() => setDailyLoading(false))
     }, [location])
 
-    return { dailyWeather, dailyLoading }
+    return { dailyWeather: dailyWeather, dailyLoading: dailyLoading, dailyError: error }
 }

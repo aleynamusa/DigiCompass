@@ -15,11 +15,13 @@ const getCurrentHourIndex = (times) => {
 export const useHourlyWeather = (location) => {
     const [data, setData] = useState([])
     const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(null)
 
     useEffect(() => {
         if (!location) return
 
         setLoading(true)
+        setError(null)
 
         getHourlyWeather(location.latitude, location.longitude)
             .then(res => {
@@ -35,11 +37,17 @@ export const useHourlyWeather = (location) => {
                     precipitation: dto.precipitation.slice(startIndex, startIndex + 8),
                 }
 
-
                 setData(mapHourlyWeather(slicedDto))
             })
-            .finally(() => setLoading(false))
+            .catch(err => {
+                console.error("Failed to fetch hourly weather:", err)
+                setError("Failed to load hourly weather data")
+                setData([])
+            })
+
+
+    .finally(() => setLoading(false))
     }, [location])
 
-    return { hourlyWeather: data, loading }
+    return { hourlyWeather: data, hourlyLoading: loading, hourlyError: error }
 }

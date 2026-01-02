@@ -1,4 +1,4 @@
-import { Badge, Tabs } from "@mantine/core"
+import { Tabs } from "@mantine/core"
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
 import { getWeatherIcon, getConditionRecommendation } from "@/utils/weatherLogic"
 import { useHourlyWeather } from "@/hooks/useHourlyWeather"
@@ -9,11 +9,43 @@ const WeatherTabs = ({ overrideLocation }) => {
     const geo = useGeolocation(!overrideLocation)
     const location = overrideLocation ?? geo.effectiveLocation
 
-    const { hourlyWeather, hourlyLoading } = useHourlyWeather(location)
-    const { dailyWeather, dailyLoading } = useDailyWeather(location)
+    const { hourlyWeather, hourlyLoading, hourlyError } = useHourlyWeather(location)
+    const { dailyWeather, dailyLoading, dailyError } = useDailyWeather(location)
 
 
     if (hourlyLoading || dailyLoading) return <div>Loading forecast...</div>
+
+    if (hourlyError || dailyError)
+        return (
+            <Tabs defaultValue="hourly">
+                <Tabs.List grow>
+                    <Tabs.Tab value="hourly" c="dimmed">Hourly</Tabs.Tab>
+                    <Tabs.Tab value="weekly" c="dimmed">16-Day</Tabs.Tab>
+                </Tabs.List>
+                <Tabs.Panel value="hourly">
+                    <Card className="p-4">
+                        <CardContent>
+                            <p className="text-red-500">{hourlyError}</p>
+                            <p className="text-sm text-muted-foreground mt-2">
+                                Please try again later or check your internet connection.
+                            </p>
+                        </CardContent>
+                    </Card>
+                </Tabs.Panel>
+                <Tabs.Panel value="weekly">
+                    <Card className="p-4">
+                        <CardContent>
+                            <p className="text-red-500">{dailyError}</p>
+                            <p className="text-sm text-muted-foreground mt-2">
+                                Please try again later or check your internet connection.
+                            </p>
+                        </CardContent>
+                    </Card>
+                </Tabs.Panel>
+            </Tabs>
+        );
+
+
 
 
     return (

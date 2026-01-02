@@ -198,6 +198,5 @@ public class WeatherServiceImpl implements WeatherService {
             log.error("[SERVICE ERROR] Error fetching current weather: {}", e.getMessage());
             throw new RuntimeException("Error fetching current weather", e);
         }
-
     }
 }

@@ -46,10 +46,9 @@ describe("Rating and Review Flow", () => {
             .next('label')
             .click({ force: true });
 
-        // Submit form
         cy.contains('Submit').click();
 
-        // Wait for rating request
+        //Wait for rating request
         cy.wait("@rateRequest")
             .its("response.statusCode")
             .should("eq", 201);
