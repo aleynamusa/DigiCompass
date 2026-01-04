@@ -1,5 +1,7 @@
 package com.digicompass.backend.application.models;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -8,9 +10,9 @@ import java.time.Period;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
 public class User {
+    @NotNull(message = "User id is required")
+    @Positive(message = "User id must be positive")
     private Long id;
     private String username;
     private String email;

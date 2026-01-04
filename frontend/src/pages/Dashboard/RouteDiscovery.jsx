@@ -31,6 +31,7 @@ const RouteDiscovery = () => {
     const [filteredRoutes, setFilteredRoutes] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
 
+
     const [selectedType, setSelectedType] = useState("all");
     const [selectedDifficulty, setSelectedDifficulty] = useState("all");
     const [selectedDistanceRange, setSelectedDistanceRange] = useState("all");

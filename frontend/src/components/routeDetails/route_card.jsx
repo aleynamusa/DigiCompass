@@ -3,7 +3,6 @@ import {
     ClockIcon,
     HeartIcon,
     MapPinIcon,
-    ShareIcon,
     StarIcon, TrendingUpIcon,
     UsersIcon, Trash
 } from "lucide-react";
@@ -18,7 +17,7 @@ import { deleteRoute } from "@/api/routeApi.jsx";
 import React, {useEffect, useState} from "react";
 import {isLiked} from "@/api/routeApi.jsx";
 
-export function RouteCard({ route, onViewDetails, onLoginRequired, onDelete }) {
+export function RouteCard({ route, onViewDetails, onLoginRequired, onDelete, onAddToTrip }) {
     const navigate = useNavigate();
     const [isFavorite, setIsFavorite] = useState(false);
     const { user } = useAuth();
@@ -123,6 +122,9 @@ export function RouteCard({ route, onViewDetails, onLoginRequired, onDelete }) {
             `/weather?lat=${route.startLatitude}&lon=${route.startLongitude}&name=${encodeURIComponent(route.name)}`
         )
     }
+    const handleCreateTrip = () => {
+
+    }
 
     return (
         <Card className="overflow-hidden hover:shadow-lg transition-shadow">
@@ -219,9 +221,6 @@ export function RouteCard({ route, onViewDetails, onLoginRequired, onDelete }) {
                         <Button className="w-1/2" size="xs" onClick={() => onViewDetails(route)}>
                             View Details
                         </Button>
-                        {/*<Button className="w-1/2 bg-gray-100" variant="outline" size="xs">*/}
-                        {/*    Check Weather*/}
-                        {/*</Button>*/}
                         <Button
                             className="w-1/2 bg-gray-100"
                             variant="outline"
@@ -232,9 +231,15 @@ export function RouteCard({ route, onViewDetails, onLoginRequired, onDelete }) {
                         </Button>
                     </div>
 
-                    <Button variant="outline" size="sm" className="w-full bg-cyan-950 text-white">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full bg-cyan-950 text-white"
+                        onClick={() => onAddToTrip(route)}
+                    >
                         Add to Trip
                     </Button>
+
 
                 </CardContent>
             </Card>

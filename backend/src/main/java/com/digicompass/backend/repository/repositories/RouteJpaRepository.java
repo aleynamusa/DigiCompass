@@ -32,7 +32,7 @@ WHERE (LOWER(r.routeType) = LOWER(:type) OR :type IS NULL )
     @Query("select r.id from RouteEntity r")
     List<Long> getAllIds();
 
-    List<RouteEntity> getRouteEntitiesByName(String name);
+    List<RouteEntity> findByNameContainingIgnoreCase(String name);
 
     @Query("SELECT r FROM RouteEntity r WHERE r.createdByUserId.id = :userId")
     List<RouteEntity> findAllByUserId(@Param("userId") Long userId);

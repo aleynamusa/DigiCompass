@@ -13,6 +13,7 @@
   justify-content: center;
   /*display: flex;*/
     --sidebar-width: 24rem;
+
 }
 
 @media (max-width: 1024px) {

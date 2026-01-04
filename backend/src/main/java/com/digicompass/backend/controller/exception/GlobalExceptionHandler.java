@@ -5,11 +5,13 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.io.IOException;
+import java.time.format.DateTimeParseException;
 import java.util.NoSuchElementException;
 
 @RestControllerAdvice
@@ -58,6 +60,20 @@ public class GlobalExceptionHandler {
 //        return ResponseEntity.status(HttpStatus.NOT_FOUND)
 //                .body("Entity not found error");
 //    }
+
+    @ExceptionHandler(DateTimeParseException.class)
+    public ResponseEntity<String> handleDateTimeParseException(DateTimeParseException ex) {
+        log.error("[CONTROLLER] Date Time Parse error: ", ex);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)  // test it with date of trip creation
+                .body("Date Time Parse error");
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<String> handleDateHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
+        log.error("[CONTROLLER] Http Message Not Readable error: ", ex);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)  // send different type of id different than long, trip creation
+                .body("Http Message Not Readable error");
+    }
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<String> handleAccessDeniedException(AccessDeniedException ex) {

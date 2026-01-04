@@ -3,16 +3,16 @@ stages:
   - test
   - deploy
 
-#frontend:build:
-#  stage: build
-#  image: docker:stable
-#  services:
-#    - docker:dind
-#  tags:
-#    - frontend
-#  script:
-#    - echo "Building Vite + React frontend..."
-#    - docker build -t frontend-app -f frontend/Dockerfile frontend
+frontend:build:
+  stage: build
+  image: docker:stable
+  services:
+    - docker:dind
+  tags:
+    - frontend
+  script:
+    - echo "Building Vite + React frontend..."
+    - docker build -t frontend-app -f frontend/Dockerfile frontend
 
 e2e:
   stage: test

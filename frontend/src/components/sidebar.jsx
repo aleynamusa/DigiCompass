@@ -36,7 +36,7 @@ export function Sidebar({ activeTab, setActiveTab, isMobileMenuOpen = false, clo
         { id: "dashboard", label: "Dashboard", icon: HomeIcon, path: "/" },
         { id: "routes", label: "Route Discovery", icon: MapIcon, path: "/routeDiscovery" },
         { id: "weather", label: "Weather", icon: CloudIcon, path: "/weather" },
-        { id: "trips", label: "Trip Planning", icon: CalendarIcon, path: "/trips" },
+        { id: "trips", label: "Trip Planning", icon: CalendarIcon, path: "/tripPlanning" },
         { id: "community", label: "Community", icon: UsersIcon, path: "/community" },
     ];
 

@@ -64,7 +64,10 @@ export const getRoutes = () => axiosClient.get("/route");
 
 export const getRouteGeometry = (routeId) => axiosClient.get(`/route/${routeId}/geometry`);
 
-export const searchRoutesByKeyword = (keyword) => axiosClient.get(`$/route/keyword?keyword=${keyword}`);
+export const searchRoutesByKeyword = (keyword) =>
+    axiosClient.get(`/route/keyword`, {
+        params: { keyword }
+    });
 
 export const getFilteredRoutes = (type, difficulty, distanceRange) => {
     const params = new URLSearchParams();

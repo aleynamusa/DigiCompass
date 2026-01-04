@@ -16,7 +16,7 @@ import {
     Navigation,
     Loader2
 } from 'lucide-react';
-import {Alert, ScrollArea} from "@mantine/core";
+import {Alert, Modal, ScrollArea} from "@mantine/core";
 import ImageDropzone from "@/components/imageDropzone.jsx";
 import { useAuth } from "@/context/AuthContext.jsx";
 import RouteMapPopup from "@/components/ceateRoutePopup/routeMapPopup.jsx";
@@ -237,136 +237,145 @@ const CreateRoutePopup = ({ isOpen, onClose, onSave, loading = false }) => {
     if (!isOpen) return null;
 
     return (
-        <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="sm:max-w-[1200px] max-h-[90vh] flex flex-col">
-                <DialogHeader>
-                    <DialogTitle className="flex items-center gap-2">
+        <Modal
+            opened={isOpen}
+            onClose={onClose}
+            size={1200}     
+            radius="md"
+            centered
+            title="Create New Trip"
+            zIndex={1000}
+            overlayProps={{ blur: 3 }}
+        >
+
+
+        <h1 className="flex items-center gap-2">
                         <Navigation className="h-5 w-5" />
                         Create New Route
-                    </DialogTitle>
-                </DialogHeader>
+                    </h1>
+
                 <div className="flex-1 overflow-y-auto pr-2">
-                <form onSubmit={handleSubmit} className="flex flex-col h-full">
-                    <div className="flex-1 overflow-auto">
-                        {successMessage && (
-                            <Alert variant="light" color="green" radius="md" title="Saved Successfully" icon={icon}>
-                                {successMessage}
-                            </Alert>
-                        )}
+                    <form onSubmit={handleSubmit} className="flex flex-col h-full">
+                        <div className="flex-1 overflow-auto">
+                            {successMessage && (
+                                <Alert variant="light" color="green" radius="md" title="Saved Successfully" icon={icon}>
+                                    {successMessage}
+                                </Alert>
+                            )}
 
-                        {saveError && (
-                            <Alert variant="light" color="red" radius="md" title="Error While Saving" icon={icon}>
-                                {saveError}
-                            </Alert>
-                        )}
+                            {saveError && (
+                                <Alert variant="light" color="red" radius="md" title="Error While Saving" icon={icon}>
+                                    {saveError}
+                                </Alert>
+                            )}
 
-                        {mapError && (
-                            <Alert variant="light" color="red" radius="md" title="Alert title" icon={icon}>
-                                {mapError}
-                            </Alert>
-                        )}
+                            {mapError && (
+                                <Alert variant="light" color="red" radius="md" title="Alert title" icon={icon}>
+                                    {mapError}
+                                </Alert>
+                            )}
 
-                        {errors.points && (
-                            <Alert variant="light" color="red" radius="md" title="Maximum points" icon={icon}>
-                                {errors.points}
-                            </Alert>
-                        )}
+                            {errors.points && (
+                                <Alert variant="light" color="red" radius="md" title="Maximum points" icon={icon}>
+                                    {errors.points}
+                                </Alert>
+                            )}
 
-                        {errors.form && (
-                            <Alert variant="light" color="red" radius="md" title="Alert title" icon={icon}>
-                                {errors.form}
-                            </Alert>
-                        )}
+                            {errors.form && (
+                                <Alert variant="light" color="red" radius="md" title="Alert title" icon={icon}>
+                                    {errors.form}
+                                </Alert>
+                            )}
 
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            {/* Left Column - Form */}
-                            <div className="space-y-4">
-                                <RouteForm
-                                    formData={formData}
-                                    onChange={handleFormChange}
-                                    errors={errors}
-                                    disabled={isSubmitting}
-                                />
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                {/* Left Column - Form */}
+                                <div className="space-y-4">
+                                    <RouteForm
+                                        formData={formData}
+                                        onChange={handleFormChange}
+                                        errors={errors}
+                                        disabled={isSubmitting}
+                                    />
 
-                                <RoutePointsList
-                                    points={points}
-                                    distance={distance}
-                                    estimatedTime={estimatedTime}
-                                    onRemovePoint={handleRemovePoint}
-                                    onClearAll={handleClearPoints}
-                                    disabled={isSubmitting}
-                                    isLoading={isLoadingRoute}
-                                />
-                            </div>
-
-                            {/* Right Column - Map, Images */}
-                            <div className="space-y-2">
-                                <div className="flex items-center gap-2">
-                                    <MapPin className="h-4 w-4" />
-                                    <p className="text-sm text-gray-500">
-                                        Click on the map to add route points
-                                    </p>
+                                    <RoutePointsList
+                                        points={points}
+                                        distance={distance}
+                                        estimatedTime={estimatedTime}
+                                        onRemovePoint={handleRemovePoint}
+                                        onClearAll={handleClearPoints}
+                                        disabled={isSubmitting}
+                                        isLoading={isLoadingRoute}
+                                    />
                                 </div>
 
-                                <Card className="overflow-hidden">
-                                    <div className="h-[290px]">
-
-                                        <RouteMapPopup
-                                            center={currentLocation.effectiveLocation}
-                                            points={points}
-                                            ghRoute={ghRoute}
-                                            ghError={ghError}
-                                            onMapClick={handleMapClick}
-                                            startIcon={startIcon}
-                                            endIcon={endIcon}
-                                            isLoading={isLoadingRoute}
-                                        />
-
+                                {/* Right Column - Map, Images */}
+                                <div className="space-y-2">
+                                    <div className="flex items-center gap-2">
+                                        <MapPin className="h-4 w-4" />
+                                        <p className="text-sm text-gray-500">
+                                            Click on the map to add route points
+                                        </p>
                                     </div>
-                                </Card>
 
-                                <ImageDropzone
-                                    existingImages={[]}
-                                    onExistingImagesChange={() => {}}
-                                    newFiles={files}
-                                    onNewFilesChange={setFiles}
-                                    label="Drop route images here (optional)"
-                                />
+                                    <Card className="overflow-hidden">
+                                        <div className="h-[290px]">
+
+                                            <RouteMapPopup
+                                                center={currentLocation.effectiveLocation}
+                                                points={points}
+                                                ghRoute={ghRoute}
+                                                ghError={ghError}
+                                                onMapClick={handleMapClick}
+                                                startIcon={startIcon}
+                                                endIcon={endIcon}
+                                                isLoading={isLoadingRoute}
+                                            />
+
+                                        </div>
+                                    </Card>
+
+                                    <ImageDropzone
+                                        existingImages={[]}
+                                        onExistingImagesChange={() => {}}
+                                        newFiles={files}
+                                        onNewFilesChange={setFiles}
+                                        label="Drop route images here (optional)"
+                                    />
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <DialogFooter className="mt-6">
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={onClose}
-                            disabled={isSubmitting}
-                        >
-                            <X className="h-4 w-4 mr-2" />
-                            Cancel
-                        </Button>
-                        <Button
-                            type="submit"
-                            disabled={isSubmitting || points.length < 2 || !user}
-                        >
-                            {isSubmitting ? (
-                                <>
-                                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                    Creating...
-                                </>
-                            ) : (
-                                <>
-                                    <Plus className="h-4 w-4 mr-2" />
-                                    Save Route
-                                </>
-                            )}
-                        </Button>
-                    </DialogFooter>
-                </form>
+                        <div className="mt-6">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={onClose}
+                                disabled={isSubmitting}
+                            >
+                                <X className="h-4 w-4 mr-2" />
+                                Cancel
+                            </Button>
+                            <Button
+                                type="submit"
+                                disabled={isSubmitting || points.length < 2 || !user}
+                            >
+                                {isSubmitting ? (
+                                    <>
+                                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                        Creating...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Plus className="h-4 w-4 mr-2" />
+                                        Save Route
+                                    </>
+                                )}
+                            </Button>
+                        </div>
+                    </form>
                 </div>
-            </DialogContent>
-        </Dialog>
+        </Modal>
+
     );
 };
 

@@ -1,13 +1,13 @@
-import {Dialog, DialogContent, DialogHeader, DialogTitle} from "@/components/ui/dialog";
-import {useEffect, useState} from "react";
-import {getRatingsByRoute, getReviewByRoute, writeReview, addRating} from "@/api/routeApi.jsx";
-import {useAuth} from "@/context/AuthContext.jsx";
+import { Modal, Group, Text, Button } from "@mantine/core";
+import { useEffect, useState } from "react";
+import { getRatingsByRoute, getReviewByRoute, writeReview, addRating } from "@/api/routeApi.jsx";
+import { useAuth } from "@/context/AuthContext.jsx";
 import RouteMap from "@/components/routeDetails/routeMap.jsx";
 import RouteReviewForm from "@/components/routeDetails/routeReviewForm.jsx";
 import RouteTabsReviewRating from "@/components/routeDetails/routeTabs.jsx";
 
-export function RouteDetails({selectedRoute, onOpenChange}) {
-    const {user} = useAuth();
+export function RouteDetails({ selectedRoute, onOpenChange }) {
+    const { user } = useAuth();
     const [reviews, setReviews] = useState([]);
     const [ratings, setRatings] = useState([]);
     const [errors, setErrors] = useState("");
@@ -18,7 +18,7 @@ export function RouteDetails({selectedRoute, onOpenChange}) {
             try {
                 const [reviewsRes, ratingsRes] = await Promise.all([
                     getReviewByRoute(selectedRoute.id),
-                    getRatingsByRoute(selectedRoute.id)
+                    getRatingsByRoute(selectedRoute.id),
                 ]);
                 setReviews(reviewsRes.data);
                 setRatings(ratingsRes.data);
@@ -28,7 +28,7 @@ export function RouteDetails({selectedRoute, onOpenChange}) {
         })();
     }, [selectedRoute]);
 
-    const handleSubmit = async ({ratingValue, text, images}) => {
+    const handleSubmit = async ({ ratingValue, text, images }) => {
         try {
             if (!ratingValue && !text) {
                 setErrors("Please add a review or rating.");
@@ -41,14 +41,14 @@ export function RouteDetails({selectedRoute, onOpenChange}) {
             }
 
             const now = new Date().toISOString().slice(0, 19);
-            const baseUser = {id: user?.id, username: user?.username};
+            const baseUser = { id: user?.id, username: user?.username };
 
             if (text && text.trim()) {
                 await writeReview({
                     review: text.trim(),
                     userId: {
                         id: user.id,
-                        username: user.username
+                        username: user.username,
                     },
                     createdAt: now,
                     updatedAt: now,
@@ -64,7 +64,7 @@ export function RouteDetails({selectedRoute, onOpenChange}) {
                     userId: baseUser,
                     createdAt: now,
                     updatedAt: now,
-                    routeId: selectedRoute.id
+                    routeId: selectedRoute.id,
                 });
                 console.log("Rating submitted successfully");
             }
@@ -73,57 +73,56 @@ export function RouteDetails({selectedRoute, onOpenChange}) {
 
             const [reviewsRes, ratingsRes] = await Promise.all([
                 getReviewByRoute(selectedRoute.id),
-                getRatingsByRoute(selectedRoute.id)
+                getRatingsByRoute(selectedRoute.id),
             ]);
             setReviews(reviewsRes.data);
             setRatings(ratingsRes.data);
-
         } catch (error) {
             console.error("Error submitting review or rating:", error);
             setErrors("Failed to submit review or rating. Please try again.");
         }
     };
 
-
-
     return (
-        <Dialog open={!!selectedRoute} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-3xl">
-                {selectedRoute && (
-                    <>
-                        <DialogHeader>
-                            <DialogTitle>{selectedRoute.name}</DialogTitle>
-                            <p className="text-sm text-gray-600">{selectedRoute.description}</p>
-                        </DialogHeader>
+        <Modal
+            opened={!!selectedRoute}
+            onClose={() => onOpenChange(false)}
+            size="lg"
+            centered
+            overlayProps={{ blur: 3 }}
+            withCloseButton
+            title={selectedRoute?.name}
+        >
+            {selectedRoute && (
+                <div className="space-y-3">
+                    <Text size="sm" color="dimmed" mb="md">
+                        {selectedRoute.description}
+                    </Text>
 
-                        <div className="space-y-3">
-                            <div className="flex justify-between text-sm text-gray-700">
-                                <p><strong>Distance:</strong> {selectedRoute.distance} km</p>
-                                <p><strong>Duration:</strong> {selectedRoute.duration}</p>
-                                <p><strong>Difficulty:</strong> {selectedRoute.difficulty}</p>
-                            </div>
+                    <Group position="apart" spacing="xs" mb="md" className="text-gray-700 text-sm">
+                        <Text>
+                            <strong>Distance:</strong> {selectedRoute.distance} km
+                        </Text>
+                        <Text>
+                            <strong>Duration:</strong> {selectedRoute.duration}
+                        </Text>
+                        <Text>
+                            <strong>Difficulty:</strong> {selectedRoute.difficulty}
+                        </Text>
+                    </Group>
 
-                            <RouteMap routeGeometry={selectedRoute.routeGeometry} category={selectedRoute.category} />
+                    <RouteMap routeGeometry={selectedRoute.routeGeometry} category={selectedRoute.category} />
 
-                            {errors && (
-                                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-                                    {errors}
-                                </div>
-                            )}
-
-                            <RouteReviewForm onSubmit={handleSubmit}/>
-                            <RouteTabsReviewRating
-                                reviews={reviews}
-                                ratings={ratings}
-                                routeId={selectedRoute.id}
-                            />
-
+                    {errors && (
+                        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                            {errors}
                         </div>
-                    </>
-                )}
-            </DialogContent>
-        </Dialog>
+                    )}
+
+                    <RouteReviewForm onSubmit={handleSubmit} />
+                    <RouteTabsReviewRating reviews={reviews} ratings={ratings} routeId={selectedRoute.id} />
+                </div>
+            )}
+        </Modal>
     );
-
-
 }

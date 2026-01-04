@@ -43,6 +43,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/password/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/weather/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/weather/recommendations").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/trip/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/route/keyword").permitAll()
 
                         //PROTECTED ENDPOINTS
                         .requestMatchers(HttpMethod.DELETE, "/route/delete/**")

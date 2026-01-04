@@ -82,18 +82,15 @@ class RouteJpaRepositoryTest {
 
     @Test
     void testFindFiltered_byTypeDifficultyDistance() {
-        // Filter by type = "CYCLING", difficulty = "EASY", distance = 4 (should match route2)
         List<RouteEntity> filteredRoutes = routeRepository.findFiltered("CYCLING", "EASY", 4f);
         assertThat(filteredRoutes).hasSize(1);
         assertThat(filteredRoutes.get(0).getName()).isEqualTo("City Cycling");
 
-        // Filter by null type and difficulty, distance 12f (should match route3 based on distance range)
         filteredRoutes = routeRepository.findFiltered(null, null, 12f);
         assertThat(filteredRoutes).extracting(RouteEntity::getName)
                 .contains("Country Run")
                 .doesNotContain("Mountain Trail", "City Cycling");
 
-        // Filter by difficulty HARD (should match route1)
         filteredRoutes = routeRepository.findFiltered(null, "HARD", null);
         assertThat(filteredRoutes).extracting(RouteEntity::getName)
                 .containsExactly("Mountain Trail");
@@ -107,7 +104,7 @@ class RouteJpaRepositoryTest {
 
     @Test
     void testGetRouteEntitiesByName() {
-        List<RouteEntity> routes = routeRepository.getRouteEntitiesByName("City Cycling");
+        List<RouteEntity> routes = routeRepository.findByNameContainingIgnoreCase("City Cycling");
         assertThat(routes).hasSize(1);
         assertThat(routes.get(0).getDescription()).isEqualTo("Easy cycling around the city");
     }

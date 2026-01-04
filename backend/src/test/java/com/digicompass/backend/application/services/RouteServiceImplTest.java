@@ -167,7 +167,7 @@ class RouteServiceImplTest {
     void searchRoutes_ThrowsResponseStatusException_WhenRepositoryFails() {
         String keyword = "test";
 
-        when(routeRepository.getRouteEntitiesByName(keyword))
+        when(routeRepository.findByNameContainingIgnoreCase(keyword))
                 .thenThrow(new RuntimeException("DB failed"));
 
         ResponseStatusException ex = assertThrows(
@@ -186,7 +186,7 @@ class RouteServiceImplTest {
         List<RouteEntity> mockEntities = List.of(new RouteEntity(), new RouteEntity());
         List<Route> mappedRoutes = List.of(new Route(), new Route());
 
-        when(routeRepository.getRouteEntitiesByName("trail")).thenReturn(mockEntities);
+        when(routeRepository.findByNameContainingIgnoreCase("trail")).thenReturn(mockEntities);
         when(routeMapper.toDomain(mockEntities)).thenReturn(mappedRoutes);
 
         List<Route> result = routeService.searchRoutes("trail");
@@ -195,14 +195,14 @@ class RouteServiceImplTest {
         assertNull(result.get(0).getRouteGeometry());
         assertNull(result.get(1).getRouteGeometry());
 
-        verify(routeRepository).getRouteEntitiesByName("trail");
+        verify(routeRepository).findByNameContainingIgnoreCase("trail");
         verify(routeMapper).toDomain(mockEntities);
     }
 
     @Test
     void searchRoutes_ThrowsInternalServerError_WhenRepositoryFails() {
 
-        when(routeRepository.getRouteEntitiesByName("trail"))
+        when(routeRepository.findByNameContainingIgnoreCase("trail"))
                 .thenThrow(new RuntimeException("DB failure"));
 
         ResponseStatusException ex = assertThrows(

@@ -4,6 +4,8 @@ import com.digicompass.backend.application.models.User;
 import com.digicompass.backend.types.Difficulty;
 import com.digicompass.backend.types.RouteType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,6 +19,8 @@ import java.util.List;
 @AllArgsConstructor
 @Data
 public class Route {
+    @NotNull(message = "Route id is required")
+    @Positive(message = "Route id must be positive")
     private Long id;
     private String name;
     private String description;

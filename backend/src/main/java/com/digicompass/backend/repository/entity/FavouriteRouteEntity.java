@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class    FavouriteRouteEntity {
+public class FavouriteRouteEntity {
     @EmbeddedId
     private FavouriteRouteKey id;
 

@@ -43,8 +43,6 @@ public class RouteServiceImpl implements RouteService {
     private final S3Service s3Service;
     private final CreateRouteMapper createRouteMapper;
 
-
-
     public RouteServiceImpl(RouteJpaRepository routeRepository,
                             RouteMapper routeMapper,
                             ObjectMapper objectMapper,
@@ -148,7 +146,7 @@ public class RouteServiceImpl implements RouteService {
         try{
             log.info("[SERVICE] Searching routes with keyword: {}", keyword);
 
-            List<Route> routes = routeMapper.toDomain(routeRepository.getRouteEntitiesByName(keyword));
+            List<Route> routes = routeMapper.toDomain(routeRepository.findByNameContainingIgnoreCase(keyword));
             for (Route route : routes) {
                 route.setAverageRating(ratingService.getRouteRating(route.getId()));
             }
