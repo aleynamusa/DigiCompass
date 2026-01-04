@@ -57,7 +57,7 @@ public class RatingControllerIntegrationTest extends BaseIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                 .content("")
                         .with(user("testuser").roles("USER")))
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isBadRequest());
     }
 
     @Test
