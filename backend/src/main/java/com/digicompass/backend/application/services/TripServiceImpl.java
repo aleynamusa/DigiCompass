@@ -3,6 +3,7 @@ package com.digicompass.backend.application.services;
 import com.digicompass.backend.application.interfaces.TripService;
 import com.digicompass.backend.application.mapper.TripMapper;
 import com.digicompass.backend.application.models.Trip;
+import com.digicompass.backend.application.models.User;
 import com.digicompass.backend.repository.repositories.RouteJpaRepository;
 import com.digicompass.backend.repository.repositories.TripJpaRepository;
 import jakarta.validation.Valid;
@@ -28,8 +29,10 @@ public class TripServiceImpl implements TripService {
     }
 
     @Override
-    public void createTrip(@Valid Trip trip) {
+    public void createTrip(@Valid Trip trip, Long id) {
         try{
+
+            trip.setUserId(id);
             log.info("[SERVICE] Creating trip {}", trip.getName());
             tripJpaRepository.save(tripMapper.ToEntity(trip));
         }

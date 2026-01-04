@@ -1,7 +1,6 @@
 package com.digicompass.backend.controller.exception;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +34,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException ex) {
         log.error("[CONTROLLER] Illegal Argument exception error: ", ex);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body("Internal server error");
     }
 
@@ -52,7 +51,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body("No such element server error");
     }
-
 
 //    @ExceptionHandler(EntityNotFoundException.class)
 //    public ResponseEntity<String> handleEntityNotFoundException(NoSuchElementException ex) {

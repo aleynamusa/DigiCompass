@@ -52,8 +52,8 @@ export function RouteCard({ route, onViewDetails, onLoginRequired, onDelete, onA
     const canDelete = Boolean(isCreator || isAdmin);
 
     const payload =
-        user?.id && route?.id
-            ? { userId: Number(user.id), routeId: route.id }
+        route?.id
+            ? {routeId: route.id}
             : null;
 
     useEffect(() => {
@@ -77,10 +77,10 @@ export function RouteCard({ route, onViewDetails, onLoginRequired, onDelete, onA
                     onLoginRequired();
                     return;
                 }
-                await favouriteRoute(payload);
+                await favouriteRoute(route.id);
                 setIsFavorite(true);
             } else {
-                await unfavoriteRoute(payload);
+                await unfavoriteRoute(route.id);
                 setIsFavorite(false);
             }
         } catch (err) {

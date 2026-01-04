@@ -8,6 +8,7 @@ import com.digicompass.backend.controller.dto.RouteGeometryDto;
 import com.digicompass.backend.controller.dto.request.RouteRequestDto;
 import com.digicompass.backend.controller.mapper.RouteMapperController;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,8 +88,8 @@ public class RouteController {
     }
 
     @PostMapping(path = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<RouteDto> createRoute(@AuthenticationPrincipal UserPrincipal principal, @ModelAttribute RouteRequestDto routeDto) throws IOException {
-//            routeService.saveRoute(routeMapper.toDomain(routeDto), routeDto.getImages());
+    public ResponseEntity<RouteDto> createRoute(@AuthenticationPrincipal UserPrincipal principal,@Valid @ModelAttribute RouteRequestDto routeDto) throws IOException {
+
             routeService.saveRoute(routeMapper.toDomain(routeDto),routeDto.getImages(), principal.getId());
 
             log.info("[CONTROLLER] Created route.");

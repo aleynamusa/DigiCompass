@@ -28,7 +28,6 @@ export const updateProfileVisibility = (id, isPublicProfile) =>
 export const routesCreatedByUserId = (id) =>
     axiosClient.get(`/users/${id}/routes`);
 
-// const res = await axios.get(`${API_URL}/route`);
 
-export const favouriteRoute = (ids) => axiosClient.post(`/action/favorite`,ids);
-export const unfavoriteRoute = (ids) => axiosClient.post(`/action/unfavorite`,ids);
+export const favouriteRoute = (routeId) => axiosClient.post(`/action/favorite`, null, { params: { routeId } });
+export const unfavoriteRoute = (routeId) => axiosClient.post(`/action/unfavorite`, null, { params: { routeId } });

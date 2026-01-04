@@ -42,12 +42,12 @@ public class ReviewControllerCatchIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
-    void getReviewsByRoute_shouldReturnBadRequest_whenServiceThrowsIllegalArgument() throws Exception {
+    void getReviewsByRoute_shouldReturnInternalServerError_whenServiceThrowsIllegalArgument() throws Exception {
         Mockito.when(reviewService.getReviewsByRoute(1L))
                 .thenThrow(new IllegalArgumentException("Invalid route"));
 
         mockMvc.perform(get("/review/route/1"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isInternalServerError());
     }
 
     @Test
@@ -75,12 +75,12 @@ public class ReviewControllerCatchIntegrationTest extends BaseIntegrationTest {
 
 
     @Test
-    void deleteReview_shouldReturnNotFound_whenServiceThrowsIllegalArgument() throws Exception {
+    void deleteReview_shouldReturnInternalServerError_whenServiceThrowsIllegalArgument() throws Exception {
         Mockito.doThrow(new IllegalArgumentException("Not found"))
                 .when(reviewService).deleteReview(1L);
 
         mockMvc.perform(delete("/review/delete/1"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isInternalServerError());
     }
     @Test
     void deleteReview_shouldReturnForbidden_whenAccessDenied() throws Exception {

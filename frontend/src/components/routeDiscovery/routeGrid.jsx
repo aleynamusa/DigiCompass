@@ -6,7 +6,6 @@ import {useAuth} from "@/context/AuthContext.jsx";
 export default function RouteGrid({ routes, onViewDetails, onLoginRequired }) {
     const [tripModalOpen, setTripModalOpen] = useState(false);
     const [selectedRouteForTrip, setSelectedRouteForTrip] = useState(null);
-    const { user } = useAuth();
 
     if (routes.length === 0) {
         return (
@@ -38,7 +37,6 @@ export default function RouteGrid({ routes, onViewDetails, onLoginRequired }) {
             <TripCreation
                 openedPop={tripModalOpen}
                 setOpenedPop={setTripModalOpen}
-                userId={user?.id}
                 preselectedRoute={selectedRouteForTrip}
             />
         </>

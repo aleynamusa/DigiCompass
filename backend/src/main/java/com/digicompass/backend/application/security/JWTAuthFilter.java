@@ -61,7 +61,7 @@ public class JWTAuthFilter extends OncePerRequestFilter {
 
             String role = "";
             if (roleId != null && roleId == 1L) {
-                role = "ROLE_ADMIN";
+                role = "ROLE_ADMIN"; //SimpleGrantedAuthority
             } else if (roleId != null && roleId == 2L) {
                 role = "ROLE_USER";
             } else {

@@ -33,7 +33,7 @@ public class RouteControllerCatchIntegrationTest extends BaseIntegrationTest {
                 .thenThrow(new IllegalArgumentException("Invalid input"));
 
         mockMvc.perform(get("/route"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isInternalServerError());
     }
 
 

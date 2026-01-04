@@ -9,6 +9,7 @@ import com.digicompass.backend.controller.dto.RouteGeometryDto;
 import com.digicompass.backend.controller.dto.request.RouteRequestDto;
 import com.digicompass.backend.types.Difficulty;
 import com.digicompass.backend.types.RouteType;
+import jakarta.validation.Valid;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.geojson.GeoJsonReader;
 import org.mapstruct.Mapper;
@@ -32,11 +33,11 @@ public interface RouteMapperController {
     @Mapping(target = "images", ignore = true)
     @Mapping(target = "createdByUserId", ignore = true)
     @Mapping(target = "routeGeometry", expression = "java(parseGeoJsonToGeometry(dto.getGeometry()))")
-    Route toDomain(RouteRequestDto dto);
+    Route toDomain(@Valid RouteRequestDto dto);
 
 
     @Mapping(target = "images", ignore = true)
-    RouteDto toControllerRouteDto(RouteRequestDto dto);
+    RouteDto toControllerRouteDto(@Valid RouteRequestDto dto);
 
 
     @Mapping(target = "createdByUserId.id", source="createdByUserId.id")

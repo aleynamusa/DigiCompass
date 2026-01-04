@@ -87,7 +87,7 @@ public class UserControllerCatchIntegrationTest extends BaseIntegrationTest {
         mockMvc.perform(multipart("/users/profilePictureUpdate/{id}", user.getId())
                         .file(file)
                         .contentType(MediaType.MULTIPART_FORM_DATA))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isInternalServerError())
                 .andExpect(content().string("Internal server error"));
     }
 

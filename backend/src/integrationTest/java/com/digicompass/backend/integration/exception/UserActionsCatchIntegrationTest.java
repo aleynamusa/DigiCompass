@@ -1,29 +1,38 @@
 package com.digicompass.backend.integration.exception;
 
 import com.digicompass.backend.application.interfaces.UserActionsService;
+import com.digicompass.backend.configuration.UserPrincipal;
 import com.digicompass.backend.integration.BaseIntegrationTest;
-import jakarta.persistence.EntityNotFoundException;
+import com.digicompass.backend.repository.entity.UserEntity;
+import com.digicompass.backend.repository.repositories.UserJpaRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.MediaType;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.when;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-
+@Transactional
+@Rollback
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 public class UserActionsCatchIntegrationTest extends BaseIntegrationTest {
+
+    @Autowired
+    private UserJpaRepository userRepository;
 
     @Autowired
     private MockMvc mockMvc;
@@ -41,30 +50,64 @@ public class UserActionsCatchIntegrationTest extends BaseIntegrationTest {
         """.formatted(userId, routeId);
     }
 
+    private UserEntity createAndSaveTestUser(String username, String email) {
+        UserEntity user = new UserEntity();
+        user.setUsername(username);
+        user.setEmail(email);
+        user.setBirthDate(LocalDate.of(1990, 1, 1));
+        user.setPassword("pw");
+        return userRepository.saveAndFlush(user);
+    }
+
+    private UserPrincipal createUserPrincipal(UserEntity user) {
+        return new UserPrincipal(
+                user.getId(),
+                user.getUsername(),
+                user.getPassword(),
+                List.of(new SimpleGrantedAuthority("ROLE_USER"))
+        );
+    }
+
+    private UserEntity testUser;
+    private UserPrincipal testPrincipal;
+
+    @BeforeEach
+    void setUp() {
+        testUser = createAndSaveTestUser("testuser", "test@mail.com");
+        testPrincipal = createUserPrincipal(testUser);
+    }
+
+    private UsernamePasswordAuthenticationToken createAuthToken(UserPrincipal principal) {
+        return new UsernamePasswordAuthenticationToken(
+                principal,
+                null,
+                principal.getAuthorities()
+        );
+    }
+
     @Test
     void shouldReturnBadRequest_whenIllegalArgument() throws Exception {
         Mockito.doThrow(new IllegalArgumentException("User or route does not exist."))
                 .when(userActionsService)
-                .favouriteRoute(2L, 2L);
+                .favouriteRoute(testPrincipal.getId(), 2L);
 
         mockMvc.perform(post("/action/favorite")
                         .contentType(String.valueOf(MediaType.APPLICATION_JSON))
-                        .content(favoriteJson(2L, 2L))
-                        .with(user("testuser").roles("USER")))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string("Internal server error"));
+                        .param("routeId", "2")
+                        .with(authentication(createAuthToken(testPrincipal))))
+                .andExpect(status().isInternalServerError());
     }
 
     @Test
     void shouldReturnInternalServerError_whenUnexpectedException() throws Exception {
         Mockito.doThrow(new RuntimeException("DB down"))
                 .when(userActionsService)
-                .favouriteRoute(3L, 3L);
+                .favouriteRoute(testPrincipal.getId(), 3L);
 
         mockMvc.perform(post("/action/favorite")
                         .contentType(String.valueOf(MediaType.APPLICATION_JSON))
-                        .content(favoriteJson(3L, 3L))
-                        .with(user("testuser").roles("USER")))
+                        .param("routeId", "3")
+                        .with(authentication(createAuthToken(testPrincipal))))
                 .andExpect(status().isInternalServerError())
                 .andExpect(content().string("Internal server error"));
     }
@@ -73,25 +116,24 @@ public class UserActionsCatchIntegrationTest extends BaseIntegrationTest {
     void isLikedRoute_ShouldReturnBadRequest_WhenIllegalArgument() throws Exception {
         Mockito.doThrow(new IllegalArgumentException("User or route does not exist."))
                 .when(userActionsService)
-                .isLikedRoute(2L, 2L);
+                .isLikedRoute(testPrincipal.getId(), 2L);
 
         mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/action/isLiked")
-                        .param("userId", "2")
                         .param("routeId", "2")
-                        .with(user("testuser").roles("USER")))
-                .andExpect(status().isBadRequest())
+                        .with(authentication(createAuthToken(testPrincipal))))
+                .andExpect(status().isInternalServerError())
                 .andExpect(content().string("Internal server error"));
     }
+
     @Test
     void isLikedRoute_ShouldInternalServerError_WhenUnexpectedException() throws Exception {
         Mockito.doThrow(new RuntimeException("DB down"))
                 .when(userActionsService)
-                .isLikedRoute(3L, 3L);
+                .isLikedRoute(testPrincipal.getId(), 3L);
 
         mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/action/isLiked")
-                        .param("userId", "3")
                         .param("routeId", "3")
-                        .with(user("testuser").roles("USER")))
+                        .with(authentication(createAuthToken(testPrincipal))))
                 .andExpect(status().isInternalServerError())
                 .andExpect(content().string("Internal server error"));
     }
@@ -104,9 +146,9 @@ public class UserActionsCatchIntegrationTest extends BaseIntegrationTest {
 
         mockMvc.perform(post("/action/unfavorite")
                         .contentType(String.valueOf(MediaType.APPLICATION_JSON))
-                        .content(favoriteJson(any(), any()))
-                        .with(user("testuser").roles("USER")))
-                .andExpect(status().isBadRequest())
+                        .param("routeId", "1")
+                        .with(authentication(createAuthToken(testPrincipal))))
+                .andExpect(status().isInternalServerError())
                 .andExpect(content().string("Internal server error"));
     }
 
@@ -114,12 +156,12 @@ public class UserActionsCatchIntegrationTest extends BaseIntegrationTest {
     void unfavoriteRoute_ShouldReturnInternalServerError_whenException() throws Exception {
         Mockito.doThrow(new RuntimeException("Error unliking the route."))
                 .when(userActionsService)
-                .unfavouriteRoute(any(), any());
+                .unfavouriteRoute(testPrincipal.getId(), 1L);
 
         mockMvc.perform(post("/action/unfavorite")
                         .contentType(String.valueOf(MediaType.APPLICATION_JSON))
-                        .content(favoriteJson(any(), any()))
-                        .with(user("testuser").roles("USER")))
+                        .param("routeId", "1")
+                .with(authentication(createAuthToken(testPrincipal))))
                 .andExpect(status().isInternalServerError())
                 .andExpect(content().string("Internal server error"));
     }

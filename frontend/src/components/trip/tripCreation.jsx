@@ -6,7 +6,6 @@ import RouteAutocomplete from "@/components/trip/routeAutocomplete.jsx";
 import {DateTimePicker} from "@mantine/dates";
 
 export const TripCreation = ({
-                                 userId,
                                  openedPop,
                                  setOpenedPop,
                                  preselectedRoute
@@ -29,10 +28,15 @@ export const TripCreation = ({
             plannedDate,
             routeId,
             accessibility,
-            userId,
         })
             .then(() => {
+                setTripTitle("");
+                setDescription("");
+                setRouteId(null);
+                setRouteName("");
+                setAccessibility(false);
                 setOpenedPop(false);
+
             })
             .catch(error => {
                 console.error("Failed to create trip:", error);
@@ -88,7 +92,6 @@ export const TripCreation = ({
                             value={plannedDate}
                             onChange={(date) => {
                                 console.log("Date selected:", date, typeof date);
-                                // Always convert to Date object
                                 const dateObj = typeof date === 'string' ? new Date(date) : date;
                                 setPlannedDate(dateObj);
                             }}
