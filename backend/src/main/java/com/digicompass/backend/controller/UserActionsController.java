@@ -2,11 +2,8 @@ package com.digicompass.backend.controller;
 
 import com.digicompass.backend.application.interfaces.UserActionsService;
 import com.digicompass.backend.configuration.UserPrincipal;
-import com.digicompass.backend.controller.dto.request.FavouriteRouteRequest;
-import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;

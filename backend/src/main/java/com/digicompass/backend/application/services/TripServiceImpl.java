@@ -3,8 +3,6 @@ package com.digicompass.backend.application.services;
 import com.digicompass.backend.application.interfaces.TripService;
 import com.digicompass.backend.application.mapper.TripMapper;
 import com.digicompass.backend.application.models.Trip;
-import com.digicompass.backend.application.models.User;
-import com.digicompass.backend.repository.repositories.RouteJpaRepository;
 import com.digicompass.backend.repository.repositories.TripJpaRepository;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -18,13 +16,11 @@ import java.util.List;
 public class TripServiceImpl implements TripService {
 
     private final TripJpaRepository tripJpaRepository;
-    private final RouteJpaRepository routeRepository;
     private final TripMapper tripMapper;
 
     @Autowired
-    public TripServiceImpl(TripJpaRepository tripJpaRepository, RouteJpaRepository routeRepository, TripMapper tripMapper) {
+    public TripServiceImpl(TripJpaRepository tripJpaRepository, TripMapper tripMapper) {
         this.tripJpaRepository = tripJpaRepository;
-        this.routeRepository = routeRepository;
         this.tripMapper = tripMapper;
     }
 

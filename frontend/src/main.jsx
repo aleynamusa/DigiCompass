@@ -21,6 +21,7 @@ import '@mantine/dates/styles.css';
 import SignUpForm from "@/pages/Auth/SignUp.jsx";
 import LogIn from "@/pages/Auth/LogIn.jsx";
 import {ModalsProvider} from "@mantine/modals";
+import ProtectedRoute from "@/ProtectedRoutes.jsx";
 
 
 ReactDOM.createRoot(document.getElementById("root")).render(
@@ -37,11 +38,18 @@ ReactDOM.createRoot(document.getElementById("root")).render(
                             <Route element={<Layout />}>
                                 <Route path="/" element={<Home />} />
                                 <Route path="/routeDiscovery" element={<RouteDiscovery />} />
-                                <Route path="/profile" element={<Profile />} />
-                                <Route path="/profile/:userId" element={<Profile />} />
+
+
                                 <Route path="/edit-profile" element={<EditProfile />} />
                                 <Route path="/weather" element={<WeatherForecast />} />
                                 <Route path="/tripPlanning" element={<TripPlanning />} />
+                            </Route>
+                            <Route element={<ProtectedRoute />}>
+                                <Route element={<Layout />}>
+                                    <Route path="/profile/:userId" element={<Profile />} />
+                                    <Route path="/profile" element={<Profile />} />
+                                </Route>
+
                             </Route>
                         </Routes>
                     </BrowserRouter>

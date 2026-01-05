@@ -1,4 +1,3 @@
-// utils/routeCalculations.js
 import { SPEED_MATRIX } from '../constants/routeConfig';
 
 export const calculateEstimatedTime = (distanceKm, difficulty, routeType) => {

@@ -5,7 +5,7 @@ import { getUserProfile, routesCreatedByUserId } from "@/api/userApi.jsx";
 import { getLikedRoutesByUser } from "@/api/routeApi";
 import { Alert, Divider, Stack } from "@mantine/core";
 import { AlertCircle } from "lucide-react";
-import ProfileHeader from "@/components/profile/profileTabs.jsx";
+import ProfileHeader from "@/components/profile/profileHeader.jsx";
 import ProfileInfo from "@/components/profile/profileInfo.jsx";
 import ProfileTabs from "@/components/profile/profileTabs.jsx";
 import {RouteDetails} from "@/components/routeDetails/route_details.jsx";
@@ -66,13 +66,14 @@ export default function Profile() {
             )}
 
             <Stack>
-                <ProfileHeader
-                    profileData={profileData}
-                    isOwnProfile={isOwnProfile}
-                    isPrivate={profileData.isPublicProfile}
-                    navigate={navigate}
-                    isAdmin={isAdmin}
-                />
+
+
+                <ProfileHeader profileData={profileData}
+                               isOwnProfile={isOwnProfile}
+                               isPrivate={profileData.isPublicProfile}
+                               navigate={navigate}
+                               isAdmin={isAdmin} />
+
 
                 <Divider />
 
