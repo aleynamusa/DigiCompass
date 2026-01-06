@@ -6,5 +6,6 @@ import java.util.List;
 
 public interface TripService {
     void createTrip(Trip trip,Long id);
-    List<String> getAllRoutes();
+    List<String> getAllTrips();
+
 }

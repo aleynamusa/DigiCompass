@@ -1,13 +1,13 @@
 package com.digicompass.backend.controller;
 
+import com.digicompass.backend.application.interfaces.WeatherRecommendationService;
 import com.digicompass.backend.application.interfaces.WeatherService;
-import com.digicompass.backend.controller.dto.GeoLocationResponseDto;
+import com.digicompass.backend.application.models.weather.RecommendedDay;
 import com.digicompass.backend.controller.dto.response.CurrentWeatherResponseDto;
 import com.digicompass.backend.controller.dto.response.DailyWeatherResponseDto;
 import com.digicompass.backend.controller.dto.response.HourlyWeatherResponseDto;
-import com.digicompass.backend.controller.mapper.WeatherMapper;
+import com.digicompass.backend.controller.mapper.WeatherMapperController;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import jakarta.validation.constraints.NotBlank;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -17,25 +17,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @Slf4j
 @RequestMapping("/weather")
 public class WeatherController {
 
     private final WeatherService weatherService;
-    private final WeatherMapper weatherMapper;
+    private final WeatherMapperController weatherMapper;
+    private final WeatherRecommendationService recommendationService;
 
     @Autowired
-    public WeatherController(WeatherService weatherService, WeatherMapper weatherMapper) {
+    public WeatherController(WeatherService weatherService, WeatherMapperController weatherMapper, WeatherRecommendationService recommendationService) {
         this.weatherService = weatherService;
         this.weatherMapper = weatherMapper;
+        this.recommendationService = recommendationService;
     }
-
-    @GetMapping(value = "/location", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<GeoLocationResponseDto> getGeoInfo(@NotBlank @RequestParam String name){
-        return ResponseEntity.ok(weatherMapper.toDto(weatherService.fetchLocation(name)));
-    }
-
 
     @GetMapping(value = "/current", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<CurrentWeatherResponseDto> getCurrentWeather(
@@ -62,6 +60,14 @@ public class WeatherController {
 
         log.info("[CONTROLLER] Fetching daily weather info.");
         return ResponseEntity.ok(weatherMapper.toDailyDto(weatherService.fetchWeatherDaily(latitude, longitude)));
+    }
 
+    @GetMapping("/recommendations")
+    public List<RecommendedDay> getRecommendations(
+            @RequestParam double lat,
+            @RequestParam double lon
+    ) throws JsonProcessingException {
+        log.info("[CONTROLLER] Fetching recommendations weather info for lat: {} and long:{}.", lat, lon);
+        return recommendationService.recommendDays(lat, lon);
     }
 }

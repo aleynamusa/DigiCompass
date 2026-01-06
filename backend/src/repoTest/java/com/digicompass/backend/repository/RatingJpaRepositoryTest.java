@@ -7,25 +7,16 @@ import com.digicompass.backend.types.RouteType;
 import jakarta.persistence.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.util.List;
 
-@ExtendWith(SpringExtension.class) //H2 database - in memory database(stores in RAM)
-@DataJpaTest
-@TestPropertySource(properties = {
-        "spring.flyway.enabled=false",
-        "spring.jpa.hibernate.ddl-auto=create"
-})
-@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 
-class RatingJpaRepositoryTest {
+@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+class RatingJpaRepositoryTest extends BaseRepositoryTest{
     @Autowired
     private EntityManager entityManager;
     @Autowired
@@ -41,6 +32,10 @@ class RatingJpaRepositoryTest {
 
     @BeforeEach
     void setup() {
+        entityManager.createNativeQuery("TRUNCATE TABLE routes, users RESTART IDENTITY CASCADE").executeUpdate();
+        entityManager.flush();
+        entityManager.clear();
+
         RoleEntity role = new RoleEntity();
         role.setRole("USER");
         entityManager.persist(role);

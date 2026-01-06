@@ -1,6 +1,5 @@
 package com.digicompass.backend.integration;
 
-
 import com.digicompass.backend.repository.entity.RoleEntity;
 import com.digicompass.backend.repository.entity.UserEntity;
 import com.digicompass.backend.repository.repositories.RoleJpaRepository;
@@ -8,28 +7,21 @@ import com.digicompass.backend.repository.repositories.UserJpaRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDate;
+import java.util.Set;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-
-import com.digicompass.backend.application.interfaces.EmailService;
 import org.springframework.http.MediaType;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.times;
-
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 public class ResetPasswordControllerIntegrationTest extends BaseIntegrationTest {
 
-    @Autowired
-    private MockMvc mockMvc;
 
     @Autowired
     private UserJpaRepository userRepo;
@@ -37,8 +29,8 @@ public class ResetPasswordControllerIntegrationTest extends BaseIntegrationTest 
     @Autowired
     private RoleJpaRepository roleRepo;
 
-    @MockitoBean
-    private EmailService emailService;
+    @Autowired
+    private StringRedisTemplate redisTemplate;
 
 
     @BeforeEach
@@ -67,31 +59,42 @@ public class ResetPasswordControllerIntegrationTest extends BaseIntegrationTest 
         mockMvc.perform(post("/password/forgot")
                         .param("email", "test@mail.com")
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(content().string("Password reset link sent"));
 
-        verify(emailService, times(1)).sendResetLink(anyString(), anyString());
     }
 
     @Test
     void resetPasswordShouldUpdateUserPassword() throws Exception {
+
         mockMvc.perform(post("/password/forgot")
                         .param("email", "test@mail.com"))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(content().string("Password reset link sent"));
 
-        var captor = org.mockito.ArgumentCaptor.forClass(String.class);
-        verify(emailService).sendResetLink(captor.capture(), captor.capture());
+        Set<String> keys = redisTemplate.keys("*");
+        assertThat(keys)
+                .withFailMessage("No password reset token found in Redis")
+                .isNotEmpty();
 
-        String token = captor.getAllValues().get(1);
+        String token = keys.iterator().next();
+
+        String storedEmail = redisTemplate.opsForValue().get(token);
+        assertThat(storedEmail).isEqualTo("test@mail.com");
 
         mockMvc.perform(post("/password/reset")
                         .param("token", token)
-                        .param("password", "newSecret123@"))
-                .andExpect(status().isOk());
+                        .param("password", "NewSecret123@"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Password successfully reset"));
 
         UserEntity updatedUser = userRepo.findByEmail("test@mail.com");
 
         assertThat(updatedUser.getPassword())
-                .isNotEqualTo("oldpassword123")
-                .isNotBlank();
+                .isNotBlank()
+                .isNotEqualTo("oldpassword123");
+
+        assertThat(redisTemplate.hasKey(token)).isFalse();
     }
+
 }

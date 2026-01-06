@@ -65,12 +65,9 @@ public class AuthController {
                 response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
             }
 
-
             Map<String, String> body = Map.of("accessToken", tokens.get("accessToken"));
             log.info("[CONTROLLER] User logged in successfully.");
             return ResponseEntity.ok(body);
-
-
     }
 
     @PostMapping("/refresh")

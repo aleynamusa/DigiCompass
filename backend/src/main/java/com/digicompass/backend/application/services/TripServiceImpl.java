@@ -40,11 +40,8 @@ public class TripServiceImpl implements TripService {
     }
 
     @Override
-    public List<String> getAllRoutes() {
-//        try{
-//            log.info("[SERVICE] Getting all routes");
-//            routeRepository.
-//        }
+    public List<String> getAllTrips() {
         return List.of();
     }
+
 }

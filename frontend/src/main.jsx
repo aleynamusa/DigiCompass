@@ -38,8 +38,6 @@ ReactDOM.createRoot(document.getElementById("root")).render(
                             <Route element={<Layout />}>
                                 <Route path="/" element={<Home />} />
                                 <Route path="/routeDiscovery" element={<RouteDiscovery />} />
-
-
                                 <Route path="/edit-profile" element={<EditProfile />} />
                                 <Route path="/weather" element={<WeatherForecast />} />
                                 <Route path="/tripPlanning" element={<TripPlanning />} />
@@ -49,7 +47,6 @@ ReactDOM.createRoot(document.getElementById("root")).render(
                                     <Route path="/profile/:userId" element={<Profile />} />
                                     <Route path="/profile" element={<Profile />} />
                                 </Route>
-
                             </Route>
                         </Routes>
                     </BrowserRouter>

@@ -18,11 +18,6 @@ import java.util.List;
 
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 public class MapControllerIntegrationTest extends BaseIntegrationTest {
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    MapMapper mapMapperMock;
 
     @Test
     void routeInfoTest_Throws() throws Exception {
@@ -33,7 +28,6 @@ public class MapControllerIntegrationTest extends BaseIntegrationTest {
                 ),
                 "walk"
         );
-
 
         mockMvc.perform(post("/map")
                         .contentType("application/json")
@@ -81,8 +75,6 @@ public class MapControllerIntegrationTest extends BaseIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string("Paris"));
     }
-
-
 
 
 }

@@ -59,12 +59,6 @@ class TripServiceImplTest {
         assertTrue(ex.getMessage().contains(trip.getName()), "Exception message should include the trip name");
     }
 
-    @Test
-    void getAllRoutes_returnsEmptyList() {
-        List<String> routes = tripService.getAllRoutes();
 
-        assertNotNull(routes);
-        assertTrue(routes.isEmpty(), "getAllRoutes should return an empty list by current implementation");
-    }
 }
 

@@ -3,23 +3,13 @@ package com.digicompass.backend.repository;
 import com.digicompass.backend.repository.entity.RoleEntity;
 import com.digicompass.backend.repository.repositories.RoleJpaRepository;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@ExtendWith(SpringExtension.class)
-@DataJpaTest
-@TestPropertySource(properties = {
-        "spring.flyway.enabled=false",
-        "spring.jpa.hibernate.ddl-auto=create"
-})
-@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 
-class RoleJpaRepositoryTest {
+@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+class RoleJpaRepositoryTest extends BaseRepositoryTest{
 
     @Autowired
     private RoleJpaRepository roleRepository;

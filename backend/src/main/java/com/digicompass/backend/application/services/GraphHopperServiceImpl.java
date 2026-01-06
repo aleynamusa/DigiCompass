@@ -1,50 +1,31 @@
 package com.digicompass.backend.application.services;
 
-
 import com.digicompass.backend.application.interfaces.GraphHopperService;
-
-import com.digicompass.backend.application.models.map.GraphHopper;
+import com.digicompass.backend.application.mapper.GraphHopperMapper;
 import com.digicompass.backend.application.models.map.GraphHopperPath;
 import com.digicompass.backend.application.models.map.Point;
 import com.digicompass.backend.application.models.map.RouteMap;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.digicompass.backend.repository.interfaces.GraphHopperClient;
 import com.google.maps.internal.PolylineEncoding;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.util.UriComponentsBuilder;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+
 
 @Service
 @Slf4j
 public class GraphHopperServiceImpl implements GraphHopperService {
-    private final WebClient webClient;
-    private final WebClient webClientReverse;
-    private final ObjectMapper objectMapper;
-    @Value("${graphhopper.api-key}")
-    private String apiKey;
-
-    private static final Map<String, String> PROFILE_MAP = Map.of(
-            "walk", "foot",
-            "bike", "bike",
-            "car", "car"
-    );
+    private final GraphHopperClient  graphHopperClient;
+    private final GraphHopperMapper graphHopperMapper;
 
     @Autowired
     public GraphHopperServiceImpl(
-            WebClient.Builder builder,
-            @Value("${graphhopper.base-url}") String baseUrl,
-            @Value("${graphhopper.reverse.base-url}") String reverseUrl, ObjectMapper objectMapper
+            GraphHopperClient graphHopperClient, GraphHopperMapper graphHopperMapper
     ) {
-        this.objectMapper = objectMapper;
-        this.webClientReverse = builder.baseUrl(reverseUrl).build();
-        this.webClient = builder.baseUrl(baseUrl).build();
+        this.graphHopperClient = graphHopperClient;
+        this.graphHopperMapper = graphHopperMapper;
     }
 
     @Override
@@ -67,11 +48,10 @@ public class GraphHopperServiceImpl implements GraphHopperService {
             long totalTime = 0;
 
             for (int i = 0; i < segments.size(); i++) {
-                GraphHopperPath path = fetchSegment(
+                GraphHopperPath path = graphHopperMapper.getGraphHopperPath(graphHopperClient.fetchSegment(
                         segments.get(i),
-                        routeType,
-                        apiKey
-                );
+                        routeType
+                ));
 
                 List<Point> decoded = decodePolyline(path.getPoints());
 
@@ -108,40 +88,10 @@ public class GraphHopperServiceImpl implements GraphHopperService {
     }
 
     @Override
-    public String getCurrentLocationAsCity(double latitude, double longitude){
-        try {
-            log.info("[SERVICE] Fetching Current City");
-
-            UriComponentsBuilder uri = UriComponentsBuilder.newInstance()
-                    .queryParam("point", latitude + "," + longitude)
-                    .queryParam("reverse", true)
-                    .queryParam("key", apiKey);
-
-            String response = webClientReverse.get()
-                    .uri(uri.build().toUriString())
-                    .retrieve()
-                    .bodyToMono(String.class)
-                    .block();
-
-            JsonNode root = objectMapper.readTree(response);
-            JsonNode hits = root.path("hits");
-
-            if (hits.isArray() && hits.size() > 0) {
-                for (JsonNode hit : hits) {
-                    JsonNode cityNode = hit.get("city");
-                    if (cityNode != null && !cityNode.isNull()) {
-                        return cityNode.asText();
-                    }
-                }
-            }
-
-            return "Unknown city";
-
-        } catch (Exception e) {
-            log.error("[SERVICE] Error fetching current city information", e);
-            throw new RuntimeException("Error fetching current city information: " + e.getMessage());
-        }
+    public String getCurrentLocationAsCity(double latitude, double longitude) {
+        return graphHopperClient.getCurrentLocationAsCity(latitude, longitude);
     }
+
 
     private String getDurationHour(long durationMin) {
         long totalHours = durationMin / 3_600_000;
@@ -158,42 +108,7 @@ public class GraphHopperServiceImpl implements GraphHopperService {
         }
     }
 
-    private GraphHopperPath fetchSegment(
-            List<Point> points,
-            String routeType,
-            String apiKey
-    ) {
-        String profile = PROFILE_MAP.getOrDefault(routeType, "foot");
 
-        try{
-            log.info("Fetching segment from GraphHopper with profile: {}", profile);
-
-            UriComponentsBuilder uri = UriComponentsBuilder.newInstance()
-                    .queryParam("profile", profile)
-                    .queryParam("points_encoded", true)
-                    .queryParam("locale", "en")
-                    .queryParam("key", apiKey);
-
-            points.forEach(p ->
-                    uri.queryParam("point", p.getLat() + "," + p.getLng())
-            );
-
-
-            return webClient.get()
-                    .uri(uri.build().toUriString())
-                    .retrieve()
-                    .bodyToMono(GraphHopper.class)
-                    .block()
-                    .getPaths()
-                    .get(0);
-
-        }
-        catch(Exception e){
-            log.error("[SERVICE] Error logging profile information", e);
-            throw new RuntimeException("Error logging profile information: " + e.getMessage());
-        }
-
-    }
 
     private List<List<Point>> segmentPoints(List<Point> points, int max) {
         try{
@@ -235,3 +150,5 @@ public class GraphHopperServiceImpl implements GraphHopperService {
     }
 
 }
+
+

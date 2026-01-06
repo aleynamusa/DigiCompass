@@ -5,7 +5,6 @@ import com.digicompass.backend.controller.dto.RouteDto;
 import com.digicompass.backend.controller.dto.response.UserResponseDto;
 import com.digicompass.backend.controller.mapper.RouteMapperController;
 import com.digicompass.backend.controller.mapper.UserMapperController;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;

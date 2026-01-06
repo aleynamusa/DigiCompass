@@ -1,6 +1,7 @@
 package com.digicompass.backend.integration;
 
 import com.digicompass.backend.controller.dto.request.LogInRequest;
+import com.digicompass.backend.controller.dto.request.UserRequestDto;
 import com.digicompass.backend.repository.entity.RoleEntity;
 import com.digicompass.backend.repository.repositories.RoleJpaRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,8 +22,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 class AuthControllerIntegrationTest extends BaseIntegrationTest {
 
-    @Autowired
-    private MockMvc mockMvc;
 
     @Autowired
     private RoleJpaRepository roleRepository;
@@ -39,13 +38,12 @@ class AuthControllerIntegrationTest extends BaseIntegrationTest {
         }
     }
 
-
     private String toJson(Object obj) throws Exception {
         return objectMapper.writeValueAsString(obj);
     }
 
     private void signUpUser(String username, String email, LocalDate birthDate, String password) throws Exception {
-        SignUpRequestTestDto request = new SignUpRequestTestDto(username, email, birthDate, password);
+        UserRequestDto request = new UserRequestDto(username, email, birthDate, password);
 
         mockMvc.perform(post("/auth/signUp")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -64,7 +62,7 @@ class AuthControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void signUp_createsUserSuccessfully() throws Exception {
-        SignUpRequestTestDto request = new SignUpRequestTestDto(
+        UserRequestDto request = new UserRequestDto(
                 "john_doe",
                 "john@example.com",
                 LocalDate.of(2000, 1, 1),
@@ -94,7 +92,7 @@ class AuthControllerIntegrationTest extends BaseIntegrationTest {
     @Test
     void refresh_returnsNewAccessToken_withRealAuthService() throws Exception {
 
-        SignUpRequestTestDto request = new SignUpRequestTestDto(
+        UserRequestDto request = new UserRequestDto(
                 "bob",
                 "bob@example.com",
                 LocalDate.of(1990, 1, 1),
@@ -128,7 +126,7 @@ class AuthControllerIntegrationTest extends BaseIntegrationTest {
     @Test
     void logout_returnsNewAccessToken_withRealAuthService() throws Exception {
 
-        SignUpRequestTestDto request = new SignUpRequestTestDto(
+        UserRequestDto request = new UserRequestDto(
                 "test",
                 "test@example.com",
                 LocalDate.of(1990, 1, 1),
@@ -172,12 +170,4 @@ class AuthControllerIntegrationTest extends BaseIntegrationTest {
                 .findFirst()
                 .orElse(null);
     }
-
-
-        record SignUpRequestTestDto(
-            String username,
-            String email,
-            LocalDate birthDate,
-            String password
-    ) {}
 }

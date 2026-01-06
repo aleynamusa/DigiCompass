@@ -70,7 +70,7 @@ public class AuthServiceImpl implements AuthService {
 
             UserEntity savedUser = userRepository.save(entity);
 
-            log.info("[SERVICE] User signed up successfully with id: {}", savedUser.getId());
+            log.info("[SERVICE] User signed up successfully with id: {}", savedUser.getUsername());
             return userMapper.toDomain(savedUser);
 
         } catch (Exception e) {

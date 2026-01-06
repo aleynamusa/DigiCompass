@@ -16,8 +16,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -32,8 +30,6 @@ public class TripControllerIntegrationTest extends BaseIntegrationTest {
     private ObjectMapper objectMapper;
 
 
-    @Autowired
-    private MockMvc mockMvc;
 
     private UserEntity createAndSaveTestUser(String username, String email) {
         UserEntity user = new UserEntity();
@@ -44,25 +40,16 @@ public class TripControllerIntegrationTest extends BaseIntegrationTest {
         return userRepository.saveAndFlush(user);
     }
 
-    private UserPrincipal createUserPrincipal(UserEntity user) {
-        return new UserPrincipal(
-                user.getId(),
-                user.getUsername(),
-                user.getPassword(),
-                List.of(new SimpleGrantedAuthority("ROLE_USER"))
-        );
-    }
+
 
     private UserEntity testUser;
-    private UserPrincipal testPrincipal;
 
     TripRequestDto dto = new TripRequestDto();
 
 
     @BeforeEach
     void setUp() {
-        testUser = createAndSaveTestUser("testuser", "test@mail.com");
-        testPrincipal = createUserPrincipal(testUser);
+        testUser = createAndSaveTestUser("testuser1", "test1@mail.com");
 
         dto.setName("Test Trip");
         dto.setDescription("Test Description");
@@ -71,18 +58,11 @@ public class TripControllerIntegrationTest extends BaseIntegrationTest {
         dto.setAccessibility(true);
     }
 
-    private UsernamePasswordAuthenticationToken createAuthToken(UserPrincipal principal) {
-        return new UsernamePasswordAuthenticationToken(
-                principal,
-                null,
-                principal.getAuthorities()
-        );
-    }
+
 
     @Test
     void shouldCreateTrip_success() throws Exception {
         mockMvc.perform(post("/trip")
-                        .with(authentication(createAuthToken(testPrincipal)))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk());

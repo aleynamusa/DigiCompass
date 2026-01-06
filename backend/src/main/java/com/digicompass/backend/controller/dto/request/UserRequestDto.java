@@ -12,8 +12,6 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserRequestDto {
-    @Positive(message = "UserId must be positive")
-    private Long id;
 
     @NotBlank(message = "Username cannot be blank")
     private String username;
@@ -27,7 +25,5 @@ public class UserRequestDto {
 
     @Pattern(regexp="^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$", message = "Please be sure that you have at least one Upper Case Letter, Lower Case Letter, Digit and Special Symbol")
     private String password;
-
-    private Long role;
 
 }

@@ -51,6 +51,7 @@ public class SecurityConfig {
                         .hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.POST, "/route/create")
                         .hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/action/**").hasAnyRole("USER", "ADMIN")
 
                         //EVERYTHING ELSE
                         .anyRequest().authenticated()

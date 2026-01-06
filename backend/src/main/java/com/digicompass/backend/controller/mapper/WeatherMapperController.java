@@ -15,7 +15,7 @@ import org.mapstruct.Mapping;
         componentModel = "spring",
         uses = WeatherCodeMapper.class
 )
-public interface WeatherMapper {
+public interface WeatherMapperController {
 
     GeoLocationResponseDto toDto(GeoLocationResponse geoLocation);
     @Mapping(

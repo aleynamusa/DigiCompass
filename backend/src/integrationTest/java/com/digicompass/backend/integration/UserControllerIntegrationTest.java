@@ -3,32 +3,19 @@ package com.digicompass.backend.integration;
 import com.digicompass.backend.repository.entity.RoleEntity;
 import com.digicompass.backend.repository.entity.UserEntity;
 import com.digicompass.backend.repository.repositories.RoleJpaRepository;
-import com.digicompass.backend.repository.repositories.UserJpaRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.web.servlet.MockMvc;
-
-
 import java.time.LocalDate;
-
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.hamcrest.Matchers.*;
 
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
-public class UserControllerIntegrationTest  extends BaseIntegrationTest {
-
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private UserJpaRepository userRepo;
+public class UserControllerIntegrationTest extends BaseIntegrationTest {
 
     @Autowired
     private RoleJpaRepository roleRepo;
@@ -37,29 +24,30 @@ public class UserControllerIntegrationTest  extends BaseIntegrationTest {
 
     @BeforeEach
     void setup() {
-        RoleEntity role = roleRepo.findByRole("USER");
+        RoleEntity role = roleRepo.findByRole("ADMIN");
         if (role == null) {
             role = new RoleEntity();
-            role.setRole("USER");
+            role.setRole("ADMIN");
             role = roleRepo.save(role);
         }
 
-        user = userRepo.findByEmail("test@mail.com");
-        if (user == null) {
             user = new UserEntity();
-            user.setUsername("testuser");
-            user.setEmail("test@mail.com");
+            user.setUsername("admin1");
+            user.setEmail("admin1@mail.com");
             user.setBirthDate(LocalDate.of(1995, 1, 1));
+            user.setImageUrl("imageurl");
             user.setPassword("oldpassword123");
+            user.setBio("Bio");
             user.setRole(role);
-            user = userRepo.save(user);
-        }
+            user.setPublicProfile(true);
+            user = userRepository.save(user);
+
     }
 
     @AfterEach
     void tearDown() {
         if (user != null && user.getId() != null) {
-            userRepo.deleteById(user.getId());
+            userRepository.deleteById(user.getId());
         }
     }
 
@@ -68,9 +56,12 @@ public class UserControllerIntegrationTest  extends BaseIntegrationTest {
         mockMvc.perform(get("/users/" + user.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(user.getId()))
-                .andExpect(jsonPath("$.username").value("testuser"))
-                .andExpect(jsonPath("$.email").value("test@mail.com"))
-                .andExpect(jsonPath("$.birthDate").value("1995-01-01"));
+                .andExpect(jsonPath("$.username").value(user.getUsername()))
+                .andExpect(jsonPath("$.email").value(user.getEmail()))
+                .andExpect(jsonPath("$.birthDate").value(user.getBirthDate().toString()))
+                .andExpect(jsonPath("$.imageUrl", containsString("imageurl")))
+                .andExpect(jsonPath("$.bio").value(user.getBio()))
+                .andExpect(jsonPath("$.publicProfile").value(user.isPublicProfile()));
     }
 
     @Test
@@ -131,7 +122,8 @@ public class UserControllerIntegrationTest  extends BaseIntegrationTest {
         mockMvc.perform(multipart("/users/profilePictureUpdate/{id}", user.getId())
                         .file(file)
                         .contentType(MediaType.MULTIPART_FORM_DATA))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Profile picture updated successfully"));
     }
 
     @Test
@@ -151,7 +143,7 @@ public class UserControllerIntegrationTest  extends BaseIntegrationTest {
 
     @Test
     void shouldReturnNotFoundWhenUpdatingProfilePictureForMissingUser() throws Exception {
-        userRepo.deleteById(user.getId());
+        userRepository.deleteById(user.getId());
 
         MockMultipartFile file = new MockMultipartFile(
                 "file", "test.jpg", MediaType.IMAGE_JPEG_VALUE, "bytes".getBytes()
@@ -174,9 +166,15 @@ public class UserControllerIntegrationTest  extends BaseIntegrationTest {
     @Test
     void shouldReturnUserSearchResults() throws Exception {
         mockMvc.perform(get("/users/search")
-                        .param("username", "test"))
+                        .param("username", "admin1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].username", is("testuser")));
+                .andExpect(jsonPath("$[0].id").value(user.getId()))
+                .andExpect(jsonPath("$[0].username").value(user.getUsername()))
+                .andExpect(jsonPath("$[0].email").value(user.getEmail()))
+                .andExpect(jsonPath("$[0].birthDate").value(user.getBirthDate().toString()))
+                .andExpect(jsonPath("$[0].imageUrl", containsString("imageurl")))
+                .andExpect(jsonPath("$[0].bio").value(user.getBio()))
+                .andExpect(jsonPath("$[0].publicProfile").value(user.isPublicProfile()));
     }
 
 }

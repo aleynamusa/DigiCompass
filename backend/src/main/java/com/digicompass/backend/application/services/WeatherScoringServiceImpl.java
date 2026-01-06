@@ -1,6 +1,5 @@
 package com.digicompass.backend.application.services;
 
-
 import com.digicompass.backend.application.interfaces.WeatherScoringService;
 import com.digicompass.backend.application.models.weather.RecommendedDay;
 import org.springframework.stereotype.Service;

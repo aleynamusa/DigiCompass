@@ -22,7 +22,6 @@ export function RouteCard({ route, onViewDetails, onLoginRequired, onDelete, onA
     const [isFavorite, setIsFavorite] = useState(false);
     const { user } = useAuth();
 
-    // Normalize roles/authorities from different backend shapes:
     const getRolesFromUser = (u) => {
         if (!u) return [];
         if (Array.isArray(u.roles) && u.roles.length) return u.roles.map(r => String(r)).filter(Boolean);
@@ -46,7 +45,6 @@ export function RouteCard({ route, onViewDetails, onLoginRequired, onDelete, onA
 
     const roles = getRolesFromUser(user);
 
-    // update isCreator/isAdmin checks to use normalized roles
     const isCreator = user && route && (Number(user.id) === Number(route?.createdByUserId?.id));
     const isAdmin = roles.includes("ROLE_ADMIN") || roles.includes("ADMIN");
     const canDelete = Boolean(isCreator || isAdmin);
@@ -105,7 +103,6 @@ export function RouteCard({ route, onViewDetails, onLoginRequired, onDelete, onA
 
         try {
             await deleteRoute(route.id);
-            // notify parent to remove from list if provided, otherwise reload as fallback
             if (typeof onDelete === "function") {
                 onDelete(route.id);
             } else {

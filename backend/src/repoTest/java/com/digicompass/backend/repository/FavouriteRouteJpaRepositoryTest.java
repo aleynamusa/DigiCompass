@@ -7,11 +7,7 @@ import com.digicompass.backend.types.RouteType;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -19,14 +15,9 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@ExtendWith(SpringExtension.class)
-@DataJpaTest
-@TestPropertySource(properties = {
-        "spring.flyway.enabled=false",
-        "spring.jpa.hibernate.ddl-auto=create"
-})
+
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
-class FavouriteRouteJpaRepositoryTest {
+class FavouriteRouteJpaRepositoryTest extends BaseRepositoryTest {
 
     @Autowired
     private EntityManager entityManager;
@@ -40,6 +31,11 @@ class FavouriteRouteJpaRepositoryTest {
 
     @BeforeEach
     void setup() {
+        // Clean up any existing data and reset sequences
+        entityManager.createNativeQuery("TRUNCATE TABLE favorite_route, routes, users RESTART IDENTITY CASCADE").executeUpdate();
+        entityManager.flush();
+        entityManager.clear();
+
         // Create and persist a user
         user = new UserEntity();
         user.setUsername("user1");
@@ -47,6 +43,7 @@ class FavouriteRouteJpaRepositoryTest {
         user.setBirthDate(LocalDate.of(1985, 5, 20));
         user.setPassword("password");
         entityManager.persist(user);
+        entityManager.flush(); // Flush to get the generated ID
 
         // Create and persist two routes
         route1 = new RouteEntity();
@@ -58,6 +55,7 @@ class FavouriteRouteJpaRepositoryTest {
         route1.setDuration("2h");
         route1.setCreatedByUserId(user);
         entityManager.persist(route1);
+        entityManager.flush();
 
         route2 = new RouteEntity();
         route2.setName("Route Two");
@@ -68,6 +66,7 @@ class FavouriteRouteJpaRepositoryTest {
         route2.setDuration("3h");
         route2.setCreatedByUserId(user);
         entityManager.persist(route2);
+        entityManager.flush();
 
         // Persist FavouriteRouteEntities for user liking route1 and route2
         FavouriteRouteEntity fav1 = new FavouriteRouteEntity(user, route1);

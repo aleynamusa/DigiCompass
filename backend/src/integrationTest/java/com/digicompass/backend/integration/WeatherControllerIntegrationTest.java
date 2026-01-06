@@ -4,14 +4,9 @@ import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.web.servlet.MockMvc;
-
 import java.io.IOException;
-
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -19,9 +14,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 public class WeatherControllerIntegrationTest extends BaseIntegrationTest {
-
-    @Autowired
-    private MockMvc mockMvc;
 
     static MockWebServer mockWeatherApi;
 
@@ -39,16 +31,6 @@ public class WeatherControllerIntegrationTest extends BaseIntegrationTest {
     @AfterAll
     static void shutdown() throws IOException {
         mockWeatherApi.shutdown();
-    }
-
-    @Test
-    void getGeoInfo_ShouldReturnOk() throws Exception {
-        mockMvc.perform(get("/weather/location")
-                        .param("name", "Paris"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.results[0].name").value("Paris"))
-                .andExpect(jsonPath("$.results[0].latitude").value(48.85341))
-                .andExpect(jsonPath("$.results[0].longitude").value(2.3488));
     }
 
 
