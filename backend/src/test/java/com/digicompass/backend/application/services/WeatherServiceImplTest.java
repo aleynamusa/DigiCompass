@@ -8,8 +8,6 @@ import com.digicompass.backend.repository.entity.weather.CurrentWeatherEntity;
 import com.digicompass.backend.repository.entity.weather.DailyWeatherEntity;
 import com.digicompass.backend.repository.entity.weather.HourlyWeatherEntity;
 import com.digicompass.backend.repository.interfaces.WeatherClient;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -60,10 +58,6 @@ class WeatherServiceImplTest {
         when(valueOperations.get(cacheKey)).thenReturn(null);
     }
 
-    private JsonNode parseJson(String json) throws Exception {
-        return new ObjectMapper().readTree(json);
-    }
-
     @Test
     void fetchWeatherHourly_CacheHit() {
         String cacheKey = "weather:hourly:" + lat + ":" + lon;
@@ -100,7 +94,7 @@ class WeatherServiceImplTest {
         assertNotNull(result);
         assertEquals(mappedWeather, result);
 
-        verify(valueOperations).set(eq(cacheKey), eq(mappedWeather), eq(Duration.ofHours(1)));
+        verify(valueOperations).set(cacheKey, mappedWeather, Duration.ofHours(1));
     }
 
 
@@ -140,7 +134,7 @@ class WeatherServiceImplTest {
 
         assertNotNull(result);
         assertEquals(mappedWeather, result);
-        verify(valueOperations).set(eq(cacheKey), eq(mappedWeather), eq(Duration.ofDays(1)));
+        verify(valueOperations).set(cacheKey, mappedWeather, Duration.ofDays(1));
     }
 
     @Test
@@ -158,7 +152,7 @@ class WeatherServiceImplTest {
     }
 
     @Test
-    void fetchWeatherCurrent_CacheMiss_Success() throws Exception {
+    void fetchWeatherCurrent_CacheMiss_Success(){
         String cacheKey = "weather:current:" + lat + ":" + lon;
         mockCacheMiss(cacheKey);
 
@@ -186,7 +180,11 @@ class WeatherServiceImplTest {
 
         assertNotNull(result);
         assertEquals(mappedWeather, result);
-        verify(valueOperations).set(eq(cacheKey), eq(mappedWeather), eq(Duration.ofMinutes(15)));
+        verify(valueOperations).set(cacheKey, mappedWeather, Duration.ofMinutes(15
+
+
+
+        ));
     }
 
     @Test
@@ -222,33 +220,5 @@ class WeatherServiceImplTest {
         assertTrue(ex.getMessage().contains("Error fetching current weather"));
     }
 
-//    @Test
-//    void fetchWeatherHourly_RedisException_StillReturnsData() throws Exception {
-//        String cacheKey = "weather:hourly:" + lat + ":" + lon;
-//
-//        when(valueOperations.get(cacheKey)).thenThrow(new RuntimeException("Redis connection failed"));
-//
-//        String jsonResponse = """
-//                {
-//                    "hourly": {
-//                        "time": ["2024-01-01T00:00"],
-//                        "temperature_2m": [10.5],
-//                        "weather_code": [0],
-//                        "uv_index": [2.0],
-//                        "precipitation_probability": [20]
-//                    }
-//                }
-//                """;
-//
-//        JsonNode rootNode = parseJson(jsonResponse);
-//        when(client.getHourly(lat, lon)).thenReturn(rootNode);
-//
-//        HourlyWeather mappedWeather = new HourlyWeather();
-//        when(weatherMapper.toHourly(rootNode)).thenReturn(mappedWeather);
-//
-//        HourlyWeather result = weatherService.fetchWeatherHourly(lat, lon);
-//
-//        assertNotNull(result);
-//        assertEquals(mappedWeather, result);
-//    }
+
 }

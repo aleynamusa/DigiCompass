@@ -1,6 +1,5 @@
 package com.digicompass.backend.application.models.weather;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import java.util.List;
 

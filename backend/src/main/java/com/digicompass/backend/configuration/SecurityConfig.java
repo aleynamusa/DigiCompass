@@ -16,6 +16,9 @@ public class SecurityConfig {
 
     private final JWTAuthFilter jwtAuthFilter;
     private final CorsConfigurationSource corsConfigurationSource;
+    private String admin = "ADMIN";
+    private String user = "USER";
+
 
     public SecurityConfig(JWTAuthFilter jwtAuthFilter,
                           CorsConfigurationSource corsConfigurationSource) {
@@ -48,10 +51,10 @@ public class SecurityConfig {
 
                         //PROTECTED ENDPOINTS
                         .requestMatchers(HttpMethod.DELETE, "/route/delete/**")
-                        .hasAnyRole("USER", "ADMIN")
+                        .hasAnyRole(user, admin)
                         .requestMatchers(HttpMethod.POST, "/route/create")
-                        .hasAnyRole("USER", "ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/action/**").hasAnyRole("USER", "ADMIN")
+                        .hasAnyRole(user, admin)
+                        .requestMatchers(HttpMethod.GET, "/action/**").hasAnyRole(user,admin)
 
                         //EVERYTHING ELSE
                         .anyRequest().authenticated()
