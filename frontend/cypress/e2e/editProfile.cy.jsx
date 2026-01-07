@@ -79,9 +79,6 @@ describe("Edit Profile Page", () => {
             body: { message: "Visibility updated" }
         }).as("updateVisibility");
 
-
-
-
         cy.visit("/edit-profile");
         cy.wait("@fetchProfile");
 
