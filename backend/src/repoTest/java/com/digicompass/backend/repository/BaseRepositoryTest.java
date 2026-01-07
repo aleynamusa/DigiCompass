@@ -2,6 +2,7 @@ package com.digicompass.backend.repository;
 
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -15,6 +16,7 @@ import org.testcontainers.utility.DockerImageName;
 @Testcontainers
 @ExtendWith(SpringExtension.class)
 @Transactional
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 public abstract class BaseRepositoryTest {
     private static final DockerImageName POSTGIS_IMAGE = DockerImageName
@@ -25,7 +27,8 @@ public abstract class BaseRepositoryTest {
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(POSTGIS_IMAGE)
             .withDatabaseName("test_db")
             .withUsername("test")
-            .withPassword("test");
+            .withPassword("test")
+            .withReuse(true); // Add this to reuse container across tests
 
     @DynamicPropertySource
     static void registerPgProps(DynamicPropertyRegistry registry) {
@@ -37,9 +40,6 @@ public abstract class BaseRepositoryTest {
 
         registry.add("spring.flyway.enabled", () -> true);
         registry.add("spring.flyway.locations", () -> "classpath:db/migration");
-
-
     }
-
 }
 
