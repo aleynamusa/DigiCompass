@@ -37,7 +37,7 @@ describe("Sign Up Flow", () => {
 
         cy.get('button[type="submit"]').click();
 
-        cy.wait("@signUpRequest").its("response.statusCode").should("eq", 200);
+        cy.wait("@signUpRequest").its("response.statusCode").should("eq", 201);
 
     });
 
