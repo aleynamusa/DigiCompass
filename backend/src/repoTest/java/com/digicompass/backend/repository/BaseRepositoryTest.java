@@ -23,6 +23,7 @@ public abstract class BaseRepositoryTest {
             .parse("postgis/postgis:17-3.5")
             .asCompatibleSubstituteFor("postgres");
 
+
     @Container
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(POSTGIS_IMAGE)
             .withDatabaseName("test_db")
