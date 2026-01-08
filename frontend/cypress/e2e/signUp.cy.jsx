@@ -18,8 +18,8 @@ describe("Sign Up Flow", () => {
     it("should sign up successfully when given correct inputs", () => {
         cy.intercept("POST", `${backendUrl}/auth/signUp`).as("signUpRequest");
 
-        cy.get('input[name="email"]').type("trying@gmail.com");
-        cy.get('input[name="username"]').type("hyttryest");
+        cy.get('input[name="email"]').type("johndoe@gmail.com");
+        cy.get('input[name="username"]').type("johndoe123");
         cy.get('input[name="birthDate"]').click();
 
         //birthdate selection
@@ -44,7 +44,7 @@ describe("Sign Up Flow", () => {
     it("should show if the username is already taken",()=>{
         cy.intercept("POST", `${backendUrl}/auth/signUp`).as("signUpRequest");
 
-        cy.get('input[name="username"]').type("hyttryest");
+        cy.get('input[name="username"]').type("johndoe123");
 
         cy.contains("Username already taken");
 
@@ -52,7 +52,7 @@ describe("Sign Up Flow", () => {
 
     it("should show if the email is already registered",()=>{
 
-        cy.get('input[name="email"]').type("trying@gmail.com");
+        cy.get('input[name="email"]').type("johndoe@gmail.com");
 
         cy.contains("Email is already registered in our system");
     })

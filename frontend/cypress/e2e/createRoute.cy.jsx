@@ -53,8 +53,14 @@ describe("Route Creation", () => {
         cy.get('[data-cy="type-select"]').click();
         cy.get('body').contains('Hiking').click({ force: true });
 
-        cy.get('.leaflet-container').click(100, 100);
-        cy.get('.leaflet-container').click(150, 150);
+        cy.get('.leaflet-container', { timeout: 10000 }).should('be.visible').then(() => {
+            cy.wait(500);  // optional small wait to let map fully render
+
+            // Now do the clicks
+            cy.get('.leaflet-container').click(100, 100);
+            cy.get('.leaflet-container').click(150, 150);
+        });
+
 
         cy.wait("@calculate").then(({ response }) => {
             expect(response.statusCode).to.eq(200);

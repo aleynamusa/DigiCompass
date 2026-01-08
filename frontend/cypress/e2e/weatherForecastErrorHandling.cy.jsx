@@ -128,7 +128,6 @@ describe("Weather Forecast Page - Error Handling", () => {
             // Should show error or handle gracefully
             cy.contains("Failed to load hourly weather data").should("exist");
         });
-
         it("handles empty hourly weather data", () => {
             cy.intercept("GET", "**/weather/hourly*", {
                 statusCode: 200,
@@ -144,9 +143,13 @@ describe("Weather Forecast Page - Error Handling", () => {
             cy.wait("@getHourlyEmpty");
             cy.wait("@getDaily");
 
-            // Should show empty state or error
-            cy.contains("Next 8 Hours").should("not.exist");
+            // Wait until any loading indicators disappear (if applicable)
+            cy.get('.loading-spinner', { timeout: 10000 }).should('not.exist');
+
+            // Now assert the section is hidden
+            cy.contains("Next 8 Hours", { timeout: 10000 }).should('not.exist');
         });
+
     });
 
     describe("Daily Weather Error Handling", () => {
