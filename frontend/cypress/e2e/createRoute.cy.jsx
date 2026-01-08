@@ -22,6 +22,9 @@ describe("Route Creation", () => {
         cy.get('input[name="password"]').type("Tetradka1011@");
         cy.get('button[type="submit"]').click();
 
+        // Wait for navigation to complete
+        cy.url().should('not.include', '/logIn');
+
         cy.visit(`${frontendUrl}/routeDiscovery`, {
             onBeforeLoad(win) {
                 cy.stub(win.navigator.geolocation, "getCurrentPosition")
@@ -38,48 +41,82 @@ describe("Route Creation", () => {
         });
 
         cy.contains("Create Route").click();
+
+        // Wait for the modal/dialog to be visible
+        cy.contains("Create New Route").should("be.visible");
     });
 
     it("should Create a new Route", () => {
         cy.intercept("POST", `${backendUrl}/map`).as("calculate");
 
+        // Fill in form fields
         cy.get('#name').type("New Route");
-
         cy.get('#description').type("This Route is perfect for nature lovers.");
 
         cy.get('[data-cy="difficulty-select"]').click();
-        cy.get('body').contains('Easy').click({ force: true });
+        cy.contains('Easy').click({ force: true });
 
         cy.get('[data-cy="type-select"]').click();
-        cy.get('body').contains('Hiking').click({ force: true });
+        cy.contains('Hiking').click({ force: true });
 
-        cy.get('.leaflet-container', { timeout: 30000 }).should('be.visible').then(() => {
-            cy.wait(3000);
+        // CRITICAL: Scroll to map section first (it's in a modal with overflow)
+        cy.contains("Route Points").scrollIntoView();
 
-            // Now do the clicks
-            cy.get('.leaflet-container').click(100, 100);
-            cy.get('.leaflet-container').click(150, 150);
-        });
+        // Wait a bit for scroll to complete
+        cy.wait(500);
 
+        // Now wait for map to be present in DOM and scroll it into view
+        cy.get('.leaflet-container', { timeout: 30000 })
+            .should('exist')
+            .scrollIntoView()
+            .should('be.visible');
 
-        cy.wait("@calculate").then(({ response }) => {
+        // Wait for tiles to load
+        cy.get('.leaflet-tile-loaded', { timeout: 10000 })
+            .should('have.length.at.least', 1);
+
+        cy.wait(500);
+
+        // Click on the map using force (since it's in a modal)
+        cy.get('.leaflet-container')
+            .first()
+            .click(100, 100, { force: true });
+
+        cy.wait(500);
+
+        cy.get('.leaflet-container')
+            .first()
+            .click(150, 150, { force: true });
+
+        // Verify points were added - scroll to see the count
+        cy.contains('2 points').scrollIntoView().should('be.visible');
+
+        // Wait for the backend calculation request
+        cy.wait("@calculate", { timeout: 10000 }).its('response').then((response) => {
             expect(response.statusCode).to.eq(200);
 
             const { distanceKm, durationHour } = response.body;
 
-            cy.contains(`${distanceKm.toFixed(2)} km`);
-            cy.contains(durationHour);
+            // Scroll to see the distance/duration info
+            cy.contains(`${distanceKm.toFixed(2)} km`).scrollIntoView();
+            cy.contains(durationHour).scrollIntoView();
         });
 
-        cy.get('.mantine-Dropzone-root').scrollIntoView()
+        // Upload an image file
+        cy.get('.mantine-Dropzone-root')
+            .scrollIntoView()
+            .should('be.visible')
             .attachFile("test-image.jpg", { subjectType: "drag-n-drop" });
 
+        // Save the route
         cy.contains("Save Route")
             .scrollIntoView()
+            .should('be.visible')
             .click();
 
+        // Verify success
+        cy.url({ timeout: 10000 }).should('not.include', '/create');
     });
-
 
     it("should show the Route Form fields", () => {
         cy.contains("Create New Route").should("be.visible");
@@ -93,47 +130,68 @@ describe("Route Creation", () => {
         cy.contains("Difficulty").should("be.visible");
         cy.contains("Route Type").should("be.visible");
 
-        cy.contains("Route Points")
-            .should("exist");
+        cy.contains("Route Points").should("exist");
+        cy.contains("0 points").should("exist");
+        cy.contains("No points added yet").should("exist");
 
-
-        cy.contains("0 points")
-            .should("exist");
-
-        cy.contains("No points added yet")
-            .should("exist");
-
-        cy.contains("Drag images here or click to select files")
-            .should("exist");
-
+        cy.contains("Drag images here or click to select files").should("exist");
         cy.contains("Attach as many files as you like")
             .scrollIntoView()
             .should("exist");
-
     });
-
 
     it("should not allow to pick more than 5 points", () => {
+        // Scroll to map section in modal
+        cy.contains("Route Points").scrollIntoView();
+        cy.wait(500);
 
+        // Wait for map to be ready
+        cy.get('.leaflet-container', { timeout: 30000 })
+            .should('exist')
+            .scrollIntoView()
+            .should('be.visible');
 
-        //mapPoints selecting
-        cy.get('.leaflet-container').click(100, 100);
-        cy.get('.leaflet-container').click(150, 150);
-        cy.get('.leaflet-container').click(160, 160);
-        cy.get('.leaflet-container').click(165, 165);
-        cy.get('.leaflet-container').click(157, 157);
-        cy.get('.leaflet-container').click(153, 156);
+        cy.get('.leaflet-tile-loaded', { timeout: 10000 })
+            .should('have.length.at.least', 1);
 
-        cy.contains("Maximum number of points reached (max 5)").scrollIntoView();
+        cy.wait(500);
 
+        // Map points selecting
+        const points = [
+            [100, 100],
+            [150, 150],
+            [160, 160],
+            [165, 165],
+            [157, 157],
+            [153, 156]
+        ];
+
+        points.forEach(([x, y]) => {
+            cy.get('.leaflet-container')
+                .first()
+                .scrollIntoView()
+                .click(x, y, { force: true });
+            cy.wait(300);
+        });
+
+        // The error message appears in a Mantine Alert that might be position:fixed
+        // We need to check it exists and contains the right text, even if covered
+        cy.contains("Maximum number of points reached", { timeout: 10000 })
+            .should('exist');
+
+        // Alternative: Check the alert exists in DOM
+        cy.get('.mantine-Alert-message')
+            .should('exist')
+            .and('contain', 'Maximum number of points reached');
+
+        // Verify we can't add more than 5 points by checking the points count
+        cy.contains("5 points").should('exist');
     });
 
-    it("button is disabled when there is not complete requirements", () => {
+    it("button is disabled when there are not complete requirements", () => {
         cy.contains("Save Route")
             .scrollIntoView()
             .should('be.disabled');
-
-
     });
 
     it("shows error when backend save fails", () => {
@@ -151,14 +209,27 @@ describe("Route Creation", () => {
         cy.get('[data-cy="type-select"]').click();
         cy.get('body').contains('Walking').click({ force: true });
 
-        cy.get('.leaflet-container').click(100, 100);
-        cy.get('.leaflet-container').click(150, 150);
+        // Scroll to map
+        cy.contains("Route Points").scrollIntoView();
+        cy.wait(500);
 
-        cy.contains("Save Route").click();
+        // Wait for map
+        cy.get('.leaflet-container', { timeout: 30000 })
+            .should('exist')
+            .scrollIntoView()
+            .should('be.visible');
+
+        cy.wait(500);
+
+        cy.get('.leaflet-container').first().scrollIntoView().click(100, 100, { force: true });
+        cy.wait(500);
+        cy.get('.leaflet-container').first().scrollIntoView().click(150, 150, { force: true });
+
+        cy.contains("Save Route").scrollIntoView().click();
 
         cy.wait("@saveRouteFail");
 
-        cy.contains("Failed to save route").should("be.visible");
+        cy.contains("Failed to save route").scrollIntoView().should("be.visible");
     });
 
     it("prevents submission if user is not logged in", () => {
@@ -174,14 +245,33 @@ describe("Route Creation", () => {
     });
 
     it("updates start/end points correctly when removing points", () => {
+        // Scroll to map section in modal
+        cy.contains("Route Points").scrollIntoView();
+        cy.wait(500);
+
+        // Wait for map
+        cy.get('.leaflet-container', { timeout: 30000 })
+            .should('exist')
+            .scrollIntoView()
+            .should('be.visible');
+
+        cy.wait(500);
+
         // Add 3 points
-        cy.get('.leaflet-container').click(100, 100);
-        cy.get('.leaflet-container').click(150, 150);
-        cy.get('.leaflet-container').click(200, 200);
+        cy.get('.leaflet-container').first().scrollIntoView().click(100, 100, { force: true });
+        cy.wait(500);
+        cy.get('.leaflet-container').first().scrollIntoView().click(150, 150, { force: true });
+        cy.wait(500);
+        cy.get('.leaflet-container').first().scrollIntoView().click(200, 200, { force: true });
+        cy.wait(500);
 
-        cy.get('[data-cy="remove-point"]').eq(1).click();
+        // Scroll to see the points list
+        cy.contains("3 points").scrollIntoView();
 
-        cy.get('[data-cy="point-start"]').should("exist");
-        cy.get('[data-cy="point-end"]').should("exist");
+        // Remove middle point
+        cy.get('[data-cy="remove-point"]').eq(1).scrollIntoView().click();
+
+        cy.get('[data-cy="point-start"]').scrollIntoView().should("exist");
+        cy.get('[data-cy="point-end"]').scrollIntoView().should("exist");
     });
 });
