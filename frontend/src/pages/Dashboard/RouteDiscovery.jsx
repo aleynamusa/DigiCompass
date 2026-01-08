@@ -9,8 +9,10 @@ import {getFilteredRoutes, getRouteGeometry, getRoutes, saveRoute, searchRoutesB
 import RouteTabsDiscovery from "@/components/routeDiscovery/routeTabs.jsx";
 import {AlertCircle, CheckCircle, CirclePlus} from "lucide-react";
 import CreateRoutePopup from "@/components/ceateRoutePopup/createRoutePopup.jsx";
+import {useAuth} from "@/context/AuthContext.jsx";
 
 const RouteDiscovery = () => {
+
     const {
         loginData,
         handleChange,
@@ -20,8 +22,9 @@ const RouteDiscovery = () => {
         errors
     } = useLogin(() => {
         setShowLoginPopup(false);
-        window.location.reload();
+        setShowRoutePopup(true);
     });
+
 
     const [routes, setRoutes] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -30,6 +33,7 @@ const RouteDiscovery = () => {
     const [searchRoutes, setSearchRoutes] = useState([]);
     const [filteredRoutes, setFilteredRoutes] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
+    const { user } = useAuth();
 
 
     const [selectedType, setSelectedType] = useState("all");
@@ -183,7 +187,19 @@ const RouteDiscovery = () => {
 
             <div className="flex justify-between mb-6">
                 <h1 className="text-3xl font-bold text-cyan-950">Discover Routes</h1>
-                <Button onClick={() => setShowRoutePopup(true)} className="bg-cyan-950"> <CirclePlus></CirclePlus> Create Route</Button>
+                <Button
+                    onClick={() => {
+                        if (!user || !user.id) {
+                            setShowLoginPopup(true);
+                        } else {
+                            setShowRoutePopup(true);
+                        }
+                    }}
+                    className="bg-cyan-950"
+                >
+                    <CirclePlus /> Create Route
+                </Button>
+
             </div>
 
             <Card>
@@ -224,6 +240,7 @@ const RouteDiscovery = () => {
                 onClose={() => setShowRoutePopup(false)}
                 onSave={handleSaveRoute}
                 loading={saveLoading}
+                onLoginRequired={() => setShowLoginPopup(true)}
             />
 
             <div className="fixed top-4 right-4 z-50 space-y-2">

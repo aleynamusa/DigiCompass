@@ -9,7 +9,7 @@ import {
     Navigation,
     Loader2
 } from 'lucide-react';
-import {Alert, Modal, ScrollArea} from "@mantine/core";
+import {Alert, Modal} from "@mantine/core";
 import ImageDropzone from "@/components/imageDropzone.jsx";
 import { useAuth } from "@/context/AuthContext.jsx";
 import RouteMapPopup from "@/components/ceateRoutePopup/routeMapPopup.jsx";
@@ -22,7 +22,7 @@ import RoutePointsList from '@/components/ceateRoutePopup/routePointsList.jsx';
 import { Info } from 'lucide-react';
 import RouteForm from "@/components/ceateRoutePopup/routeForm.jsx";
 
-const CreateRoutePopup = ({ isOpen, onClose, onSave, loading = false }) => {
+const CreateRoutePopup = ({ isOpen, onClose, onSave, loading = false, onLoginRequired }) => {
 
     const MAX_POINTS = 5;
     const icon = <Info />;
@@ -30,8 +30,8 @@ const CreateRoutePopup = ({ isOpen, onClose, onSave, loading = false }) => {
     const [formData, setFormData] = useState({
         name: '',
         description: '',
-        difficulty: '',
-        routeType: '',
+        difficulty: undefined,
+        routeType: undefined,
         distance: 0,
         duration: '',
         createdAt: new Date().toISOString().slice(0, 19),
@@ -59,14 +59,6 @@ const CreateRoutePopup = ({ isOpen, onClose, onSave, loading = false }) => {
         setMapError(msg);
     }, [currentLocation, ghError]);
 
-    useEffect(() => {
-        if (isOpen && !user) {
-            setSaveError('You must be logged in to create routes');
-            setTimeout(() => {
-                onClose();
-            }, 2000);
-        }
-    }, [isOpen, user, onClose]);
 
     const handleMapClick = (e) => {
         if (points.length >= MAX_POINTS) {
@@ -107,13 +99,6 @@ const CreateRoutePopup = ({ isOpen, onClose, onSave, loading = false }) => {
             return;
         }
 
-        if (!user) {
-            console.log('No user');
-            setSaveError('You must be logged in to create routes');
-            return;
-        }
-
-        console.log('Validation passed, proceeding...');
         setSaveError(null);
         setSuccessMessage(null);
         setIsSubmitting(true);
@@ -204,6 +189,11 @@ const CreateRoutePopup = ({ isOpen, onClose, onSave, loading = false }) => {
     };
 
     useEffect(() => {
+        if (isOpen && (!user || !user.id)) {
+            onLoginRequired();
+            return;
+        }
+
         if (!isOpen) {
             setFormData({
                 name: '',
@@ -219,11 +209,7 @@ const CreateRoutePopup = ({ isOpen, onClose, onSave, loading = false }) => {
             setMapError(null);
             setIsSubmitting(false);
         }
-    }, [isOpen]);
-
-    useEffect(() => {
-        console.log("Geolocation:", currentLocation);
-    }, [currentLocation]);
+    }, [isOpen, user]);
 
 
 

@@ -70,20 +70,36 @@ export const searchRoutesByKeyword = (keyword) =>
     });
 
 export const getFilteredRoutes = (type, difficulty, distanceRange) => {
-    const params = new URLSearchParams();
+    // Build the filter object
+    const filterDto = {};
 
-    if (type !== "all") params.append("type", type);
-    if (difficulty !== "all") params.append("difficulty", difficulty);
-
-    if (distanceRange !== "all") {
-        if (distanceRange === "short") params.append("distance", "5");
-        if (distanceRange === "medium") params.append("distance", "15");
-        if (distanceRange === "long") params.append("distance", "100");
+    if (type !== "all") {
+        filterDto.type = type;
     }
 
-    return axiosClient.get(`/route/filter?${params.toString()}`);
-};
+    if (difficulty !== "all") {
+        filterDto.difficulty = difficulty;
+    }
 
+    // Handle distance ranges properly with min/max
+    if (distanceRange !== "all") {
+        if (distanceRange === "short") {
+            filterDto.minDistance = 0;
+            filterDto.maxDistance = 5;
+        } else if (distanceRange === "medium") {
+            filterDto.minDistance = 5;
+            filterDto.maxDistance = 15;
+        } else if (distanceRange === "long") {
+            filterDto.minDistance = 15;
+            filterDto.maxDistance = 100;
+        }
+    }
+
+    return axiosClient.get('/route/filter', {
+        params: filterDto
+    });
+
+};
 
 
 export const saveRoute = async (data) => {

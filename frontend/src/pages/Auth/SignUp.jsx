@@ -1,7 +1,8 @@
-import React from "react";
+import React, {useEffect} from "react";
 import ShowPassword from "@/components/showPassword.jsx";
 import ShowCalendarForBirthDate from "@/components/BirthDate.jsx";
 import {useSignUp} from "@/hooks/useSignUp.jsx";
+import {useNavigate} from "react-router-dom";
 
 const SignUpForm = () => {
     const {
@@ -21,6 +22,16 @@ const SignUpForm = () => {
         handleConfirmChange,
     } = useSignUp();
 
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (success) {
+            navigate("/logIn");
+        }
+    }, [success, navigate]);
+
+
+
     return (
         // center horizontally and vertically within viewport
         <div className="min-h-screen flex items-center justify-center p-4">
@@ -28,7 +39,7 @@ const SignUpForm = () => {
             <div className="bg-cyan-700 rounded-md shadow-2xl w-full max-w-[550px] p-6">
                 <h1 className="pb-2">Sign Up</h1>
                 {errors.general && <p style={{ color: "red" }}>{errors.general}</p>}
-                {success && <p style={{ color: "green" }}>{success}</p>}
+                {success && <p style={{ color: "darkgreen" }}>{success}</p>}
                 <form onSubmit={handleSubmit} className="max-w-md mx-auto bg-cyan-700 rounded-md m-3 p-3"
                       style={{width: "500px"}}
                 >

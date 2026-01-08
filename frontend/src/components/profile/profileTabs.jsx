@@ -13,17 +13,17 @@ export default function ProfileTabs({
   return (
     <Tabs defaultValue="shared" variant="pills">
       <Tabs.List>
-        <Tabs.Tab value="shared" leftSection={<Share2 size={16} />}>
+        <Tabs.Tab color="cyan" c="black" value="shared" leftSection={<Share2 size={16} />}>
           Shared Routes
         </Tabs.Tab>
 
         {isOwnProfile && (
-          <Tabs.Tab value="liked" leftSection={<Heart size={16} />} onClick={onFetchLiked}>
+          <Tabs.Tab color="cyan" c="black" value="liked" leftSection={<Heart size={16} />} onClick={onFetchLiked}>
             Liked Routes
           </Tabs.Tab>
         )}
 
-        <Tabs.Tab value="all" leftSection={<MapPin size={16} />}>
+        <Tabs.Tab color="cyan" c="black" value="all" leftSection={<MapPin size={16} />}>
           All Routes
         </Tabs.Tab>
       </Tabs.List>

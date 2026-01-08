@@ -5,6 +5,7 @@ import com.digicompass.backend.application.models.route.Route;
 import com.digicompass.backend.configuration.UserPrincipal;
 import com.digicompass.backend.controller.dto.RouteDto;
 import com.digicompass.backend.controller.dto.RouteGeometryDto;
+import com.digicompass.backend.controller.dto.request.RouteFilterRequestDto;
 import com.digicompass.backend.controller.dto.request.RouteRequestDto;
 import com.digicompass.backend.controller.mapper.RouteMapperController;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -46,7 +47,7 @@ public class RouteController {
     }
 
     @GetMapping("/{id}/geometry")
-    public ResponseEntity<RouteGeometryDto> getRouteGeometry(@PathVariable Long id) throws JsonMappingException {
+    public ResponseEntity<RouteGeometryDto> getRouteGeometry(@PathVariable Long id){
         RouteGeometryDto route = routeMapper.toControllerGeometry(routeService.getRouteById(id));
 
             return ResponseEntity.ok(
@@ -67,11 +68,8 @@ public class RouteController {
     }
 
     @GetMapping("/filter")
-    public ResponseEntity<List<Route>> getAllRoutes(@RequestParam(required = false) String type,
-                                                       @RequestParam(required = false) String difficulty,
-                                                       @RequestParam(required = false) Float distance) {
-            List<Route> routes =
-                    routeService.getFilteredRoutes(type, difficulty, distance);
+    public ResponseEntity<List<Route>> getAllRoutes(@Valid @ModelAttribute RouteFilterRequestDto filterDto) {
+            List<Route> routes = routeService.getFilteredRoutes(filterDto.getType(), filterDto.getDifficulty(), filterDto.getMaxDistance());
             log.info("Filtered routes: {}", routes.size());
             return ResponseEntity.ok(routes);
 

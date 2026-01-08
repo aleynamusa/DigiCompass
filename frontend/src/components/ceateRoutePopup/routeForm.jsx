@@ -1,13 +1,6 @@
 import React from 'react';
 import { Input } from "@/components/ui/input.jsx";
-import { Textarea } from "@mantine/core";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select.jsx";
+import { Textarea, Select } from "@mantine/core";
 
 const RouteForm = ({ formData, onChange, errors, disabled }) => {
     const handleChange = (field, value) => {
@@ -55,48 +48,44 @@ const RouteForm = ({ formData, onChange, errors, disabled }) => {
                     <label htmlFor="difficulty" className="text-sm font-medium">
                         Difficulty <span className="text-red-500">*</span>
                     </label>
-                    <Select
 
+                    <Select
+                        data={['Easy', 'Medium', 'Hard']}
+                        placeholder="Select difficulty"
                         value={formData.difficulty}
-                        onValueChange={(value) => handleChange('difficulty', value)}
+                        onChange={(value) => handleChange('difficulty', value)}
                         disabled={disabled}
-                    >
-                        <SelectTrigger data-cy="difficulty-select">
-                            <SelectValue placeholder="Select difficulty" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="Easy">Easy</SelectItem>
-                            <SelectItem value="Medium">Medium</SelectItem>
-                            <SelectItem value="Hard">Hard</SelectItem>
-                        </SelectContent>
-                    </Select>
-                    {errors.difficulty && (
-                        <p className="text-sm text-red-500">{errors.difficulty}</p>
-                    )}
+                        error={errors.difficulty}
+                        withinPortal
+                        portalTarget={document.body}
+                        styles={{
+                            dropdown: {
+                                zIndex: 9999,
+                            },
+                        }}
+                    />
                 </div>
 
                 <div className="space-y-2">
-                    <label htmlFor="type" className="text-sm font-medium">
+                    <label htmlFor="routeType" className="text-sm font-medium">
                         Route Type <span className="text-red-500">*</span>
                     </label>
                     <Select
+                        id="routeType"
+                        data={['Hiking', 'Cycling', 'Running', 'Walking']}
+                        placeholder="Select route type"
                         value={formData.routeType}
-                        onValueChange={(value) => handleChange('routeType', value)}
+                        onChange={(value) => handleChange('routeType', value)}
                         disabled={disabled}
-                    >
-                        <SelectTrigger data-cy="type-select">
-                            <SelectValue placeholder="Select route type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="Hiking">Hiking</SelectItem>
-                            <SelectItem value="Cycling">Cycling</SelectItem>
-                            <SelectItem value="Running">Running</SelectItem>
-                            <SelectItem value="Walking">Walking</SelectItem>
-                        </SelectContent>
-                    </Select>
-                    {errors.routeType && (
-                        <p className="text-sm text-red-500">{errors.routeType}</p>
-                    )}
+                        error={errors.routeType}
+                        withinPortal
+                        portalTarget={document.body}
+                        styles={{
+                            dropdown: {
+                                zIndex: 9999,
+                            },
+                        }}
+                    />
                 </div>
             </div>
         </div>

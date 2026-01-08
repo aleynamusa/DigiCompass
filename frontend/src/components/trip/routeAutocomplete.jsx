@@ -40,6 +40,7 @@ export default function RouteAutocomplete({
 
     return (
         <Autocomplete
+            required
             label="Search Routes"
             placeholder="Type at least 2 characters..."
             value={keyword}

@@ -41,7 +41,7 @@ export default function FiltersBar({
                             <SelectItem value="hiking">Hiking</SelectItem>
                             <SelectItem value="cycling">Cycling</SelectItem>
                             <SelectItem value="walking">Walking</SelectItem>
-                            <SelectItem value="kayaking">Kayaking</SelectItem>
+                            <SelectItem value="running">Running</SelectItem>
                         </SelectContent>
                     </Select>
 
