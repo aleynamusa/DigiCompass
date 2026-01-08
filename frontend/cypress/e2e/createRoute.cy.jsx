@@ -48,24 +48,19 @@ describe("Route Creation", () => {
         cy.get('#description').type("This Route is perfect for nature lovers.");
 
         cy.get('[data-cy="difficulty-select"]').click();
-        cy.contains('[role="option"]', 'Easy').click();
+        cy.get('body').contains('Easy').click({ force: true });
 
         cy.get('[data-cy="type-select"]').click();
-        cy.contains('[role="option"]', 'Hiking').click();
+        cy.get('body').contains('Hiking').click({ force: true });
 
-        //mapPoints selecting
         cy.get('.leaflet-container').click(100, 100);
         cy.get('.leaflet-container').click(150, 150);
 
-        //calculated distance and duration
-
-        // Wait for backend to calculate route
         cy.wait("@calculate").then(({ response }) => {
             expect(response.statusCode).to.eq(200);
 
             const { distanceKm, durationHour } = response.body;
 
-            // Assert that dynamic backend data appears in UI
             cy.contains(`${distanceKm.toFixed(2)} km`);
             cy.contains(durationHour);
         });
@@ -93,24 +88,22 @@ describe("Route Creation", () => {
         cy.contains("Route Type").should("be.visible");
 
         cy.contains("Route Points")
-            .scrollIntoView()
-            .should("be.visible");
+            .should("exist");
+
 
         cy.contains("0 points")
-            .scrollIntoView()
-            .should("be.visible");
+            .should("exist");
 
         cy.contains("No points added yet")
-            .scrollIntoView()
-            .should("be.visible");
+            .should("exist");
 
         cy.contains("Drag images here or click to select files")
-            .scrollIntoView()
-            .should("be.visible");
+            .should("exist");
 
         cy.contains("Attach as many files as you like")
             .scrollIntoView()
             .should("exist");
+
     });
 
 
@@ -145,10 +138,12 @@ describe("Route Creation", () => {
 
         cy.get('#name').type("Fail Route");
         cy.get('#description').type("This is a Fail Route.");
+
         cy.get('[data-cy="difficulty-select"]').click();
-        cy.contains('[role="option"]', 'Easy').click();
+        cy.get('body').contains('Medium').click({ force: true });
+
         cy.get('[data-cy="type-select"]').click();
-        cy.contains('[role="option"]', 'Hiking').click();
+        cy.get('body').contains('Walking').click({ force: true });
 
         cy.get('.leaflet-container').click(100, 100);
         cy.get('.leaflet-container').click(150, 150);

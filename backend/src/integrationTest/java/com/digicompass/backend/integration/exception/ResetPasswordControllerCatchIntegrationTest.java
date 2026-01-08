@@ -1,6 +1,6 @@
 package com.digicompass.backend.integration.exception;
 
-import com.digicompass.backend.infrastructure.interfaces.EmailService;
+import com.digicompass.backend.infrastructure.interfaces.EmailClient;
 import com.digicompass.backend.application.interfaces.PasswordResetService;
 import com.digicompass.backend.integration.BaseIntegrationTest;
 import org.junit.jupiter.api.Test;
@@ -19,7 +19,7 @@ public class ResetPasswordControllerCatchIntegrationTest extends BaseIntegration
     private MockMvc mockMvc;
 
     @MockitoBean
-    private EmailService emailService;
+    private EmailClient emailService;
 
     @MockitoBean
     private PasswordResetService passwordResetService;

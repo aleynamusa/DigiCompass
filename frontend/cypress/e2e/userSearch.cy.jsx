@@ -1,7 +1,13 @@
 describe("Home User Search", () => {
     const backendUrl = "http://localhost:8080";
+    const frontendUrl = "http://localhost:5173";
+
     beforeEach(() => {
-        cy.visit("/");
+        cy.visit(`${frontendUrl}/logIn`);
+        cy.get('input[name="username"]').type("admin");
+        cy.get('input[name="password"]').type("Tetradka1011@");
+        cy.get('button[type="submit"]').click();
+
     });
 
     it("searches users and shows suggestions", () => {
@@ -31,11 +37,15 @@ describe("Home User Search", () => {
     });
 
     it("navigates to user profile when selecting a user", () => {
-
         cy.get("input[placeholder='Search...']").type("admin");
 
-        cy.contains("admin").click();
+        cy.get('div[role="listbox"]')
+            .contains("admin")
+            .should('be.visible')
+            .click();
 
         cy.url().should("include", "/profile/1");
     });
+
+
 });

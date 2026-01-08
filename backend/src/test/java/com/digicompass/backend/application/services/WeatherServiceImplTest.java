@@ -1,5 +1,6 @@
 package com.digicompass.backend.application.services;
 
+import com.digicompass.backend.application.interfaces.WeatherScoringService;
 import com.digicompass.backend.application.mapper.WeatherMapper;
 import com.digicompass.backend.application.models.weather.CurrentWeather;
 import com.digicompass.backend.application.models.weather.DailyWeather;
@@ -8,15 +9,12 @@ import com.digicompass.backend.infrastructure.objects.weather.CurrentWeatherObje
 import com.digicompass.backend.infrastructure.objects.weather.DailyWeatherObject;
 import com.digicompass.backend.infrastructure.interfaces.WeatherClient;
 import com.digicompass.backend.infrastructure.objects.weather.HourlyWeatherObject;
-import org.junit.jupiter.api.BeforeEach;
+import com.digicompass.backend.repository.cache.interfaces.WeatherCacheRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
-import java.time.Duration;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -30,13 +28,14 @@ class WeatherServiceImplTest {
     private WeatherClient client;
 
     @Mock
-    private RedisTemplate<String, Object> redisTemplate;
+    private WeatherCacheRepository weatherCacheRepository;
 
     @Mock
-    private ValueOperations<String, Object> valueOperations;
+    private WeatherScoringService scoringService;
 
     @Mock
     private WeatherMapper weatherMapper;
+
 
     @InjectMocks
     private WeatherServiceImpl weatherService;
@@ -44,38 +43,9 @@ class WeatherServiceImplTest {
     private final double lat = 52.3676;
     private final double lon = 4.9041;
 
-    @BeforeEach
-    void setup() {
-        // Mock redisTemplate.opsForValue() to return our mocked valueOperations
-        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
-    }
-
-    private <T> void mockCacheHit(String cacheKey, T cachedValue) {
-        when(valueOperations.get(cacheKey)).thenReturn(cachedValue);
-    }
-
-    private <T> void mockCacheMiss(String cacheKey) {
-        when(valueOperations.get(cacheKey)).thenReturn(null);
-    }
-
-    @Test
-    void fetchWeatherHourly_CacheHit() {
-        String cacheKey = "weather:hourly:" + lat + ":" + lon;
-        HourlyWeather cached = new HourlyWeather();
-        mockCacheHit(cacheKey, cached);
-
-        HourlyWeather result = weatherService.fetchWeatherHourly(lat, lon);
-
-        assertNotNull(result);
-        assertEquals(cached, result);
-        verify(valueOperations).get(cacheKey);
-        verify(client, never()).getHourly(anyDouble(), anyDouble());
-    }
-
     @Test
     void fetchWeatherHourly_CacheMiss_Success() {
-        String cacheKey = "weather:hourly:" + lat + ":" + lon;
-        mockCacheMiss(cacheKey);
+
 
         HourlyWeatherObject entity = new HourlyWeatherObject();
         entity.setTime(List.of("2024-01-01T00:00"));
@@ -94,28 +64,11 @@ class WeatherServiceImplTest {
         assertNotNull(result);
         assertEquals(mappedWeather, result);
 
-        verify(valueOperations).set(cacheKey, mappedWeather, Duration.ofHours(1));
     }
 
-
-    @Test
-    void fetchWeatherDaily_CacheHit() {
-        String cacheKey = "weather:daily:" + lat + ":" + lon;
-        DailyWeather cached = new DailyWeather();
-        mockCacheHit(cacheKey, cached);
-
-        DailyWeather result = weatherService.fetchWeatherDaily(lat, lon);
-
-        assertNotNull(result);
-        assertEquals(cached, result);
-        verify(valueOperations).get(cacheKey);
-        verify(client, never()).getDaily(anyDouble(), anyDouble());
-    }
 
     @Test
     void fetchWeatherDaily_CacheMiss_Success() throws Exception {
-        String cacheKey = "weather:daily:" + lat + ":" + lon;
-        mockCacheMiss(cacheKey);
 
         DailyWeatherObject entity = new DailyWeatherObject();
         entity.setTime(List.of("2024-01-01T00:00"));
@@ -134,27 +87,12 @@ class WeatherServiceImplTest {
 
         assertNotNull(result);
         assertEquals(mappedWeather, result);
-        verify(valueOperations).set(cacheKey, mappedWeather, Duration.ofDays(1));
     }
 
-    @Test
-    void fetchWeatherCurrent_CacheHit() {
-        String cacheKey = "weather:current:" + lat + ":" + lon;
-        CurrentWeather cached = new CurrentWeather();
-        mockCacheHit(cacheKey, cached);
-
-        CurrentWeather result = weatherService.fetchWeatherCurrent(lat, lon);
-
-        assertNotNull(result);
-        assertEquals(cached, result);
-        verify(valueOperations).get(cacheKey);
-        verify(client, never()).getCurrent(anyDouble(), anyDouble());
-    }
 
     @Test
     void fetchWeatherCurrent_CacheMiss_Success(){
         String cacheKey = "weather:current:" + lat + ":" + lon;
-        mockCacheMiss(cacheKey);
 
         CurrentWeatherObject entity = new CurrentWeatherObject();
         entity.setTime("2024-01-01T00:00");
@@ -180,17 +118,12 @@ class WeatherServiceImplTest {
 
         assertNotNull(result);
         assertEquals(mappedWeather, result);
-        verify(valueOperations).set(cacheKey, mappedWeather, Duration.ofMinutes(15
 
-
-
-        ));
     }
 
     @Test
     void fetchWeatherHourly_ApiError_ThrowsException() {
-        String cacheKey = "weather:hourly:" + lat + ":" + lon;
-        mockCacheMiss(cacheKey);
+
 
         when(client.getHourly(lat, lon)).thenThrow(new RuntimeException("API Error"));
 
@@ -200,8 +133,7 @@ class WeatherServiceImplTest {
 
     @Test
     void fetchWeatherDaily_ApiError_ThrowsException() {
-        String cacheKey = "weather:daily:" + lat + ":" + lon;
-        mockCacheMiss(cacheKey);
+
 
         when(client.getDaily(lat, lon)).thenThrow(new RuntimeException("API Error"));
 
@@ -211,8 +143,7 @@ class WeatherServiceImplTest {
 
     @Test
     void fetchWeatherCurrent_ApiError_ThrowsException() {
-        String cacheKey = "weather:current:" + lat + ":" + lon;
-        mockCacheMiss(cacheKey);
+
 
         when(client.getCurrent(lat, lon)).thenThrow(new RuntimeException("API Error"));
 

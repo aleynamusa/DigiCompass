@@ -7,12 +7,12 @@ import com.digicompass.backend.application.models.weather.*;
 import com.digicompass.backend.infrastructure.interfaces.WeatherClient;
 import com.digicompass.backend.repository.cache.interfaces.WeatherCacheRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
+@Service
 @Slf4j
 public class WeatherServiceImpl implements WeatherService {
     private final WeatherClient weatherClient;

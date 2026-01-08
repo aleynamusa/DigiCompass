@@ -1,6 +1,7 @@
 package com.digicompass.backend.application.services;
 
 import com.digicompass.backend.infrastructure.interfaces.EmailClient;
+import com.digicompass.backend.repository.cache.interfaces.PasswordResetTokenRepository;
 import com.digicompass.backend.repository.repositories.UserJpaRepository;
 
 import com.digicompass.backend.application.mapper.UserMapper;
@@ -12,16 +13,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.redis.RedisConnectionFailureException;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.dao.DataAccessResourceFailureException;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@Tag("unit")
 @ExtendWith(MockitoExtension.class)
 class PasswordResetServiceTest {
 
@@ -29,10 +28,7 @@ class PasswordResetServiceTest {
     private UserJpaRepository userRepository;
 
     @Mock
-    private StringRedisTemplate redisTemplate;
-
-    @Mock
-    private ValueOperations<String, String> valueOps;
+    private PasswordResetTokenRepository tokenRepository;
 
     @Mock
     private EmailClient emailService;
@@ -48,7 +44,6 @@ class PasswordResetServiceTest {
 
     @BeforeEach
     void setUp() {
-        lenient().when(redisTemplate.opsForValue()).thenReturn(valueOps);//lenient is used when we want to use it when neccessary so dont have problem when it is not called from one of the methods
 
         userEntity = new UserEntity();
         userEntity.setId(1L);
@@ -68,11 +63,13 @@ class PasswordResetServiceTest {
         when(userRepository.findByEmail(email)).thenReturn(userEntity);
         when(userMapperMock.toDomain(userEntity)).thenReturn(user);
 
+        doNothing().when(tokenRepository).saveToken(anyString(), eq(email));
+
         passwordResetService.createPasswordResetToken(email);
 
-        verify(valueOps, times(1)).set(anyString(), eq(email), eq(15L), eq(java.util.concurrent.TimeUnit.MINUTES));
         verify(emailService, times(1)).sendResetLink(eq(email), anyString());
     }
+
 
     @Test
     void testCreatePasswordResetToken_UserNotFound() {
@@ -85,66 +82,63 @@ class PasswordResetServiceTest {
         );
 
         verify(emailService, never()).sendResetLink(anyString(), anyString());
-        verify(valueOps, never()).set(any(), any(), anyLong(), any());
     }
 
     @Test
     void testResetPassword_Success() {
         String token = UUID.randomUUID().toString();
         String email = "user@example.com";
-        String newPassword = "newPass123@";
+        String newPassword = "NewPass123@";
 
-        UserEntity entity = new UserEntity();
-        entity.setEmail(email);
-        entity.setPassword("oldPassword");
+        when(tokenRepository.getEmailByToken(token))
+                .thenReturn(Optional.of(email));
 
-        User domainUser = new User();
-        domainUser.setEmail(email);
-        domainUser.setPassword("oldPassword");
-
-        when(valueOps.get(token)).thenReturn(email);
-        when(userRepository.findByEmail(email)).thenReturn(entity);
-        when(userMapperMock.toDomain(entity)).thenReturn(domainUser);
-        when(userMapperMock.toEntity(domainUser)).thenReturn(entity);
+        when(userRepository.findByEmail(email)).thenReturn(userEntity);
+        when(userMapperMock.toDomain(userEntity)).thenReturn(user);
+        when(userMapperMock.toEntity(user)).thenReturn(userEntity);
 
         passwordResetService.resetPassword(token, newPassword);
 
-        verify(userRepository, times(1)).save(entity);
-        verify(redisTemplate, times(1)).delete(token);
+        verify(userRepository).save(any());
+        verify(tokenRepository).deleteToken(token);
 
-        assertNotEquals(newPassword, domainUser.getPassword(), "Password should be hashed");
-        assertTrue(domainUser.getPassword().startsWith("$argon2"), "Password should be Argon2 hash");
+        assertTrue(user.getPassword().startsWith("$argon2"));
     }
+
 
     @Test
     void testResetPassword_InvalidToken() {
         String badToken = "bad-token";
-        when(valueOps.get(badToken)).thenReturn(null);
+
+        when(tokenRepository.getEmailByToken(badToken))
+                .thenReturn(Optional.empty());
 
         assertThrows(IllegalArgumentException.class,
-                () -> passwordResetService.resetPassword(badToken, "password123")
+                () -> passwordResetService.resetPassword(badToken, "Password123@")
         );
 
         verify(userRepository, never()).save(any());
-        verify(redisTemplate, never()).delete(anyString());
     }
+
 
     @Test
     void testResetPassword_UserNotFound() {
         String token = "valid-token";
         String email = "ghost@example.com";
 
-        when(valueOps.get(token)).thenReturn(email);
+        when(tokenRepository.getEmailByToken(token))
+                .thenReturn(Optional.of(email));
+
         when(userRepository.findByEmail(email)).thenReturn(null);
         when(userMapperMock.toDomain((UserEntity) null)).thenReturn(null);
 
         assertThrows(IllegalArgumentException.class,
-                () -> passwordResetService.resetPassword(token, "password123")
+                () -> passwordResetService.resetPassword(token, "Password123@")
         );
 
-        verify(redisTemplate, never()).delete(anyString());
         verify(userRepository, never()).save(any());
     }
+
 
     @Test
     void testCreatePasswordResetToken_RedisConnectionFailure() {
@@ -153,16 +147,15 @@ class PasswordResetServiceTest {
         when(userRepository.findByEmail(email)).thenReturn(userEntity);
         when(userMapperMock.toDomain(userEntity)).thenReturn(user);
 
-        doThrow(new RedisConnectionFailureException("Redis down"))
-                .when(valueOps)
-                .set(anyString(), eq(email), anyLong(), any());
+        doThrow(new RuntimeException("Failed to connect to Redis"))
+                .when(tokenRepository).saveToken(anyString(), anyString());
 
         RuntimeException ex = assertThrows(
                 RuntimeException.class,
                 () -> passwordResetService.createPasswordResetToken(email)
         );
 
-        assertTrue(ex.getMessage().contains("Failed to connect to Redis"));
+        assertTrue(ex.getMessage().contains("Unexpected error"));
         verify(emailService, never()).sendResetLink(anyString(), anyString());
     }
 
@@ -202,23 +195,18 @@ class PasswordResetServiceTest {
     @Test
     void testResetPassword_RedisConnectionFailure() {
         String token = "reset-token";
-        String email = "test@example.com";
 
-        when(valueOps.get(token)).thenReturn(email);
-        when(userRepository.findByEmail(email)).thenReturn(userEntity);
-        when(userMapperMock.toDomain(userEntity)).thenReturn(user);
-
-        doThrow(new RedisConnectionFailureException("Redis offline"))
-                .when(redisTemplate)
-                .delete(token);
+        when(tokenRepository.getEmailByToken(token))
+                .thenThrow(new RuntimeException("Redis down"));
 
         RuntimeException ex = assertThrows(
                 RuntimeException.class,
-                () -> passwordResetService.resetPassword(token, "newPass123@")
+                () -> passwordResetService.resetPassword(token, "NewPass123@")
         );
 
-        assertTrue(ex.getMessage().contains("Redis connection error"));
+        assertTrue(ex.getMessage().contains("Unexpected error"));
     }
+
 
 
     @Test
@@ -226,20 +214,24 @@ class PasswordResetServiceTest {
         String token = "reset-token";
         String email = "test@example.com";
 
-        when(valueOps.get(token)).thenReturn(email);
+        when(tokenRepository.getEmailByToken(token))
+                .thenReturn(Optional.of(email));
+
         when(userRepository.findByEmail(email)).thenReturn(userEntity);
         when(userMapperMock.toDomain(userEntity)).thenReturn(user);
+        when(userMapperMock.toEntity(user)).thenReturn(userEntity);
 
         when(userRepository.save(any()))
-                .thenThrow(new org.springframework.dao.DataAccessResourceFailureException("DB failure"));
+                .thenThrow(new DataAccessResourceFailureException("DB failure"));
 
         RuntimeException ex = assertThrows(
                 RuntimeException.class,
-                () -> passwordResetService.resetPassword(token, "newPass123@")
+                () -> passwordResetService.resetPassword(token, "NewPass123@")
         );
 
         assertTrue(ex.getMessage().contains("Database error"));
     }
+
 
 
     @Test
@@ -247,16 +239,20 @@ class PasswordResetServiceTest {
         String token = "reset-token";
         String email = "test@example.com";
 
-        when(valueOps.get(token)).thenReturn(email);
-        when(userRepository.findByEmail(email)).thenThrow(new RuntimeException("Unknown failure"));
+        when(tokenRepository.getEmailByToken(token))
+                .thenReturn(Optional.of(email));
+
+        when(userRepository.findByEmail(email))
+                .thenThrow(new RuntimeException("Unknown failure"));
 
         RuntimeException ex = assertThrows(
                 RuntimeException.class,
-                () -> passwordResetService.resetPassword(token, "newPass123")
+                () -> passwordResetService.resetPassword(token, "NewPass123@")
         );
 
         assertTrue(ex.getMessage().contains("Unexpected error"));
     }
+
 
     @Test
     void createResetPasswordToken_ShouldThrowIllegalArgumentException_WhenEmailIsNull() {

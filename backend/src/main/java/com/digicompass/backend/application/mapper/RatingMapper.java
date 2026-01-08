@@ -4,7 +4,6 @@ import com.digicompass.backend.repository.entity.RatingEntity;
 import com.digicompass.backend.application.models.route.Rating;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-
 import java.util.List;
 
 @Mapper(componentModel = "spring", uses = {RouteMapper.class, UserMapper.class})
