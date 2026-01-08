@@ -41,14 +41,7 @@ describe("Sign Up Flow", () => {
 
     });
 
-    it("should show if the username is already taken",()=>{
-        cy.intercept("POST", `${backendUrl}/auth/signUp`).as("signUpRequest");
 
-        cy.get('input[name="username"]').type("johndoe123");
-
-        cy.contains("Username already taken");
-
-    });
 
     it("should show if the email is already registered",()=>{
 
@@ -79,6 +72,15 @@ describe("Sign Up Flow", () => {
 
         cy.contains("Passwords do not match");
     })
+
+    it("should show if the username is already taken",()=>{
+        cy.intercept("POST", `${backendUrl}/auth/signUp`).as("signUpRequest");
+
+        cy.get('input[name="username"]').type("johndoe123");
+
+        cy.contains("Username already taken");
+
+    });
 });
 
 
