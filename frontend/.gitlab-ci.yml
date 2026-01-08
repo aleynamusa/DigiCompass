@@ -31,7 +31,7 @@ e2e:
 
     - cd frontend
     - npm install
-    - npx cypress run --browser chrome --headless -- --disable-gpu --no-sandbox --disable-dev-shm-usage
+    - npx cypress run --browser chrome --headless
     - cd ..
     - docker compose -f docker-compose-test.yml down
 
