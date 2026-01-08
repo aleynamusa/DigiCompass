@@ -54,7 +54,7 @@ describe("Route Creation", () => {
         cy.get('body').contains('Hiking').click({ force: true });
 
         cy.get('.leaflet-container', { timeout: 30000 }).should('be.visible').then(() => {
-            cy.wait(3000);  // optional small wait to let map fully render
+            cy.wait(3000);
 
             // Now do the clicks
             cy.get('.leaflet-container').click(100, 100);
