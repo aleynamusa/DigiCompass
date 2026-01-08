@@ -16,13 +16,13 @@ describe("Sign Up Flow", () => {
     });
 
     it("should sign up successfully when given correct inputs", () => {
-        cy.intercept("POST", `${backendUrl}/auth/signUp`).as("signUpRequest");
+        cy.intercept("POST", "**/auth/signUp").as("signUpRequest");
 
         cy.get('input[name="email"]').type("johndoe@gmail.com");
         cy.get('input[name="username"]').type("johndoe123");
         cy.get('input[name="birthDate"]').click();
 
-        //birthdate selection
+        // birthdate selection (you can optimize by selecting date more directly if possible)
         cy.get('.mantine-Calendar-calendarHeaderLevel').click();
         cy.get('.mantine-Calendar-calendarHeaderLevel').click();
         cy.get('.mantine-Calendar-calendarHeaderControlIcon[data-direction="previous"]').click()
@@ -31,16 +31,20 @@ describe("Sign Up Flow", () => {
         cy.get('.mantine-Calendar-monthsListCell').contains('Nov').click();
         cy.get('.mantine-Calendar-day').contains('10').click();
 
-
         cy.get('input[name="password"]').type("Hello123@_");
         cy.get('input[name="confirmPassword"]').type("Hello123@_");
 
+        // Confirm birthDate input is set
+        cy.get('input[name="birthDate"]').should('not.have.value', '');
+
+        // Click submit
         cy.get('button[type="submit"]').click();
 
-        cy.wait("@signUpRequest").its("response.statusCode").should("eq", 201);
-
+        cy.wait("@signUpRequest").then((interception) => {
+            console.log("Request sent to:", interception.request.url);
+            expect(interception.response.statusCode).to.eq(201);
+        });
     });
-
 
 
     it("should show if the email is already registered",()=>{
