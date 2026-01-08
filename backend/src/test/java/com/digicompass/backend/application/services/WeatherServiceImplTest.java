@@ -4,10 +4,10 @@ import com.digicompass.backend.application.mapper.WeatherMapper;
 import com.digicompass.backend.application.models.weather.CurrentWeather;
 import com.digicompass.backend.application.models.weather.DailyWeather;
 import com.digicompass.backend.application.models.weather.HourlyWeather;
-import com.digicompass.backend.repository.entity.weather.CurrentWeatherEntity;
-import com.digicompass.backend.repository.entity.weather.DailyWeatherEntity;
-import com.digicompass.backend.repository.entity.weather.HourlyWeatherEntity;
-import com.digicompass.backend.repository.interfaces.WeatherClient;
+import com.digicompass.backend.infrastructure.objects.weather.CurrentWeatherObject;
+import com.digicompass.backend.infrastructure.objects.weather.DailyWeatherObject;
+import com.digicompass.backend.infrastructure.interfaces.WeatherClient;
+import com.digicompass.backend.infrastructure.objects.weather.HourlyWeatherObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -77,7 +77,7 @@ class WeatherServiceImplTest {
         String cacheKey = "weather:hourly:" + lat + ":" + lon;
         mockCacheMiss(cacheKey);
 
-        HourlyWeatherEntity entity = new HourlyWeatherEntity();
+        HourlyWeatherObject entity = new HourlyWeatherObject();
         entity.setTime(List.of("2024-01-01T00:00"));
         entity.setTemperature(List.of(10.5));
         entity.setWeatherCode(List.of(0));
@@ -87,7 +87,7 @@ class WeatherServiceImplTest {
         when(client.getHourly(lat, lon)).thenReturn(entity);
 
         HourlyWeather mappedWeather = new HourlyWeather();
-        when(weatherMapper.toHourly(entity)).thenReturn(mappedWeather);
+        when(weatherMapper.toHourlyObject(entity)).thenReturn(mappedWeather);
 
         HourlyWeather result = weatherService.fetchWeatherHourly(lat, lon);
 
@@ -117,7 +117,7 @@ class WeatherServiceImplTest {
         String cacheKey = "weather:daily:" + lat + ":" + lon;
         mockCacheMiss(cacheKey);
 
-        DailyWeatherEntity entity = new DailyWeatherEntity();
+        DailyWeatherObject entity = new DailyWeatherObject();
         entity.setTime(List.of("2024-01-01T00:00"));
         entity.setMaxTemperature(List.of(15.0));
         entity.setWeatherCode(List.of(0));
@@ -128,7 +128,7 @@ class WeatherServiceImplTest {
 
         DailyWeather mappedWeather = new DailyWeather();
 
-        when(weatherMapper.toDaily(entity)).thenReturn(mappedWeather);
+        when(weatherMapper.toDailyObject(entity)).thenReturn(mappedWeather);
 
         DailyWeather result = weatherService.fetchWeatherDaily(lat, lon);
 
@@ -156,7 +156,7 @@ class WeatherServiceImplTest {
         String cacheKey = "weather:current:" + lat + ":" + lon;
         mockCacheMiss(cacheKey);
 
-        CurrentWeatherEntity entity = new CurrentWeatherEntity();
+        CurrentWeatherObject entity = new CurrentWeatherObject();
         entity.setTime("2024-01-01T00:00");
         entity.setTemperature(10.5);
         entity.setWeatherCode(1);
@@ -174,7 +174,7 @@ class WeatherServiceImplTest {
         when(client.getCurrent(lat, lon)).thenReturn(entity);
 
         CurrentWeather mappedWeather = new CurrentWeather();
-        when(weatherMapper.toCurrent(entity)).thenReturn(mappedWeather);
+        when(weatherMapper.toCurrentObject(entity)).thenReturn(mappedWeather);
 
         CurrentWeather result = weatherService.fetchWeatherCurrent(lat, lon);
 

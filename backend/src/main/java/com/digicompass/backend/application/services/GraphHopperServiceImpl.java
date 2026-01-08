@@ -5,7 +5,7 @@ import com.digicompass.backend.application.mapper.GraphHopperMapper;
 import com.digicompass.backend.application.models.map.GraphHopperPath;
 import com.digicompass.backend.application.models.map.Point;
 import com.digicompass.backend.application.models.map.RouteMap;
-import com.digicompass.backend.repository.interfaces.GraphHopperClient;
+import com.digicompass.backend.infrastructure.interfaces.GraphHopperClient;
 import com.google.maps.internal.PolylineEncoding;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +48,7 @@ public class GraphHopperServiceImpl implements GraphHopperService {
             long totalTime = 0;
 
             for (int i = 0; i < segments.size(); i++) {
-                GraphHopperPath path = graphHopperMapper.getGraphHopperPath(graphHopperClient.fetchSegment(
+                GraphHopperPath path = graphHopperMapper.getGraphObject(graphHopperClient.fetchSegment(
                         segments.get(i),
                         routeType
                 ));

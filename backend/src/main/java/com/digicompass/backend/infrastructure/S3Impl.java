@@ -1,8 +1,10 @@
-package com.digicompass.backend.application.services;
+package com.digicompass.backend.infrastructure;
 
-import com.digicompass.backend.application.interfaces.S3Service;
+import com.digicompass.backend.infrastructure.interfaces.S3;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.exception.SdkClientException;
@@ -21,15 +23,16 @@ import java.util.List;
 import java.util.UUID;
 
 @Slf4j
-@Service
-public class S3ServiceImpl implements S3Service {
+@Component
+public class S3Impl implements S3 {
     private final S3Presigner presigner;
     private final S3Client s3;
 
     @Value("${aws.s3.bucket}")
     private String bucketName;
 
-    public S3ServiceImpl(S3Presigner presigner, S3Client s3) {
+    @Autowired
+    public S3Impl(S3Presigner presigner, S3Client s3) {
         this.presigner = presigner;
         this.s3 = s3;
     }

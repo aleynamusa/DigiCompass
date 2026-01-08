@@ -1,7 +1,7 @@
 package com.digicompass.backend.application.services;
 
 import com.digicompass.backend.application.interfaces.RatingService;
-import com.digicompass.backend.application.interfaces.S3Service;
+import com.digicompass.backend.infrastructure.interfaces.S3;
 import com.digicompass.backend.application.mapper.RouteMapper;
 import com.digicompass.backend.application.mapper.UserMapper;
 import com.digicompass.backend.application.models.route.Route;
@@ -48,7 +48,7 @@ class UserServiceImplTest {
     private RouteJpaRepository routeRepository;
 
     @Mock
-    private S3Service s3Service;
+    private S3 s3Service;
 
     @InjectMocks
     private UserServiceImpl userService;

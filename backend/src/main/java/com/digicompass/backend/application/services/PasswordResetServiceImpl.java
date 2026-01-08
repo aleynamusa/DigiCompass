@@ -1,40 +1,37 @@
 package com.digicompass.backend.application.services;
 
-import com.digicompass.backend.application.interfaces.EmailService;
+import com.digicompass.backend.infrastructure.interfaces.EmailClient;
+
 import com.digicompass.backend.application.interfaces.PasswordResetService;
 import com.digicompass.backend.application.mapper.UserMapper;
 import com.digicompass.backend.application.security.PasswordValidator;
 import com.digicompass.backend.application.services.helpers.PasswordHasher;
 import com.digicompass.backend.application.models.User;
+import com.digicompass.backend.repository.cache.interfaces.PasswordResetTokenRepository;
 import com.digicompass.backend.repository.repositories.UserJpaRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
-import org.springframework.data.redis.RedisConnectionFailureException;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-
 
 @Service
 @Slf4j
 public class PasswordResetServiceImpl implements PasswordResetService {
 
-
     private final UserJpaRepository userRepository;
-    private final StringRedisTemplate redisTemplate;
-    private final EmailService emailService;
+    private final PasswordResetTokenRepository tokenRepository;
+    private final EmailClient emailService;
     private final UserMapper userMapper;
 
     public PasswordResetServiceImpl(
             UserJpaRepository userRepository,
-            StringRedisTemplate redisTemplate,
-            EmailService emailService,
+            PasswordResetTokenRepository tokenRepository,
+            EmailClient emailService,
             UserMapper userMapper
     ) {
         this.userRepository = userRepository;
-        this.redisTemplate = redisTemplate;
+        this.tokenRepository = tokenRepository;
         this.emailService = emailService;
         this.userMapper = userMapper;
     }
@@ -54,8 +51,8 @@ public class PasswordResetServiceImpl implements PasswordResetService {
             }
 
             String token = UUID.randomUUID().toString();
-            redisTemplate.opsForValue().set(token, email, 15, TimeUnit.MINUTES);
-            log.info("[SERVICE] Password reset token stored in Redis for user: {}", email);
+            tokenRepository.saveToken(token, email);
+            log.info("[SERVICE] Password reset token created for user: {}", email);
 
             emailService.sendResetLink(email, token);
             log.info("[SERVICE] Password reset email sent successfully to: {}", email);
@@ -63,11 +60,6 @@ public class PasswordResetServiceImpl implements PasswordResetService {
         } catch (IllegalArgumentException e) {
             log.warn("[SERVICE] Validation error while creating reset token: {}", e.getMessage());
             throw e;
-
-        } catch (RedisConnectionFailureException e) {
-            log.error("[SERVICE] Redis connection error while creating reset token for {}: {}",
-                    email, e.getMessage());
-            throw new RedisConnectionFailureException("Failed to connect to Redis service.", e);
 
         } catch (DataAccessException e) {
             log.error("[SERVICE] Database access error while creating reset token for {}: {}",
@@ -94,11 +86,11 @@ public class PasswordResetServiceImpl implements PasswordResetService {
                 throw new IllegalArgumentException("New password cannot be null or blank.");
             }
 
-            String email = redisTemplate.opsForValue().get(token);
-            if (email == null) {
-                log.warn("[SERVICE] Invalid or expired token used for password reset.");
-                throw new IllegalArgumentException("Invalid or expired token.");
-            }
+            String email = tokenRepository.getEmailByToken(token)
+                    .orElseThrow(() -> {
+                        log.warn("[SERVICE] Invalid or expired token used for password reset.");
+                        return new IllegalArgumentException("Invalid or expired token.");
+                    });
 
             User user = userMapper.toDomain(userRepository.findByEmail(email));
             if (user == null) {
@@ -113,17 +105,12 @@ public class PasswordResetServiceImpl implements PasswordResetService {
             userRepository.save(userMapper.toEntity(user));
             log.info("[SERVICE] Password updated successfully for user: {}", email);
 
-            redisTemplate.delete(token);
-            log.info("[SERVICE] Password reset token deleted from Redis for user: {}", email);
+            tokenRepository.deleteToken(token);
+            log.info("[SERVICE] Password reset token deleted for user: {}", email);
 
         } catch (IllegalArgumentException e) {
             log.warn("[SERVICE] Validation error during password reset: {}", e.getMessage());
             throw e;
-
-        } catch (RedisConnectionFailureException e) {
-            log.error("[SERVICE] Redis connection failure during password reset for token {}: {}",
-                    token, e.getMessage());
-            throw new RedisConnectionFailureException("Redis connection error during password reset.", e);
 
         } catch (DataAccessException e) {
             log.error("[SERVICE] Database access error during password reset for token {}: {}",

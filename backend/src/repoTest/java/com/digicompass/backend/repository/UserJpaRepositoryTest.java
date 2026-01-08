@@ -15,7 +15,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
-
 class UserJpaRepositoryTest extends BaseRepositoryTest{
     @Autowired
     private EntityManager entityManager;

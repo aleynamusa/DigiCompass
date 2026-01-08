@@ -1,6 +1,6 @@
 package com.digicompass.backend.application.services;
 
-import com.digicompass.backend.application.interfaces.S3Service;
+import com.digicompass.backend.infrastructure.interfaces.S3;
 import com.digicompass.backend.repository.entity.ReviewImageEntity;
 import com.digicompass.backend.repository.repositories.RouteJpaRepository;
 import com.digicompass.backend.application.mapper.ReviewMapper;
@@ -31,7 +31,7 @@ class ReviewServiceImplTest {
     ReviewJpaRepository reviewRepoMock;
 
     @Mock
-    S3Service s3ServiceMock;
+    S3 s3ServiceMock;
 
     @Mock
     ReviewMapper reviewMapperMock;
@@ -58,8 +58,6 @@ class ReviewServiceImplTest {
         validRouteId = 1L;
     }
 
-
-    //GET REVIEWS
     @Test
     void getReviewsByRoute_ThrowsException_WhenRouteIsNullOrZero()
     {

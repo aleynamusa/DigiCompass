@@ -1,6 +1,5 @@
 package com.digicompass.backend.controller;
 
-import com.digicompass.backend.application.interfaces.WeatherRecommendationService;
 import com.digicompass.backend.application.interfaces.WeatherService;
 import com.digicompass.backend.application.models.weather.RecommendedDay;
 import com.digicompass.backend.controller.dto.response.CurrentWeatherResponseDto;
@@ -26,13 +25,13 @@ public class WeatherController {
 
     private final WeatherService weatherService;
     private final WeatherMapperController weatherMapper;
-    private final WeatherRecommendationService recommendationService;
+
 
     @Autowired
-    public WeatherController(WeatherService weatherService, WeatherMapperController weatherMapper, WeatherRecommendationService recommendationService) {
+    public WeatherController(WeatherService weatherService, WeatherMapperController weatherMapper) {
         this.weatherService = weatherService;
         this.weatherMapper = weatherMapper;
-        this.recommendationService = recommendationService;
+
     }
 
     @GetMapping(value = "/current", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -66,8 +65,8 @@ public class WeatherController {
     public List<RecommendedDay> getRecommendations(
             @RequestParam double lat,
             @RequestParam double lon
-    ) throws JsonProcessingException {
+    ) {
         log.info("[CONTROLLER] Fetching recommendations weather info for lat: {} and long:{}.", lat, lon);
-        return recommendationService.recommendDays(lat, lon);
+        return weatherService.recommendDays(lat, lon);
     }
 }

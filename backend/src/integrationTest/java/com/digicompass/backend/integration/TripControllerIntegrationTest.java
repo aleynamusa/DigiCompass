@@ -40,8 +40,6 @@ public class TripControllerIntegrationTest extends BaseIntegrationTest {
         return userRepository.saveAndFlush(user);
     }
 
-
-
     private UserEntity testUser;
 
     TripRequestDto dto = new TripRequestDto();
@@ -57,7 +55,6 @@ public class TripControllerIntegrationTest extends BaseIntegrationTest {
         dto.setRouteId(1L);
         dto.setAccessibility(true);
     }
-
 
 
     @Test

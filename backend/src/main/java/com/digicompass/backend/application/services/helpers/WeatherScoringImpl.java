@@ -1,4 +1,4 @@
-package com.digicompass.backend.application.services;
+package com.digicompass.backend.application.services.helpers;
 
 import com.digicompass.backend.application.interfaces.WeatherScoringService;
 import com.digicompass.backend.application.models.weather.RecommendedDay;
@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class WeatherScoringServiceImpl implements WeatherScoringService {
+public class WeatherScoringImpl implements WeatherScoringService {
 
     public RecommendedDay scoreDay(
             String date,

@@ -1,20 +1,23 @@
-package com.digicompass.backend.application.services;
+package com.digicompass.backend.infrastructure;
 
-import com.digicompass.backend.application.interfaces.EmailService;
 import com.digicompass.backend.application.security.EmailValidator;
+import com.digicompass.backend.infrastructure.interfaces.EmailClient;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
-@Service
+
+@Component
 @Slf4j
-public class EmailServiceImpl implements EmailService {
+public class EmailClientImpl implements EmailClient {
 
     private final JavaMailSender mailSender;
 
-    public EmailServiceImpl(JavaMailSender mailSender) {
+    @Autowired
+    public EmailClientImpl(JavaMailSender mailSender) {
         this.mailSender = mailSender;
     }
 

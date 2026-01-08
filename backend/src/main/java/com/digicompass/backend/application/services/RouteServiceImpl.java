@@ -2,8 +2,7 @@ package com.digicompass.backend.application.services;
 
 import com.digicompass.backend.application.interfaces.RatingService;
 import com.digicompass.backend.application.interfaces.RouteService;
-import com.digicompass.backend.application.interfaces.S3Service;
-import com.digicompass.backend.application.mapper.CreateRouteMapper;
+import com.digicompass.backend.infrastructure.interfaces.S3;import com.digicompass.backend.application.mapper.CreateRouteMapper;
 import com.digicompass.backend.application.mapper.RouteMapper;
 import com.digicompass.backend.application.mapper.UserMapper;
 import com.digicompass.backend.application.models.*;
@@ -40,13 +39,13 @@ public class RouteServiceImpl implements RouteService {
     private final UserJpaRepository userRepository;
     private final FavouriteRouteJpaRepository favouriteRouteRepository;
     private final UserMapper userMapper;
-    private final S3Service s3Service;
+    private final S3 s3Service;
     private final CreateRouteMapper createRouteMapper;
 
     public RouteServiceImpl(RouteJpaRepository routeRepository,
                             RouteMapper routeMapper,
                             ObjectMapper objectMapper,
-                            RatingService ratingService, UserJpaRepository userRepository, FavouriteRouteJpaRepository favouriteRouteRepository, UserMapper userMapper, S3Service s3Service, CreateRouteMapper createRouteMapper) {
+                            RatingService ratingService, UserJpaRepository userRepository, FavouriteRouteJpaRepository favouriteRouteRepository, UserMapper userMapper, S3 s3Service, CreateRouteMapper createRouteMapper) {
         this.routeRepository = routeRepository;
         this.routeMapper = routeMapper;
         this.objectMapper = objectMapper;

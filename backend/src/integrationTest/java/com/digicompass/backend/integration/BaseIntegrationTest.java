@@ -16,7 +16,6 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-
 import static org.springframework.security.test.web.servlet.request
         .SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -41,19 +40,14 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 public abstract class BaseIntegrationTest {
-
     @Autowired
     protected WebApplicationContext context;
-
     @Autowired
     protected UserJpaRepository userRepository;
-
     @Autowired
     protected RoleJpaRepository roleRepository;
-
     protected MockMvc mockMvc;
     protected UsernamePasswordAuthenticationToken authToken;
-
     @BeforeEach
     void setupMockMvc() {
         RoleEntity role = roleRepository.findByRole("USER");
@@ -63,7 +57,6 @@ public abstract class BaseIntegrationTest {
             role = roleRepository.save(role);
         }
 
-        // Ensure test user exists
         UserEntity user = userRepository.findByEmail("test@mail.com");
         if (user == null) {
             user = new UserEntity();
@@ -96,7 +89,6 @@ public abstract class BaseIntegrationTest {
                 .defaultRequest(get("/").with(authentication(authToken)))
                 .build();
     }
-
 
     private static final DockerImageName POSTGIS_IMAGE =
             DockerImageName.parse("postgis/postgis:17-3.5")

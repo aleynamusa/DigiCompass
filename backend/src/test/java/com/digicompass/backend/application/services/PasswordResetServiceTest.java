@@ -1,7 +1,8 @@
 package com.digicompass.backend.application.services;
 
+import com.digicompass.backend.infrastructure.interfaces.EmailClient;
 import com.digicompass.backend.repository.repositories.UserJpaRepository;
-import com.digicompass.backend.application.interfaces.EmailService;
+
 import com.digicompass.backend.application.mapper.UserMapper;
 import com.digicompass.backend.repository.entity.UserEntity;
 import com.digicompass.backend.application.models.User;
@@ -34,7 +35,7 @@ class PasswordResetServiceTest {
     private ValueOperations<String, String> valueOps;
 
     @Mock
-    private EmailService emailService;
+    private EmailClient emailService;
 
     @Mock
     private UserMapper userMapperMock;

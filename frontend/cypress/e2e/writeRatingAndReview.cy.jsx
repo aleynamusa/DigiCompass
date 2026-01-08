@@ -1,4 +1,3 @@
-
 describe("Rating and Review Flow", () => {
     const backendUrl = "http://localhost:8080";
     const frontendUrl = "http://localhost:5173";
@@ -41,7 +40,6 @@ describe("Rating and Review Flow", () => {
         cy.contains("View Details").click();
         cy.contains("Do you want to rate and review?").click();
 
-        // ⭐ Use aria-label to select the correct star
         cy.get('input[aria-label="2.5"]')
             .next('label')
             .click({ force: true });

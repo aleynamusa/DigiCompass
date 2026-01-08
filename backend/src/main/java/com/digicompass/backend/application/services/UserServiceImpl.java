@@ -1,7 +1,8 @@
 package com.digicompass.backend.application.services;
 
 import com.digicompass.backend.application.interfaces.RatingService;
-import com.digicompass.backend.application.interfaces.S3Service;
+import com.digicompass.backend.infrastructure.interfaces.S3;
+
 import com.digicompass.backend.application.mapper.RouteMapper;
 import com.digicompass.backend.application.mapper.UserMapper;
 import com.digicompass.backend.application.models.route.Route;
@@ -25,20 +26,17 @@ import java.util.NoSuchElementException;
 public class UserServiceImpl implements UserService {
 
     private final UserJpaRepository userRepository;
-
     private final RouteJpaRepository routeRepository;
-
     private final RatingService ratingService;
-
     private final RouteMapper routeMapper;
 
     private final UserMapper userMapper;
 
-    private final S3Service s3Service;
+    private final S3 s3Service;
 
     private String message =  "User not found";
 
-    public UserServiceImpl(UserJpaRepository userRepository, RouteJpaRepository routeRepository, RatingService ratingService, RouteMapper routeMapper, UserMapper userMapper, S3Service s3Service) {
+    public UserServiceImpl(UserJpaRepository userRepository, RouteJpaRepository routeRepository, RatingService ratingService, RouteMapper routeMapper, UserMapper userMapper, S3 s3Service) {
         this.userRepository = userRepository;
         this.routeRepository = routeRepository;
         this.ratingService = ratingService;

@@ -14,7 +14,6 @@ import java.util.List;
 @Slf4j
 public class RatingServiceImpl implements RatingService {
 
-
     private final RatingJpaRepository ratingRepo;
     private final RouteJpaRepository routeRepo;
     private final RatingMapper ratingMapper;

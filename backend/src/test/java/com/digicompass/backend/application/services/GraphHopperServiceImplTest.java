@@ -1,7 +1,7 @@
 package com.digicompass.backend.application.services;
 
 import com.digicompass.backend.application.models.map.Point;
-import com.digicompass.backend.repository.interfaces.GraphHopperClient;
+import com.digicompass.backend.infrastructure.interfaces.GraphHopperClient;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

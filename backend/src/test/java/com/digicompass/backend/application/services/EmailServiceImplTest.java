@@ -1,5 +1,7 @@
 package com.digicompass.backend.application.services;
 
+import com.digicompass.backend.infrastructure.EmailClientImpl;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -22,7 +24,7 @@ class EmailServiceImplTest {
     @Mock
     private JavaMailSender  mailSender;
     @InjectMocks
-    private EmailServiceImpl emailService;
+    private EmailClientImpl emailService;
 
     private String toEmail;
     private String token;

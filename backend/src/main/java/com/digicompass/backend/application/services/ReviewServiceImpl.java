@@ -1,7 +1,7 @@
 package com.digicompass.backend.application.services;
 
 import com.digicompass.backend.application.interfaces.ReviewService;
-import com.digicompass.backend.application.interfaces.S3Service;
+import com.digicompass.backend.infrastructure.interfaces.S3;
 import com.digicompass.backend.application.mapper.ReviewMapper;
 import com.digicompass.backend.application.models.route.Review;
 import com.digicompass.backend.repository.entity.ReviewEntity;
@@ -24,11 +24,11 @@ public class ReviewServiceImpl implements ReviewService {
     private final ReviewMapper reviewMapper;
     private final RouteJpaRepository routeRepo;
 
-    private final S3Service s3Service;
+    private final S3 s3Service;
 
 
     public ReviewServiceImpl(ReviewJpaRepository reviewRepo, ReviewMapper reviewMapper, RouteJpaRepository routeRepo,
-                              S3Service s3Service) {
+                              S3 s3Service) {
         this.reviewRepo = reviewRepo;
         this.reviewMapper = reviewMapper;
         this.routeRepo = routeRepo;

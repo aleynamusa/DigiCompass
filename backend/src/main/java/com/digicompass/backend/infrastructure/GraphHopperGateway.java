@@ -1,9 +1,9 @@
-package com.digicompass.backend.repository.externalAPIs;
+package com.digicompass.backend.infrastructure;
 
 import com.digicompass.backend.application.models.map.Point;
-import com.digicompass.backend.repository.entity.graph.GraphHopperEntity;
-import com.digicompass.backend.repository.entity.graph.GraphHopperPathEntity;
-import com.digicompass.backend.repository.interfaces.GraphHopperClient;
+import com.digicompass.backend.infrastructure.objects.graph.GraphHopperObject;
+import com.digicompass.backend.infrastructure.interfaces.GraphHopperClient;
+import com.digicompass.backend.infrastructure.objects.graph.GraphHopperPathObject;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -44,7 +44,7 @@ public class GraphHopperGateway implements GraphHopperClient {
     }
 
     @Override
-    public GraphHopperPathEntity fetchSegment(
+    public GraphHopperPathObject fetchSegment(
             List<Point> points,
             String routeType) {
         String profile = PROFILE_MAP.getOrDefault(routeType, "foot");
@@ -65,7 +65,7 @@ public class GraphHopperGateway implements GraphHopperClient {
             return webClient.get()
                     .uri(uri.build().toUriString())
                     .retrieve()
-                    .bodyToMono(GraphHopperEntity.class)
+                    .bodyToMono(GraphHopperObject.class)
                     .block()
                     .getPaths()
                     .get(0);

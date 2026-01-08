@@ -31,19 +31,17 @@ class FavouriteRouteJpaRepositoryTest extends BaseRepositoryTest {
 
     @BeforeEach
     void setup() {
-        // Clean up any existing data and reset sequences
         entityManager.createNativeQuery("TRUNCATE TABLE favorite_route, routes, users RESTART IDENTITY CASCADE").executeUpdate();
         entityManager.flush();
         entityManager.clear();
 
-        // Create and persist a user
         user = new UserEntity();
         user.setUsername("user1");
         user.setEmail("user1@test.com");
         user.setBirthDate(LocalDate.of(1985, 5, 20));
         user.setPassword("password");
         entityManager.persist(user);
-        entityManager.flush(); // Flush to get the generated ID
+        entityManager.flush();
 
         // Create and persist two routes
         route1 = new RouteEntity();

@@ -41,8 +41,6 @@ class RatingServiceImplTest {
     @InjectMocks
     private RatingServiceImpl ratingService;
 
-
-    //getRouteRating TESTS
     @Test
     void testGetRouteRating_Success() {
         // Arrange

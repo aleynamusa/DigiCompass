@@ -1,13 +1,11 @@
-package com.digicompass.backend.application.interfaces;
+package com.digicompass.backend.infrastructure.interfaces;
 
-import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
 
-@Service
-public interface S3Service {
+public interface S3 {
     String getPreSignedUrl(String key);
     String uploadImage(String folder, MultipartFile file) throws IOException;
     void deleteImage(String key);

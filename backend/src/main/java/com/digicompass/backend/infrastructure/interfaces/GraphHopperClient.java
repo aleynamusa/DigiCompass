@@ -1,12 +1,12 @@
-package com.digicompass.backend.repository.interfaces;
+package com.digicompass.backend.infrastructure.interfaces;
 
 import com.digicompass.backend.application.models.map.Point;
-import com.digicompass.backend.repository.entity.graph.GraphHopperPathEntity;
+import com.digicompass.backend.infrastructure.objects.graph.GraphHopperPathObject;
 
 import java.util.List;
 
 public interface GraphHopperClient {
-    GraphHopperPathEntity fetchSegment(
+    GraphHopperPathObject fetchSegment(
             List<Point> points,
             String routeType);
     String getCurrentLocationAsCity(double latitude, double longitude);

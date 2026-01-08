@@ -5,7 +5,6 @@ import com.digicompass.backend.application.mapper.FavouriteRouteMapper;
 import com.digicompass.backend.application.mapper.RouteMapper;
 import com.digicompass.backend.application.mapper.UserMapper;
 import com.digicompass.backend.application.models.FavouriteRoute;
-import com.digicompass.backend.repository.entity.FavouriteRouteKey;
 import com.digicompass.backend.repository.repositories.FavouriteRouteJpaRepository;
 import com.digicompass.backend.repository.repositories.RouteJpaRepository;
 import com.digicompass.backend.repository.repositories.UserJpaRepository;

@@ -1,7 +1,7 @@
 package com.digicompass.backend.application.mapper;
 
-import com.digicompass.backend.application.interfaces.S3Service;
 import com.digicompass.backend.application.models.route.Route;
+import com.digicompass.backend.infrastructure.interfaces.S3;
 import com.digicompass.backend.repository.entity.RatingEntity;
 import com.digicompass.backend.repository.entity.ReviewEntity;
 import com.digicompass.backend.repository.entity.RouteEntity;
@@ -18,7 +18,7 @@ import java.util.List;
 public abstract class RouteMapper {
 
     @Autowired
-    protected S3Service s3Service;
+    protected S3 s3Service;
 
     @Mapping(source = "createdByUserId", target = "createdByUserId")
     @Mapping(target = "images", ignore = true)

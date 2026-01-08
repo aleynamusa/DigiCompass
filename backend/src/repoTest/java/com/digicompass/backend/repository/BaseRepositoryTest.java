@@ -28,7 +28,7 @@ public abstract class BaseRepositoryTest {
             .withDatabaseName("test_db")
             .withUsername("test")
             .withPassword("test")
-            .withReuse(true); // Add this to reuse container across tests
+            .withReuse(true);
 
     @DynamicPropertySource
     static void registerPgProps(DynamicPropertyRegistry registry) {
