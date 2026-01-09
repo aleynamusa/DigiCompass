@@ -209,7 +209,7 @@ public class RouteControllerIntegrationTest extends BaseIntegrationTest {
     @Test
     void getRoutesFiltered_ShouldReturnEmpty_WhenFiltersDoNotMatch() throws Exception {
         mockMvc.perform(get("/route/filter")
-                        .param("difficulty", "Medium"))
+                        .param("difficulty", "MEDIUM"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(0)));
     }
