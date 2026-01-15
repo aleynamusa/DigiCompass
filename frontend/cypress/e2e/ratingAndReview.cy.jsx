@@ -1,5 +1,4 @@
 describe("Rating and Review Flow", () => {
-    const backendUrl = "http://localhost:8080";
     const frontendUrl = "http://localhost:5173";
 
     beforeEach(() => {

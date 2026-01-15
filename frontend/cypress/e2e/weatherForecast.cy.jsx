@@ -1,5 +1,4 @@
 describe("Weather Forecast Page", () => {
-    const backendUrl = "http://localhost:8080";
 
     beforeEach(() => {
         cy.visit("/weather", {

@@ -49,7 +49,6 @@ describe("Route Creation", () => {
     it("should Create a new Route", () => {
         cy.intercept("POST", `${backendUrl}/map`).as("calculate");
 
-        // Fill in form fields
         cy.get('#name').type("New Route");
         cy.get('#description').type("This Route is perfect for nature lovers.");
 
@@ -59,25 +58,20 @@ describe("Route Creation", () => {
         cy.get('[data-cy="type-select"]').click();
         cy.contains('Hiking').click({ force: true });
 
-        // CRITICAL: Scroll to map section first (it's in a modal with overflow)
         cy.contains("Route Points").scrollIntoView();
 
-        // Wait a bit for scroll to complete
         cy.wait(500);
 
-        // Now wait for map to be present in DOM and scroll it into view
         cy.get('.leaflet-container', { timeout: 30000 })
             .should('exist')
             .scrollIntoView()
             .should('be.visible');
 
-        // Wait for tiles to load
         cy.get('.leaflet-tile-loaded', { timeout: 10000 })
             .should('have.length.at.least', 1);
 
         cy.wait(500);
 
-        // Click on the map using force (since it's in a modal)
         cy.get('.leaflet-container')
             .first()
             .click(100, 100, { force: true });
@@ -88,33 +82,27 @@ describe("Route Creation", () => {
             .first()
             .click(150, 150, { force: true });
 
-        // Verify points were added - scroll to see the count
         cy.contains('2 points').scrollIntoView().should('be.visible');
 
-        // Wait for the backend calculation request
         cy.wait("@calculate", { timeout: 10000 }).its('response').then((response) => {
             expect(response.statusCode).to.eq(200);
 
             const { distanceKm, durationHour } = response.body;
 
-            // Scroll to see the distance/duration info
             cy.contains(`${distanceKm.toFixed(2)} km`).scrollIntoView();
             cy.contains(durationHour).scrollIntoView();
         });
 
-        // Upload an image file
         cy.get('.mantine-Dropzone-root')
             .scrollIntoView()
             .should('be.visible')
             .attachFile("test-image.jpg", { subjectType: "drag-n-drop" });
 
-        // Save the route
         cy.contains("Save Route")
             .scrollIntoView()
             .should('be.visible')
             .click();
 
-        // Verify success
         cy.url({ timeout: 10000 }).should('not.include', '/create');
     });
 

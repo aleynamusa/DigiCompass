@@ -1,5 +1,4 @@
 describe("Home User Search", () => {
-    const backendUrl = "http://localhost:8080";
     const frontendUrl = "http://localhost:5173";
 
     beforeEach(() => {
@@ -11,22 +10,10 @@ describe("Home User Search", () => {
     });
 
     it("searches users and shows suggestions", () => {
-        cy.intercept("GET", `${backendUrl}/users/search*username=jo*`, {
-            statusCode: 200,
-            body: [
-                {
-                    id: 1,
-                    username: "john",
-                    imageUrl: "images/john.jpg"
-                }
-            ]
-        }).as("searchUsers");
 
-        cy.get("input[placeholder='Search...']").type("jo");
+        cy.get("input[placeholder='Search...']").type("ad");
 
-        cy.wait("@searchUsers");
-
-        cy.contains("john").should("exist");
+        cy.contains("admin").should("exist");
     });
 
     it("search users shows if there are no matches", () => {

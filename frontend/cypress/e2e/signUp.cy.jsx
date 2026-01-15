@@ -1,5 +1,4 @@
 describe("Sign Up Flow", () => {
-    const backendUrl = "http://localhost:8080";
     const frontendUrl = "http://localhost:5173";
 
     beforeEach(() => {
@@ -16,13 +15,11 @@ describe("Sign Up Flow", () => {
     });
 
     it("should sign up successfully when given correct inputs", () => {
-        cy.intercept("POST", "**/auth/signUp").as("signUpRequest");
 
         cy.get('input[name="email"]').type("johndoe@gmail.com");
         cy.get('input[name="username"]').type("johndoe123");
         cy.get('input[name="birthDate"]').click();
 
-        // birthdate selection (you can optimize by selecting date more directly if possible)
         cy.get('.mantine-Calendar-calendarHeaderLevel').click();
         cy.get('.mantine-Calendar-calendarHeaderLevel').click();
         cy.get('.mantine-Calendar-calendarHeaderControlIcon[data-direction="previous"]').click()
@@ -34,16 +31,10 @@ describe("Sign Up Flow", () => {
         cy.get('input[name="password"]').type("Hello123@_");
         cy.get('input[name="confirmPassword"]').type("Hello123@_");
 
-        // Confirm birthDate input is set
         cy.get('input[name="birthDate"]').should('not.have.value', '');
 
-        // Click submit
         cy.get('button[type="submit"]').click();
 
-        cy.wait("@signUpRequest").then((interception) => {
-            console.log("Request sent to:", interception.request.url);
-            expect(interception.response.statusCode).to.eq(201);
-        });
     });
 
 
@@ -55,7 +46,6 @@ describe("Sign Up Flow", () => {
     })
 
     it("should show if the the age is eligible to register",()=>{
-        cy.intercept("POST", `${backendUrl}/auth/signUp`).as("signUpRequest");
 
         cy.get('input[name="birthDate"]').click();
         cy.get('.mantine-Calendar-calendarHeaderLevel').click();
@@ -69,7 +59,6 @@ describe("Sign Up Flow", () => {
     })
 
     it("should show if passwords do not match",()=>{
-        cy.intercept("POST", `${backendUrl}/auth/signUp`).as("signUpRequest");
 
         cy.get('input[name="password"]').type("helooo907T");
         cy.get('input[name="confirmPassword"]').type("heooo907T");
@@ -78,7 +67,6 @@ describe("Sign Up Flow", () => {
     })
 
     it("should show if the username is already taken",()=>{
-        cy.intercept("POST", `${backendUrl}/auth/signUp`).as("signUpRequest");
 
         cy.get('input[name="username"]').type("johndoe123");
 

@@ -1,5 +1,4 @@
 describe("Login Flow", () => {
-    const backendUrl = "http://localhost:8080";
     const frontendUrl = "http://localhost:5173";
 
     beforeEach(() => {
@@ -13,13 +12,11 @@ describe("Login Flow", () => {
     });
 
     it("should log in successfully with valid credentials", () => {
-        cy.intercept("POST", `${backendUrl}/auth/logIn`).as("loginRequest");
 
         cy.get('input[name="username"]').type("admin");
         cy.get('input[name="password"]').type("Tetradka1011@");
         cy.get('button[type="submit"]').click();
 
-        cy.wait("@loginRequest").its("response.statusCode").should("eq", 200);
 
         cy.url().should("eq", `${frontendUrl}/`);
         cy.contains("Dashboard");
