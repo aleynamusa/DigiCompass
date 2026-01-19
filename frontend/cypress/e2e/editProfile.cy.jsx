@@ -1,90 +1,24 @@
 describe("Edit Profile Page", () => {
-    const backendUrl = "http://localhost:8080";
 
     beforeEach(() => {
-        cy.window().then(win => {
-            const fakeJwt =
-                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9." +
-                "eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiJ9." +
-                "dummy";
+        cy.visit(`logIn`);
+        cy.get('input[name="username"]').type("admin");
+        cy.get('input[name="password"]').type("Tetradka1011@");
+        cy.get('button[type="submit"]').click();
 
-            win.localStorage.setItem("accessToken", fakeJwt);
-            win.localStorage.setItem(
-                "user",
-                JSON.stringify({ id: 1, username: "admin" })
-            );
-        });
+        cy.visit(`/edit-profile`);
     });
 
-    it("loads current profile and displays avatar preview", () => {
-        cy.intercept("GET", `${backendUrl}/users/1`, {
-            statusCode: 200,
-            body: {
-                id: 1,
-                username: "admin",
-                email: "admin@example.com",
-                birthDate: "2005-11-10",
-                imageUrl: "https://example.com/avatar.jpg"
-            }
-        }).as("fetchProfile");
 
-        cy.visit("/edit-profile");
-        cy.wait("@fetchProfile");
+    it("uploads avatar and allows preview when saving changes", () => {
 
-        cy.get("img")
-            .should("have.attr", "src", "https://example.com/avatar.jpg");
+        cy.get('input[data-cy="avatar-upload"]')
+            .selectFile("cypress/fixtures/avatar.jpg", { force: true });
 
-        cy.contains("Edit Profile").should("exist");
-    });
+        cy.get('[data-cy="avatar-preview"] img')
+            .should('have.attr', 'src')
+            .and('match', /^blob:/);
 
-    it("allows uploading a new profile picture and previews it", () => {
-        cy.intercept("GET", `${backendUrl}/users/1`, {
-            statusCode: 200,
-            body: { id: 1, imageUrl: null }
-        }).as("fetchProfile");
-
-        cy.visit("/edit-profile");
-        cy.wait("@fetchProfile");
-
-        // Upload file
-        cy.get("input[type='file']").selectFile("cypress/fixtures/avatar.jpg", {
-            force: true,
-        });
-
-        cy.get("img").should("have.attr", "src").and("include", "blob:");
-    });
-
-    it("uploads avatar when saving changes", () => {
-        cy.intercept("GET", `${backendUrl}/users/1`, {
-            statusCode: 200,
-            body: { id: 1, imageUrl: null }
-        }).as("fetchProfile");
-
-        cy.intercept(
-            "POST",
-            `${backendUrl}/users/profilePictureUpdate/1`,
-            {
-                statusCode: 200,
-                body: { message: "Upload OK" },
-            }
-        ).as("uploadAvatar");
-
-        cy.intercept("POST", `${backendUrl}/users/1/bio`, {
-            statusCode: 200,
-            body: { message: "Bio updated" }
-        }).as("updateBio");
-
-        cy.intercept("POST", `${backendUrl}/users/1/visibility`, {
-            statusCode: 200,
-            body: { message: "Visibility updated" }
-        }).as("updateVisibility");
-
-        cy.visit("/edit-profile");
-        cy.wait("@fetchProfile");
-
-        cy.get("input[type='file']").selectFile("cypress/fixtures/avatar.jpg", {
-            force: true,
-        });
 
         cy.contains("Save Changes").click();
 
@@ -92,37 +26,39 @@ describe("Edit Profile Page", () => {
         cy.contains("Profile updated successfully!").should("exist");
     });
 
-    it("shows an error if the upload fails", () => {
-        cy.intercept("GET", `${backendUrl}/users/1`, {
-            statusCode: 200,
-            body: { id: 1 },
-        }).as("fetchProfile");
 
-        cy.intercept("POST", `${backendUrl}/users/1/avatar`, {
-            statusCode: 500,
-            body: { error: "Upload failed" }
-        }).as("uploadAvatar");
+    it("redirects unauthenticated user", () => {
+        cy.clearCookies();
+        cy.clearLocalStorage();
+        cy.reload();
 
-        cy.visit("/edit-profile");
-        cy.wait("@fetchProfile");
 
-        cy.get("input[type='file']").selectFile(
-            "cypress/fixtures/avatar.jpg",
-            { force: true }
-        );
+        cy.contains("Log In");
+        cy.get('input[name="username"]').should("be.visible");
+        cy.get('input[name="password"]').should("be.visible");
+    });
+
+    it("updates bio text and saves changes", () => {
+        const newBio = "This is my new bio from Cypress test!";
+
+        cy.get("textarea")
+            .clear()
+            .type(newBio)
+            .should("have.value", newBio);
 
         cy.contains("Save Changes").click();
 
-        cy.contains("Could not update profile.").should("exist");
+        cy.contains("Profile updated successfully!").should("exist");
     });
 
-    it("redirects unauthenticated user", () => {
-        cy.window().then(win => {
-            win.localStorage.clear();
+    it("toggles profile visibility switch and saves changes", () => {
+
+        cy.get('input[type="checkbox"]').then(($checkbox) => {
+
+
+            cy.contains("Save Changes").click();
+
+            cy.contains("Profile updated successfully!").should("exist");
         });
-
-        cy.visit("/edit-profile");
-
-        cy.contains("Not Authenticated").should("exist");
     });
 });

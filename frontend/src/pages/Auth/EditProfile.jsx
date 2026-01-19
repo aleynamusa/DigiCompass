@@ -15,19 +15,13 @@ import { AlertCircle, ArrowLeft } from "lucide-react";
 import {getUserProfile, updateProfilePicture} from "@/api/userApi.jsx";
 import { Textarea, Switch } from "@mantine/core";
 import { updateBio, updateProfileVisibility } from "@/api/userApi.jsx";
+
 const EditProfile = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
 
-    const [formData, setFormData] = useState({
-        username: "",
-        email: "",
-        birthDate: null,
-    });
-
     const [avatarPreview, setAvatarPreview] = useState(null);
     const [avatarFile, setAvatarFile] = useState(null);
-    const [profileData, setProfileData] = useState(null);
     const [bio, setBio] = useState("");
     const [isPublic, setIsPublic] = useState(true);
 
@@ -35,7 +29,6 @@ const EditProfile = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
-
 
 
     useEffect(() => {
@@ -92,14 +85,6 @@ const EditProfile = () => {
         }
     };
 
-    if (!user) {
-        return (
-            <Alert icon={<AlertCircle />} color="red" title="Not Authenticated">
-                Please log in to edit your profile.
-            </Alert>
-        );
-    }
-
     return (
         <div className="min-h-screen p-6 w-[calc(95vw-var(--sidebar-width))] text-left">
             <Stack gap="lg">
@@ -131,15 +116,19 @@ const EditProfile = () => {
 
                 <Group>
                     <Avatar
+                        data-cy="avatar-preview"
                         size={120}
                         radius="xl"
                         src={avatarPreview}
                         alt="Profile picture"
                     />
 
+
                     <Stack>
+
                         <FileButton
-                            accept="image/png,image/jpeg"
+                            accept="image/png,image/jpeg,image/jpg"
+                            inputProps={{ 'data-cy': 'avatar-upload' }}
                             onChange={(file) => {
                                 setAvatarFile(file);
                                 setAvatarPreview(URL.createObjectURL(file));
@@ -147,6 +136,9 @@ const EditProfile = () => {
                         >
                             {(props) => <Button {...props}>Upload Photo</Button>}
                         </FileButton>
+
+
+
 
                         {avatarPreview && (
                             <Button

@@ -35,6 +35,10 @@ describe("Sign Up Flow", () => {
 
         cy.get('button[type="submit"]').click();
 
+        cy.contains("Log In");
+        cy.get('input[name="username"]').should("be.visible");
+        cy.get('input[name="password"]').should("be.visible");
+
     });
 
 

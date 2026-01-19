@@ -50,6 +50,7 @@ const RouteForm = ({ formData, onChange, errors, disabled }) => {
                     </label>
 
                     <Select
+                        wrapperProps={{ 'data-cy': 'difficulty-select' }}
                         data={['Easy', 'Medium', 'Hard']}
                         placeholder="Select difficulty"
                         value={formData.difficulty}
@@ -71,6 +72,7 @@ const RouteForm = ({ formData, onChange, errors, disabled }) => {
                         Route Type <span className="text-red-500">*</span>
                     </label>
                     <Select
+                        wrapperProps={{ 'data-cy': 'type-select' }}
                         id="routeType"
                         data={['Hiking', 'Cycling', 'Running', 'Walking']}
                         placeholder="Select route type"
@@ -85,6 +87,10 @@ const RouteForm = ({ formData, onChange, errors, disabled }) => {
                                 zIndex: 9999,
                             },
                         }}
+
+
+
+
                     />
                 </div>
             </div>

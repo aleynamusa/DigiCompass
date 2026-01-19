@@ -1,20 +1,6 @@
 describe("Weather Forecast Page", () => {
 
     beforeEach(() => {
-        cy.visit("/weather", {
-            onBeforeLoad(win) {
-                cy.stub(win.navigator.geolocation, "getCurrentPosition")
-                    .callsFake((cb) => {
-                        cb({
-                            coords: {
-                                latitude: 51.441642,
-                                longitude: 5.46972,
-                            },
-                        });
-                    });
-            },
-        });
-
         // City
         cy.intercept("GET", "**/map/coords*", {
             statusCode: 200,
@@ -57,6 +43,7 @@ describe("Weather Forecast Page", () => {
                 precipitation: [0, 5],
             },
         }).as("getDaily");
+        cy.visit("/weather");
     });
 
 
@@ -70,13 +57,13 @@ describe("Weather Forecast Page", () => {
             }
         ).as("getCity");
 
-        cy.visit("/weather");
 
         cy.wait("@getCity");
         cy.contains("Eindhoven").should("exist");
     });
 
     it("renders current city and weather info", () => {
+
         cy.wait("@getCity");
         cy.wait("@getCurrentWeather");
 

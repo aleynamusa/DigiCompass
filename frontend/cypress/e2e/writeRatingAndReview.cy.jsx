@@ -2,7 +2,6 @@ describe("Rating and Review Flow", () => {
     const frontendUrl = "http://localhost:5173";
 
     beforeEach(() => {
-        // use a taller viewport so end-of-page elements are reachable
         cy.viewport(1280, 2000);
 
         cy.visit(`${frontendUrl}/logIn`);
