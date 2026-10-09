@@ -5,11 +5,9 @@ export default defineConfig({
         baseUrl: 'http://localhost:5173',
         supportFile: 'cypress/support/e2e.{js,jsx,ts,tsx}',
 
-        // Video and screenshots
         video: true,
         screenshotOnRunFailure: true,
 
-        // Timeouts - increase these for stability
         defaultCommandTimeout: 10000,
         requestTimeout: 10000,
         responseTimeout: 10000,

@@ -107,6 +107,15 @@ public class WeatherServiceImpl implements WeatherService {
         List<RecommendedDay> results = new ArrayList<>();
 
         for (int i = 0; i < daily.getTime().size(); i++) {
+            // Open-Meteo returns null for these fields beyond its reliable forecast horizon
+            // (e.g. the last day of a 16-day request) - skip days with incomplete data.
+            if (daily.getWeatherCode().get(i) == null
+                    || daily.getMaxTemperature().get(i) == null
+                    || daily.getMinTemperature().get(i) == null
+                    || daily.getPrecipitation().get(i) == null) {
+                continue;
+            }
+
             results.add(
                     scoringService.scoreDay(
                             daily.getTime().get(i),

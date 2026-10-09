@@ -7,7 +7,11 @@ import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.S3ClientBuilder;
+import software.amazon.awssdk.services.s3.S3Configuration;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+
+import java.net.URI;
 
 @Configuration
 public class S3Config {
@@ -20,21 +24,43 @@ public class S3Config {
     @Value("${aws.region}")
     private String region;
 
+    // Internal endpoint used by the backend to talk to the object store (e.g. http://minio:9000 inside docker-compose).
+    // Left blank to use real AWS S3.
+    @Value("${aws.s3.endpoint:}")
+    private String endpoint;
+
+    // Endpoint baked into presigned URLs, which are followed by the browser, so it must be reachable from outside
+    // the docker network (e.g. http://localhost:9000). Falls back to aws.s3.endpoint if not set separately.
+    @Value("${aws.s3.public-endpoint:${aws.s3.endpoint:}}")
+    private String publicEndpoint;
+
     @Bean
     public S3Client s3Client() {
-        return S3Client.builder()
+        S3ClientBuilder builder = S3Client.builder()
                 .region(Region.of(region))
                 .credentialsProvider(StaticCredentialsProvider.create(
-                        AwsBasicCredentials.create(accessKey, secretKey)))
-                .build();
+                        AwsBasicCredentials.create(accessKey, secretKey)));
+
+        if (!endpoint.isBlank()) {
+            builder.endpointOverride(URI.create(endpoint))
+                    .serviceConfiguration(S3Configuration.builder().pathStyleAccessEnabled(true).build());
+        }
+
+        return builder.build();
     }
 
     @Bean
     public S3Presigner s3Presigner() {
-        return S3Presigner.builder()
+        S3Presigner.Builder builder = S3Presigner.builder()
                 .region(Region.of(region))
                 .credentialsProvider(StaticCredentialsProvider.create(
-                        AwsBasicCredentials.create(accessKey, secretKey)))
-                .build();
+                        AwsBasicCredentials.create(accessKey, secretKey)));
+
+        if (!publicEndpoint.isBlank()) {
+            builder.endpointOverride(URI.create(publicEndpoint))
+                    .serviceConfiguration(S3Configuration.builder().pathStyleAccessEnabled(true).build());
+        }
+
+        return builder.build();
     }
 }

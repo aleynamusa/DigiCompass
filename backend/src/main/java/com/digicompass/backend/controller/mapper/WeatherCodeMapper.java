@@ -7,7 +7,8 @@ import java.util.List;
 @Component
 public class WeatherCodeMapper {
 
-    public String toCondition(int code) {
+    public String toCondition(Integer code) {
+        if (code == null) return "Unknown";
         return switch (code) {
             case 0 -> "Clear";
             case 1, 2 -> "Mostly Clear";

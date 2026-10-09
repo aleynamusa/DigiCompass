@@ -17,71 +17,71 @@ backend:build:
     - docker build -t backend-app -f backend/Dockerfile backend
 
 
-#unit-tests:
-#  stage: test
-#  image: gradle:8.3-jdk24
-#  tags:
-#    - backend
-#  script:
-#    - echo "Running tests with Mockito..."
-#    - cd backend
-#    - ./gradlew test --no-daemon
-#  artifacts:
-#    when: always
-#    reports:
-#      junit: backend/build/test-results/test/TEST-*.xml
-#    paths:
-#      - backend/build/reports/tests/test
-#
-#integration-tests:
-#  stage: test
-#  image: gradle:8.3-jdk24
-#  tags:
-#    - backend
-#  script:
-#    - echo "Running Integration tests..."
-#    - cd backend
-#    - ./gradlew integrationTest --no-daemon
-#  artifacts:
-#    when: always
-#    reports:
-#      junit: backend/build/test-results/integrationTest/TEST-*.xml
-#    paths:
-#      - backend/build/reports/tests/integrationTest
-#
-#repo-tests:
-#  stage: test
-#  image: gradle:8.3-jdk24
-#  tags:
-#    - backend
-#  script:
-#    - echo "Running Repository tests..."
-#    - cd backend
-#    - ./gradlew repoTest --no-daemon
-#  artifacts:
-#    when: always
-#    reports:
-#      junit: backend/build/test-results/repoTest/TEST-*.xml
-#    paths:
-#      - backend/build/reports/tests/repoTest
+unit-tests:
+  stage: test
+  image: gradle:8.3-jdk24
+  tags:
+    - backend
+  script:
+    - echo "Running tests with Mockito..."
+    - cd backend
+    - ./gradlew test --no-daemon
+  artifacts:
+    when: always
+    reports:
+      junit: backend/build/test-results/test/TEST-*.xml
+    paths:
+      - backend/build/reports/tests/test
 
-#sonarcloud-analysis:
-#  stage: sonar
-#  variables:
-#    SONAR_USER_HOME: "C:/sonar_cache"
-#    GIT_DEPTH: "0"
-#  tags:
-#    - backend
-#  script:
-#    - echo "Running SonarCloud analysis..."
-#    - 'echo "Token length: $($SONAR_TOKEN.Length)"'
-#    - cd backend
-#    - ./gradlew test integrationTest jacocoTestReport --no-daemon
-#    - ./gradlew sonar "-Dsonar.token=$env:SONAR_TOKEN" --no-daemon
-#  only:
-#    - main
-#    - development
-#  allow_failure: true
+integration-tests:
+  stage: test
+  image: gradle:8.3-jdk24
+  tags:
+    - backend
+  script:
+    - echo "Running Integration tests..."
+    - cd backend
+    - ./gradlew integrationTest --no-daemon
+  artifacts:
+    when: always
+    reports:
+      junit: backend/build/test-results/integrationTest/TEST-*.xml
+    paths:
+      - backend/build/reports/tests/integrationTest
+
+repo-tests:
+  stage: test
+  image: gradle:8.3-jdk24
+  tags:
+    - backend
+  script:
+    - echo "Running Repository tests..."
+    - cd backend
+    - ./gradlew repoTest --no-daemon
+  artifacts:
+    when: always
+    reports:
+      junit: backend/build/test-results/repoTest/TEST-*.xml
+    paths:
+      - backend/build/reports/tests/repoTest
+
+sonarcloud-analysis:
+  stage: sonar
+  variables:
+    SONAR_USER_HOME: "C:/sonar_cache"
+    GIT_DEPTH: "0"
+  tags:
+    - backend
+  script:
+    - echo "Running SonarCloud analysis..."
+    - 'echo "Token length: $($SONAR_TOKEN.Length)"'
+    - cd backend
+    - ./gradlew test integrationTest jacocoTestReport --no-daemon
+    - ./gradlew sonar "-Dsonar.token=$env:SONAR_TOKEN" --no-daemon
+  only:
+    - main
+    - development
+  allow_failure: true
 
 
 docker-backend:build-and-push:
@@ -101,24 +101,5 @@ docker-backend:build-and-push:
     - echo "Pushing backend image to Docker Hub..."
     - docker push $DOCKERHUB_USERNAME/digicompass-backend:latest
     - docker push $DOCKERHUB_USERNAME/digicompass-backend:$CI_COMMIT_SHORT_SHA
-  only:
-    - main
-
-deploy-backend:
-  stage: deploy
-  image: alpine:latest
-  tags:
-    - backend
-  before_script:
-    - apk add --no-cache openssh-client
-  script:
-    - echo "$EC2_SSH_PRIVATE_KEY" > deploy_key.pem
-    - chmod 600 deploy_key.pem
-    - ssh -o StrictHostKeyChecking=no -i deploy_key.pem ec2-user@<your-ec2-ip> "
-      docker pull $DOCKERHUB_USERNAME/digicompass-backend:latest &&
-      docker stop backend || true &&
-      docker rm backend || true &&
-      docker run -d -p 8080:8080 --name backend $DOCKERHUB_USERNAME/digicompass-backend:latest
-      "
   only:
     - main

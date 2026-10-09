@@ -22,9 +22,20 @@ services:
       GRAPHHOPPER_BASE_URL: https://graphhopper.com/api/1/route
       GRAPHHOPPER_API_KEY: ${GRAPHHOPPER_API_KEY}
 
+      AWS_S3_ACCESS_KEY: ${MINIO_ROOT_USER}
+      AWS_S3_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
+      AWS_REGION: us-east-1
+      BUCKET_NAME: digicompassip
+      AWS_S3_ENDPOINT: http://minio:9000
+      AWS_S3_PUBLIC_ENDPOINT: http://localhost:9000
+
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_started
+      redis:
+        condition: service_started
+      createbuckets:
+        condition: service_completed_successfully
     networks:
       - app-network
 
@@ -54,6 +65,42 @@ services:
     networks:
       - app-network
 
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    restart: always
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio-data:/data
+    networks:
+      - app-network
+    healthcheck:
+      test: [ "CMD", "mc", "ready", "local" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  createbuckets:
+    image: minio/mc:latest
+    depends_on:
+      minio:
+        condition: service_healthy
+    networks:
+      - app-network
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 $${MINIO_ROOT_USER} $${MINIO_ROOT_PASSWORD} &&
+      mc mb --ignore-existing local/digicompassip
+      "
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+
   frontend:
     build:
       context: ./frontend
@@ -71,3 +118,4 @@ networks:
 
 volumes:
   postgres-data:
+  minio-data:
