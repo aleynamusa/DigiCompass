@@ -58,7 +58,7 @@ Search, filter and save routes.
 
 Click on the map to add route points. Distance and estimated time update automatically.
 
-![Create route](Documents/screenshots/create-route.png)
+![Create route](Documents/screenshoots/create-route.png)
 
 ## Tech stack
 
