@@ -68,7 +68,6 @@ Click on the map to add route points. Distance and estimated time update automat
 | Frontend | Web app served on port 5173 (`frontend/`) |
 | Database | PostgreSQL 17 with PostGIS 3.5 |
 | Cache | Redis 7 |
-| Object storage | MinIO (S3-compatible) |
 | Maps | Leaflet (interactive map), OpenStreetMap tiles |
 | External API | GraphHopper Routing API |
 | Auth | JWT, Argon2 password hashing |
@@ -82,7 +81,7 @@ Click on the map to add route points. Distance and estimated time update automat
 │ Frontend │ ──▶ │   Backend    │ ──▶ │ PostgreSQL/PostGIS│
 │  :5173   │     │  Spring Boot │     └──────────────────┘
 └──────────┘     │    :8080     │ ──▶ Redis        :6379
-                 │              │ ──▶ MinIO (S3)   :9000
+                 │              │ 
                  │              │ ──▶ GraphHopper API (external)
                  └──────────────┘
 ```
@@ -140,7 +139,6 @@ DigiCompass/
    |---|---|
    | Frontend | http://localhost:5173 |
    | Backend API | http://localhost:8080 |
-   | MinIO console | http://localhost:9001 |
 
 To stop everything: `docker compose down` (add `-v` to also delete the database and storage volumes).
 
@@ -158,8 +156,6 @@ The application is configured through environment variables, read from `.env` by
 | `SPRING_DATASOURCE_PASSWORD_TEST` | Test database password |
 | `JWT_SECRET` | Secret used to sign JWTs. Use a long random value, e.g. `openssl rand -base64 32` |
 | `GRAPHHOPPER_API_KEY` | Your GraphHopper API key |
-| `MINIO_ROOT_USER` | MinIO admin user |
-| `MINIO_ROOT_PASSWORD` | MinIO admin password |
 | `DOCKERHUB_USERNAME` | Docker Hub account used when publishing images |
 
 Example `.env.example` (placeholders only):
@@ -174,8 +170,6 @@ SPRING_DATASOURCE_URL_TEST=jdbc:postgresql://db_test:5432/digicompass_test
 SPRING_DATASOURCE_USERNAME_TEST=postgres
 SPRING_DATASOURCE_PASSWORD_TEST=change-me
 GRAPHHOPPER_API_KEY=your-graphhopper-key
-MINIO_ROOT_USER=change-me
-MINIO_ROOT_PASSWORD=change-me-to-a-strong-password
 ```
 
 ## Running the tests
@@ -210,7 +204,7 @@ Work is tracked on the [Jira board](https://musaaleyna1-1745492611172.atlassian.
 ## Security notes
 
 - Keep `.env` out of version control. Only `.env.example` should be committed.
-- Use unique, strong credentials for the database and MinIO. Do not use default values outside local experiments.
+- Use unique, strong credentials for the database. Do not use default values outside local experiments.
 - The Compose file is intended for local development. Before deploying, do not publish the database, Redis or MinIO ports to the host, remove the Java debug port (5005), pin image versions, and serve everything over HTTPS.
 - To report a vulnerability, open a private security advisory on the repository's **Security** tab.
 
