@@ -46,13 +46,13 @@ It is a full-stack project with a Spring Boot backend, a web frontend, and a con
 
 User profile and shared routes.
 
-![Dashboard](Documents/screenshots/dashboard.png)
+![Dashboard](Documents/screenshoots/dashboard.png)
 
 ### Route discovery
 
 Search, filter and save routes.
 
-![Route discovery](Documents/screenshots/route-discovery.png)
+![Route discovery](Documents/screenshoots/route-discovery.png)
 
 ### Create a route
 
