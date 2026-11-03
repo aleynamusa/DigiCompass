@@ -1,12 +1,13 @@
 # DigiCompass
 
-Digi Compass is designed for people who want to plan their outles by allowing them to check the weather, see the conditio and if they want share with other people.
+DigiCompass is a web application for discovering, creating and planning outdoor routes such as hikes, walks and runs. Users can browse routes shared by the community, check the weather for a route, save favourites, and build their own routes by clicking points on a map.
 
-DigiCompass is a full-stack web application with a Spring Boot backend, a web frontend, and a containerised infrastructure (PostgreSQL/PostGIS, Redis). Route calculation is provided by the GraphHopper API.
+It is a full-stack project with a Spring Boot backend, a web frontend, and a containerised infrastructure (PostgreSQL/PostGIS, Redis, MinIO). Route calculation is provided by the GraphHopper API.
 
 ## Table of contents
 
 - [Features](#features)
+- [Screenshots](#screenshots)
 - [Tech stack](#tech-stack)
 - [Architecture](#architecture)
 - [Project structure](#project-structure)
@@ -28,6 +29,36 @@ DigiCompass is a full-stack web application with a Spring Boot backend, a web fr
 - Automated database migrations with Flyway
 - Automated tests (backend tests and Cypress end-to-end tests)
 
+**For users**
+
+- **Route discovery:** search routes and filter by type, difficulty level and distance, with tabs for All, Popular, Nearby and Saved routes
+- **Route details:** each route shows its difficulty, distance, estimated duration, rating, description and photos
+- **Create routes:** click points on an interactive map and the route, distance and estimated time are calculated automatically
+- **Photo upload:** attach images to a route (max 5 MB per file)
+- **Favourites:** save routes with the heart button
+- **Weather check:** look up the weather for a route
+- **Trip planning:** add routes to a trip
+- **Profile and community:** user profile with bio, plus routes shared with the community
+
+## Screenshots
+
+### Dashboard
+
+User profile and shared routes.
+
+![Dashboard](Documents/screenshots/dashboard.png)
+
+### Route discovery
+
+Search, filter and save routes.
+
+![Route discovery](Documents/screenshots/route-discovery.png)
+
+### Create a route
+
+Click on the map to add route points. Distance and estimated time update automatically.
+
+![Create route](Documents/screenshots/create-route.png)
 
 ## Tech stack
 
@@ -38,12 +69,11 @@ DigiCompass is a full-stack web application with a Spring Boot backend, a web fr
 | Database | PostgreSQL 17 with PostGIS 3.5 |
 | Cache | Redis 7 |
 | Object storage | MinIO (S3-compatible) |
+| Maps | Leaflet (interactive map), OpenStreetMap tiles |
 | External API | GraphHopper Routing API |
 | Auth | JWT, Argon2 password hashing |
 | Testing | Cypress (end-to-end), backend tests |
 | Containers | Docker and Docker Compose |
-
-> **TODO:** Add the frontend framework and Java version once confirmed.
 
 ## Architecture
 
@@ -66,6 +96,7 @@ DigiCompass/
 ├── backend/               # Spring Boot API
 ├── frontend/              # Web frontend
 ├── Documents/             # Project plan, prototype, user stories, C4 diagrams
+│   └── screenshots/       # Images used in this README
 ├── docker-compose.yml     # Local development stack
 ├── docker-compose-test.yml# Test stack
 ├── cypress.config.js      # Cypress configuration
@@ -155,8 +186,6 @@ MINIO_ROOT_PASSWORD=change-me-to-a-strong-password
 docker compose -f docker-compose-test.yml up --build
 ```
 
-> **TODO:** Confirm the exact command (for example `cd backend && ./mvnw test`).
-
 **End-to-end tests (Cypress)**
 
 ```bash
@@ -173,7 +202,6 @@ Project documentation is kept in the [`Documents`](Documents) folder:
 - Low-fidelity prototype
 - User stories
 - C4 diagram (context, container and component levels)
-
 
 ## Project management
 
